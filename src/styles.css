@@ -1,0 +1,294 @@
+@import "https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css";
+
+* {
+  box-sizing: border-box;
+}
+
+input {
+  all: unset;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+body {
+  background-color: #eceff7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+button {
+  background-color: white;
+  color: black;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+form {
+  width: 100%;
+}
+
+/* Nav */
+nav {
+  margin-bottom: 30px;
+}
+nav > ul > li {
+  margin: 0 15px;
+}
+
+.item-input::-webkit-input-placeholder {
+  color: white;
+  opacity: 0.9;
+}
+
+.item-input::-moz-placeholder {
+  color: white;
+  opacity: 0.9;
+}
+
+.item-input:-ms-input-placeholder {
+  color: white;
+  opacity: 0.9;
+}
+
+.item-input::-ms-input-placeholder {
+  color: white;
+  opacity: 0.9;
+}
+
+.item-input::placeholder {
+  color: white;
+  opacity: 0.9;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+}
+.container h2 {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: 1px solid black;
+  text-align: center;
+  background-color: white;
+  color: black;
+}
+
+.formBtn {
+  cursor: pointer;
+  width: 100%;
+  padding: 7px 20px;
+  text-align: center;
+  color: white;
+  border-radius: 20px;
+  background-color: #845ec2;
+  cursor: pointer;
+}
+
+.writeBtn {
+  background-color: tomato;
+}
+
+.cancelBtn {
+  background-color: #999;
+}
+
+/* Auth */
+.authContainer {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.authBtns {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 320px;
+}
+
+.authBtn {
+  cursor: pointer;
+  border-radius: 20px;
+  border: none;
+  padding: 10px 0px;
+  font-size: 12px;
+  text-align: center;
+  width: 150px;
+  background: white;
+  cursor: pointer;
+}
+
+/* AuthForm */
+
+.authInput {
+  max-width: 320px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 30px;
+  background-color: rgba(255, 255, 255, 1);
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: black;
+}
+
+.authSubmit {
+  text-align: center;
+  background: #04aaff;
+  color: white;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.authError {
+  color: tomato;
+  text-align: center;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.authSwitch {
+  color: #04aaff;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-bottom: 50px;
+  display: block;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+footer {
+  margin-top: 20px;
+  text-align: center;
+  color: #999;
+}
+
+/* Item Factory */
+
+.factoryForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.factoryInput__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  position: relative;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.factoryInput__title {
+  display: flex;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.factoryInput__title > input:nth-child(1) {
+  flex-grow: 2;
+  border-right: 1px solid #aaa;
+}
+
+.factoryInput__title > input:nth-child(2) {
+  flex-grow: 1;
+  text-indent: 10px;
+}
+
+.ck-content,
+.factoryInput__textarea {
+  flex-grow: 1;
+  height: 600px;
+  padding: 20px;
+  color: #333;
+  border: 1px solid white;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.factoryInput__arrow {
+  cursor: pointer;
+  position: absolute;
+  bottom: -60px;
+  right: 0;
+  height: 40px;
+  width: 100px;
+  padding: 10px 0px;
+  text-align: center;
+  border-radius: 20px;
+  color: white;
+  background-image: linear-gradient(to bottom, #00d2ff 0%, #845ec2 100%);
+  background-size: 200% auto;
+}
+
+.factoryInput__label {
+  color: #04aaff;
+  cursor: pointer;
+  width: 120px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  background-color: white;
+}
+
+.factoryInput__label span {
+  margin-right: 10px;
+  font-size: 12px;
+}
+
+.factoryForm__attachment {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.factoryForm__attachment img {
+  height: 200px;
+  width: 200px;
+  border-radius: 4px;
+}
+
+.factoryForm__clear {
+  color: tomato;
+  cursor: pointer;
+  width: 120px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  margin: 15px auto;
+  background-color: white;
+}
+
+.factoryForm__clear span {
+  margin-right: 10px;
+  font-size: 11px;
+  font-weight: bold;
+}
