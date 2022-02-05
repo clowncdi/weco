@@ -3,16 +3,37 @@ import Auth from "routes/Auth";
 import Home from "routes/Home";
 import Write from "routes/Write";
 import Navigation from "./Navigation";
+import Weco from "routes/Weco";
 
 function AppRouter({ refreshUser, isLoggedIn, userObj }) {
   return (
     <Router>
-      <Navigation userObj={userObj} isLoggedIn={isLoggedIn} />
+      {isLoggedIn ? (
+        <Navigation userObj={userObj} isLoggedIn={isLoggedIn} />
+      ) : (
+        <Navigation isLoggedIn={isLoggedIn} />
+      )}
       <Routes>
-        <Route path="/" element={<Home userObj={userObj} />}></Route>
-        <Route path="/login" element={<Auth />}></Route>
+        {isLoggedIn ? (
+          <>
+            <Route path="/" element={<Home userObj={userObj} />}></Route>
+            <Route path="/town" element={<Weco userObj={userObj} />}></Route>
+          </>
+        ) : (
+          <>
+            <Route path="/" element={<Home />}></Route>
+            <Route path="/town" element={<Weco userObj={userObj} />}></Route>
+          </>
+        )}
+        <Route path="/login" element={<Auth isLoggedIn={isLoggedIn} />}></Route>
         {isLoggedIn && (
-          <Route path="/write" element={<Write userObj={userObj} />}></Route>
+          <>
+            <Route path="/write" element={<Write userObj={userObj} />}></Route>
+            <Route
+              path="/write/:id"
+              element={<Write userObj={userObj} />}
+            ></Route>
+          </>
         )}
       </Routes>
     </Router>

@@ -1,4 +1,5 @@
 @import "https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css";
+@import url("https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Dongle:wght@400;700&display=swap");
 
 * {
   box-sizing: border-box;
@@ -34,42 +35,51 @@ form {
   width: 100%;
 }
 
+.wrapContainer {
+  height: 92vh;
+  padding-top: 100px;
+}
+
+/* Logo */
+.brand img {
+  margin-right: 16px;
+  width: 80px;
+}
+
+.brand {
+  font-size: 32px;
+  font-family: "Dongle", "Berkshire Swash", cursive;
+  color: #cfcfcf;
+}
+
 /* Nav */
 nav {
-  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1.4rem;
+  position: fixed;
+  z-index: 10;
+  background-color: #191f2c;
+  border-bottom: 1px solid #303540;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+nav > ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
 }
 nav > ul > li {
   margin: 0 15px;
 }
 
-.item-input::-webkit-input-placeholder {
-  color: white;
-  opacity: 0.9;
-}
-
-.item-input::-moz-placeholder {
-  color: white;
-  opacity: 0.9;
-}
-
-.item-input:-ms-input-placeholder {
-  color: white;
-  opacity: 0.9;
-}
-
-.item-input::-ms-input-placeholder {
-  color: white;
-  opacity: 0.9;
-}
-
-.item-input::placeholder {
-  color: white;
-  opacity: 0.9;
-}
-
 .container {
   width: 100%;
   max-width: 800px;
+  color: #333;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -78,6 +88,12 @@ nav > ul > li {
 .container h2 {
   font-size: 1.4rem;
   margin-bottom: 20px;
+  color: #cfcfcf;
+}
+
+.homeContainer {
+  padding: 1%;
+  padding-top: 76px;
 }
 
 .formInput {
@@ -94,26 +110,35 @@ nav > ul > li {
   cursor: pointer;
   width: 100%;
   padding: 7px 20px;
+  font-size: 0.8rem;
   text-align: center;
-  color: white;
+  color: #fff;
+  font-weight: 700;
   border-radius: 20px;
-  background-color: #845ec2;
+  background-color: #35405e;
   cursor: pointer;
+}
+
+.homeBtn {
+  background-color: #fff;
+  color: #35405e;
 }
 
 .writeBtn {
   background-color: tomato;
+  color: #fff;
 }
 
 .cancelBtn {
-  background-color: #999;
+  background-color: #35405e;
+  color: #fff;
 }
 
 /* Auth */
 .authContainer {
   display: flex;
   flex-direction: column;
-  height: 90vh;
+  padding-top: 150px;
   justify-content: center;
   align-items: center;
 }
@@ -152,8 +177,8 @@ nav > ul > li {
 
 .authSubmit {
   text-align: center;
-  background: #04aaff;
-  color: white;
+  background: #ffcc00;
+  color: #333;
   margin-top: 10px;
   cursor: pointer;
 }
@@ -166,7 +191,7 @@ nav > ul > li {
 }
 
 .authSwitch {
-  color: #04aaff;
+  color: #fff;
   cursor: pointer;
   margin-top: 10px;
   margin-bottom: 50px;
@@ -175,10 +200,13 @@ nav > ul > li {
   text-decoration: underline;
 }
 
-footer {
-  margin-top: 20px;
+.appFooter {
+  padding: 30px 0;
   text-align: center;
   color: #999;
+}
+.appFooter address {
+  margin: 10px auto;
 }
 
 /* Item Factory */
@@ -204,18 +232,26 @@ footer {
   display: flex;
   padding: 20px;
   background-color: #fff;
-  border-radius: 20px;
+  border-radius: 5px;
   margin-bottom: 10px;
 }
 
-.factoryInput__title > input:nth-child(1) {
-  flex-grow: 2;
-  border-right: 1px solid #aaa;
+.factoryInput__title > input {
+  width: 12%;
+  padding: 0 1%;
+  justify-content: center;
+  border-right: 1px solid #ddd;
 }
 
+.factoryInput__title > input:nth-child(1) {
+  width: 56%;
+}
 .factoryInput__title > input:nth-child(2) {
-  flex-grow: 1;
-  text-indent: 10px;
+  width: 20%;
+}
+
+.factoryInput__title > input:nth-child(4) {
+  border: none;
 }
 
 .ck-content,
@@ -228,6 +264,11 @@ footer {
   border-radius: 20px;
   font-weight: 500;
   font-size: 12px;
+  line-height: 1.6rem;
+}
+
+.ck-content > p {
+  margin: 20px auto;
 }
 
 .factoryInput__arrow {
@@ -291,4 +332,130 @@ footer {
   margin-right: 10px;
   font-size: 11px;
   font-weight: bold;
+}
+
+/* Item */
+.itemGridContainer {
+  display: grid;
+  grid-gap: 1rem;
+  margin: 0 auto;
+  grid-template-columns: repeat(auto-fill, minmax(250px, auto));
+  max-width: 1400px;
+}
+
+.itemContainer {
+  position: relative;
+  margin-top: 2rem;
+}
+.item__actions {
+  position: absolute;
+  right: 0;
+  color: #999;
+}
+.item__actions span {
+  margin-left: 1rem;
+}
+
+.item__temperature {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2rem;
+  color: white;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.temp__cold20 {
+  background-image: linear-gradient(90deg, #090979 0%, #002fff 100%);
+}
+.temp__cold10 {
+  background-image: linear-gradient(90deg, #002fff 0%, #008cff 100%);
+}
+.temp__cold2 {
+  background-image: linear-gradient(90deg, #008cff 0%, #45d6b7 100%);
+}
+.temp__spring {
+  background-image: linear-gradient(90deg, #45d6b7 0%, #29c536 100%);
+}
+.temp__hot15 {
+  background-image: linear-gradient(90deg, #29c536 0%, #ffcc00 100%);
+}
+.temp__hot30 {
+  background-image: linear-gradient(90deg, #ffcc00 0%, #ff9900 100%);
+}
+.temp__hot40 {
+  background-image: linear-gradient(90deg, #ff9900 0%, #ff7300 100%);
+}
+.item__temperature > span {
+  margin: 0 1rem;
+}
+.item__text {
+  font-size: 0.85rem;
+  line-height: 1.6rem;
+}
+.item__text > p {
+  margin: 20px auto;
+}
+.item__date {
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.item__img {
+  position: relative;
+  border-radius: 2px;
+}
+.item__img img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-height: 250px;
+}
+.item__newson {
+  z-index: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  text-align: center;
+  color: #fff;
+  width: 100%;
+}
+
+.item__img img:hover,
+.item__img img:focus {
+  cursor: pointer;
+  transform: translateY(20px);
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
+  transition: 0.2s;
+}
+
+@media (max-width: 1399px) {
+  .itemGridContainer {
+    margin: 0 3%;
+  }
+}
+
+@media (max-width: 600px) {
+  nav {
+    flex-direction: column;
+  }
+  .homeContainer {
+    padding-top: 100px;
+  }
+  .item__date {
+    font-size: 1.5rem;
+  }
+}
+
+/* dark ver */
+.dark {
+  background-color: #0f1421;
+  color: #cfcfcf;
+}
+.empty {
+  width: 100%;
+  height: 80vh;
+  text-align: center;
+  line-height: 80vh;
 }

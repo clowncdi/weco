@@ -1,9 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import AuthForm from "../components/AuthForm";
-import { authService, firebaseInstance } from "../fbase";
+import AuthForm from "components/AuthForm";
+import { authService, firebaseInstance } from "fbase";
 import { faGoogle, faFacebook } from "@fortawesome/free-brands-svg-icons";
+import { useNavigate } from "react-router-dom";
 
-const Auth = () => {
+const Auth = ({ isLoggedIn }) => {
+  const navigate = useNavigate();
+  if (isLoggedIn) {
+    navigate("/");
+  }
   const onSocialClick = async (event) => {
     const {
       target: { name },
@@ -14,22 +19,23 @@ const Auth = () => {
     } else if (name === "facebook") {
       provider = new firebaseInstance.auth.FacebookAuthProvider();
     }
-    const data = await authService.signInWithPopup(provider);
-    console.log(data);
+    await authService.signInWithPopup(provider);
   };
 
   return (
-    <div className="authContainer">
-      <AuthForm />
-      <div className="authBtns">
-        <button onClick={onSocialClick} name="google" className="authBtn">
-          Google <FontAwesomeIcon icon={faGoogle} />
-        </button>
-        <button onClick={onSocialClick} name="facebook" className="authBtn">
-          Facebook <FontAwesomeIcon icon={faFacebook} />
-        </button>
+    <section className="wrapContainer dark">
+      <div className="authContainer dark">
+        <AuthForm />
+        <div className="authBtns">
+          <button onClick={onSocialClick} name="google" className="authBtn">
+            Google <FontAwesomeIcon icon={faGoogle} />
+          </button>
+          <button onClick={onSocialClick} name="facebook" className="authBtn">
+            Facebook <FontAwesomeIcon icon={faFacebook} />
+          </button>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

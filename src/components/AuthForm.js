@@ -1,5 +1,7 @@
-import { authService } from "../fbase";
+import { authService } from "fbase";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLongArrowAltUp } from "@fortawesome/free-solid-svg-icons";
 
 const AuthForm = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +30,6 @@ const AuthForm = () => {
       } else {
         data = await authService.signInWithEmailAndPassword(email, password);
       }
-      console.log(data);
     } catch (error) {
       setError(error.message.split(":")[1]);
     }
@@ -62,6 +63,7 @@ const AuthForm = () => {
         />
         {error && <span className="authError">{error}</span>}
       </form>
+      <FontAwesomeIcon icon={faLongArrowAltUp} />
       <span onClick={toggleAccount} className="authSwitch">
         {newAccount ? "로그인" : "회원가입"}
       </span>

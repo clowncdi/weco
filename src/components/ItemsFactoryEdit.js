@@ -7,23 +7,30 @@ import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-const ItemFactory = ({ userObj }) => {
-  useEffect(() => {
-    setDate(defaultToday);
-  }, []);
-
+const ItemFactoryEdit = ({ userObj, itemId }) => {
   const navigate = useNavigate();
-  const [title, setTitle] = useState("오늘의 날씨와 경제");
+  const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [low, setLow] = useState("");
   const [high, setHigh] = useState("");
   const [item, setItem] = useState("");
   const [attachment, setAttachment] = useState("");
+  const [itemObj, setItemObj] = useState("");
 
-  let today = new Date();
-  const offset = today.getTimezoneOffset();
-  today = new Date(today.getTime() - offset * 60 * 1000);
-  const defaultToday = today.toISOString().split("T")[0];
+  useEffect(() => {
+    dbService
+      .doc(`items/${itemId}`)
+      .get()
+      .then((doc) => {
+        const data = doc.data();
+        setTitle(data.title);
+        setItem(data.text);
+        setDate(data.date);
+        setLow(data.lowestTemp);
+        setHigh(data.highestTemp);
+        setItemObj(data);
+      });
+  }, []);
 
   const onTitleChange = (event) => {
     const {
@@ -61,18 +68,28 @@ const ItemFactory = ({ userObj }) => {
         .child(`${userObj.uid}/${uuidv4()}`);
       const response = await attachmentRef.putString(attachment, "data_url");
       attachmentUrl = await response.ref.getDownloadURL();
+    } else {
+      attachmentUrl = itemObj.attachmentUrl;
     }
-    const itemObj = {
+
+    const newItemObj = {
       title: title,
       date: date,
       lowestTemp: low,
       highestTemp: high,
       text: item,
-      createdAt: today.toISOString(),
-      creatorId: userObj.uid,
+      createdAt: itemObj.createdAt,
+      creatorId: itemObj.creatorId,
       attachmentUrl,
     };
-    await dbService.collection("items").add(itemObj);
+
+    await dbService.doc(`items/${itemId}`).update(newItemObj);
+    setItem("");
+    setTitle("");
+    setDate("");
+    setAttachment("");
+    setLow("");
+    setHigh("");
     alert("등록 완료!");
     navigate(-1);
   };
@@ -91,6 +108,17 @@ const ItemFactory = ({ userObj }) => {
     reader.readAsDataURL(theFile);
   };
   const onClearAttachment = () => setAttachment("");
+  const onDeleteClick = async () => {
+    const ok = window.confirm("삭제하시겠습니까?");
+    if (ok) {
+      await storageService.refFromURL(itemObj.attachmentUrl).delete();
+      await dbService.doc(`nweets/${itemObj.attachmentUrl}`).update({
+        attachmentUrl: "",
+      });
+      alert("사진 삭제 완료!");
+      navigate(`/write/${itemId}`);
+    }
+  };
 
   return (
     <form onSubmit={onSubmit} className="factoryForm">
@@ -98,13 +126,13 @@ const ItemFactory = ({ userObj }) => {
         <div className="factoryInput__title">
           <input
             className="factoryInput__Input"
-            value={title === "" ? "오늘의 날씨와 경제" : title}
+            value={title}
             onChange={onTitleChange}
             type="text"
           />
           <input
             className="factoryInput__Input"
-            value={date === "" ? `${defaultToday}` : date}
+            value={date}
             onChange={onDateChange}
             type="date"
           />
@@ -123,16 +151,17 @@ const ItemFactory = ({ userObj }) => {
             type="number"
           />
         </div>
+
         <CKEditor
           editor={ClassicEditor}
-          data=""
+          data={itemObj.text}
           onChange={(event, editor) => {
             const data = editor.getData();
             setItem(data);
           }}
         />
         <label htmlFor="news-submit" className="factoryInput__arrow">
-          등록
+          수정
         </label>
         <input
           id="news-submit"
@@ -153,17 +182,28 @@ const ItemFactory = ({ userObj }) => {
         onChange={onFileChange}
         style={{ opacity: 0 }}
       />
-      {attachment && (
-        <div className="factoryForm__attachment">
-          <img src={attachment} style={{ backgroundImage: attachment }} />
-          <div className="factoryForm__clear" onClick={onClearAttachment}>
-            <span>사진 삭제</span>
-            <FontAwesomeIcon icon={faTimes} />
-          </div>
-        </div>
-      )}
+      <div className="factoryForm__attachment">
+        {attachment && (
+          <>
+            <img src={attachment} style={{ backgroundImage: attachment }} />
+            <div className="factoryForm__clear" onClick={onClearAttachment}>
+              <span>사진 삭제</span>
+              <FontAwesomeIcon icon={faTimes} />
+            </div>
+          </>
+        )}
+        {itemObj.attachmentUrl && (
+          <>
+            <img src={itemObj.attachmentUrl} />
+            <div className="factoryForm__clear" onClick={onDeleteClick}>
+              <span>기존 사진 삭제</span>
+              <FontAwesomeIcon icon={faTimes} />
+            </div>
+          </>
+        )}
+      </div>
     </form>
   );
 };
 
-export default ItemFactory;
+export default ItemFactoryEdit;
