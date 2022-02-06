@@ -59,11 +59,10 @@ const AuthForm = () => {
         <input
           type="submit"
           value={newAccount ? "회원가입" : "로그인"}
-          className="authInput authSubmit"
+          className="commonBtn authInput authSubmit"
         />
         {error && <span className="authError">{error}</span>}
       </form>
-      <FontAwesomeIcon icon={faLongArrowAltUp} />
       <span onClick={toggleAccount} className="authSwitch">
         {newAccount ? "로그인" : "회원가입"}
       </span>

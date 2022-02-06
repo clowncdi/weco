@@ -1,7 +1,6 @@
 import AppRouter from "components/Router";
 import { useState, useEffect } from "react";
 import { authService } from "fbase";
-import { Link } from "react-router-dom";
 
 function App() {
   const [init, setInit] = useState(false);
@@ -20,14 +19,14 @@ function App() {
       setInit(true);
     });
   }, []);
-  const refreshUser = () => {
-    const user = authService.currentUser;
-    setUserObj({
-      displayName: user.displayName,
-      uid: user.uid,
-      updateProfile: (args) => user.updateProfile(args),
-    });
-  };
+  // const refreshUser = () => {
+  //   const user = authService.currentUser;
+  //   setUserObj({
+  //     displayName: user.displayName,
+  //     uid: user.uid,
+  //     updateProfile: (args) => user.updateProfile(args),
+  //   });
+  // };
 
   return (
     <>
@@ -41,7 +40,7 @@ function App() {
         "Loading..."
       )}
       <footer className="appFooter dark">
-        <p>&copy; {new Date().getFullYear()} weco</p>
+        <p>Made By &copy; {new Date().getFullYear()} INSIDEBIG</p>
         <address>
           Contact: <a href="mailto:insidebig@naver.com">insidebig@naver.com</a>
         </address>

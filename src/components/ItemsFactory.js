@@ -98,13 +98,13 @@ const ItemFactory = ({ userObj }) => {
         <div className="factoryInput__title">
           <input
             className="factoryInput__Input"
-            value={title === "" ? "오늘의 날씨와 경제" : title}
+            value={title}
             onChange={onTitleChange}
             type="text"
           />
           <input
             className="factoryInput__Input"
-            value={date === "" ? `${defaultToday}` : date}
+            value={date.length > 0 ? date : `${defaultToday}`}
             onChange={onDateChange}
             type="date"
           />

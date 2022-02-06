@@ -2,8 +2,9 @@ import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Auth from "routes/Auth";
 import Home from "routes/Home";
 import Write from "routes/Write";
+import NewsWrite from "routes/NewsWrite";
 import Navigation from "./Navigation";
-import Weco from "routes/Weco";
+import News from "routes/News";
 
 function AppRouter({ refreshUser, isLoggedIn, userObj }) {
   return (
@@ -17,12 +18,12 @@ function AppRouter({ refreshUser, isLoggedIn, userObj }) {
         {isLoggedIn ? (
           <>
             <Route path="/" element={<Home userObj={userObj} />}></Route>
-            <Route path="/town" element={<Weco userObj={userObj} />}></Route>
+            <Route path="/news" element={<News userObj={userObj} />}></Route>
           </>
         ) : (
           <>
             <Route path="/" element={<Home />}></Route>
-            <Route path="/town" element={<Weco userObj={userObj} />}></Route>
+            <Route path="/news" element={<News userObj={userObj} />}></Route>
           </>
         )}
         <Route path="/login" element={<Auth isLoggedIn={isLoggedIn} />}></Route>
@@ -32,6 +33,14 @@ function AppRouter({ refreshUser, isLoggedIn, userObj }) {
             <Route
               path="/write/:id"
               element={<Write userObj={userObj} />}
+            ></Route>
+            <Route
+              path="/news/write"
+              element={<NewsWrite userObj={userObj} />}
+            ></Route>
+            <Route
+              path="/news/write/:id"
+              element={<NewsWrite userObj={userObj} />}
             ></Route>
           </>
         )}

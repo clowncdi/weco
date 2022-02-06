@@ -106,9 +106,18 @@
   }
 }
 
-.modal h2 {
+.modal__title {
   padding-bottom: 10px;
   border-bottom: 1px solid #ddd;
   line-height: 1.4rem;
   font-weight: bold;
+}
+.modal__link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 15px;
+  font-size: 0.7rem;
+  background-color: #35405e;
+  color: #fff;
+  border-radius: 100px;
 }

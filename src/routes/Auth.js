@@ -27,10 +27,18 @@ const Auth = ({ isLoggedIn }) => {
       <div className="authContainer dark">
         <AuthForm />
         <div className="authBtns">
-          <button onClick={onSocialClick} name="google" className="authBtn">
+          <button
+            onClick={onSocialClick}
+            name="google"
+            className="commonBtn authBtn"
+          >
             Google <FontAwesomeIcon icon={faGoogle} />
           </button>
-          <button onClick={onSocialClick} name="facebook" className="authBtn">
+          <button
+            onClick={onSocialClick}
+            name="facebook"
+            className="commonBtn authBtn"
+          >
             Facebook <FontAwesomeIcon icon={faFacebook} />
           </button>
         </div>

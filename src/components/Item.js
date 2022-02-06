@@ -9,14 +9,15 @@ import { dbService, storageService } from "fbase";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
 
-const News = ({ itemObj, isOwner }) => {
+const Item = ({ itemObj, isOwner }) => {
   const [temp, setTemp] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
   const content = itemObj.text;
   const mid = Number(itemObj.lowestTemp) + Number(itemObj.highestTemp);
   useEffect(() => {
-    if (mid <= -20) setTemp("temp__cold20");
+    if (!mid) setTemp("temp__none");
+    else if (mid <= -20) setTemp("temp__cold20");
     else if (mid <= -10 && mid > -20) setTemp("temp__cold10");
     else if (mid < 8 && mid > -10) setTemp("temp__cold2");
     else if (mid >= 8 && mid < 15) setTemp("temp__spring");
@@ -62,16 +63,22 @@ const News = ({ itemObj, isOwner }) => {
       <header className={`item__temperature ${temp}`}>
         <span>{itemObj.lowestTemp}°C</span>
         <span>{itemObj.highestTemp}°C</span>
+        <span className="item__newson">
+          <FontAwesomeIcon icon={faNewspaper} /> 간추린 뉴스 보기
+        </span>
       </header>
 
-      {itemObj.attachmentUrl && (
-        <div className={`item__img ${temp}`}>
-          <img src={itemObj.attachmentUrl} onClick={openModal} />
-          <span className="item__newson">
-            <FontAwesomeIcon icon={faNewspaper} /> 뉴스 보기
-          </span>
-        </div>
-      )}
+      <div className="item__img">
+        <img
+          src={
+            itemObj.attachmentUrl === ""
+              ? process.env.PUBLIC_URL + "/item_default2.jpg"
+              : itemObj.attachmentUrl
+          }
+          onClick={openModal}
+          alt={itemObj.title}
+        />
+      </div>
 
       <Modal
         open={modalOpen}
@@ -89,4 +96,4 @@ const News = ({ itemObj, isOwner }) => {
   );
 };
 
-export default News;
+export default Item;

@@ -112,7 +112,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     const ok = window.confirm("삭제하시겠습니까?");
     if (ok) {
       await storageService.refFromURL(itemObj.attachmentUrl).delete();
-      await dbService.doc(`nweets/${itemObj.attachmentUrl}`).update({
+      await dbService.doc(`items/${itemObj.attachmentUrl}`).update({
         attachmentUrl: "",
       });
       alert("사진 삭제 완료!");
@@ -185,7 +185,11 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
       <div className="factoryForm__attachment">
         {attachment && (
           <>
-            <img src={attachment} style={{ backgroundImage: attachment }} />
+            <img
+              src={attachment}
+              style={{ backgroundImage: attachment }}
+              alt={itemObj.title}
+            />
             <div className="factoryForm__clear" onClick={onClearAttachment}>
               <span>사진 삭제</span>
               <FontAwesomeIcon icon={faTimes} />
@@ -194,7 +198,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
         )}
         {itemObj.attachmentUrl && (
           <>
-            <img src={itemObj.attachmentUrl} />
+            <img src={itemObj.attachmentUrl} alt={itemObj.title} />
             <div className="factoryForm__clear" onClick={onDeleteClick}>
               <span>기존 사진 삭제</span>
               <FontAwesomeIcon icon={faTimes} />
