@@ -69,12 +69,11 @@ nav {
 
 nav > ul {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
   height: 60px;
-}
-nav > ul > li {
-  margin: 0 15px;
 }
 
 .container {
@@ -123,7 +122,7 @@ nav > ul > li {
 .formBtn {
   cursor: pointer;
   width: 100%;
-  padding: 7px 20px;
+  padding: 7px 15px;
   font-size: 0.8rem;
   text-align: center;
   color: #fff;
@@ -477,7 +476,7 @@ nav > ul > li {
   display: grid;
   grid-gap: 1rem;
   margin: 0 auto;
-  grid-template-columns: repeat(auto-fill, minmax(500px, auto));
+  grid-template-columns: repeat(auto-fill, minmax(300px, auto));
   max-width: 1400px;
   color: #ddd;
   text-align: left;
@@ -556,6 +555,9 @@ nav > ul > li {
 @media (max-width: 600px) {
   nav {
     flex-direction: column;
+  }
+  nav > ul {
+    margin: 14px auto;
   }
   .homeContainer {
     padding-top: 100px;
