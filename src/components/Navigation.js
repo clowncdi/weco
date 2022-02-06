@@ -1,18 +1,16 @@
-import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 import { authService } from "fbase";
-import { faCloudMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 
 const Navigation = ({ userObj, isLoggedIn }) => {
   const onLogOutClick = () => {
     authService.signOut();
   };
-
+  console.log(userObj);
   return (
     <nav>
       <div className="brand">
         <Link to="/">
-          <img src={process.env.PUBLIC_URL + "/logo512.png"} alt="logo" />
+          <img src={process.env.PUBLIC_URL + "/logo_icon.png"} alt="logo" />
           오늘의 날씨와 경제
         </Link>
       </div>
@@ -29,11 +27,13 @@ const Navigation = ({ userObj, isLoggedIn }) => {
         </li>
         {isLoggedIn ? (
           <>
-            <li>
-              <Link to="/write">
-                <span className="commonBtn formBtn writeBtn">사진등록</span>
-              </Link>
-            </li>
+            {userObj.uid === "Vf46gZOvLVagkCQbvZxSqXyjrDu1" && (
+              <li>
+                <Link to="/write">
+                  <span className="commonBtn formBtn writeBtn">사진등록</span>
+                </Link>
+              </li>
+            )}
             <li>
               <Link to="/news/write">
                 <span className="commonBtn formBtn writeBtn">뉴스등록</span>
