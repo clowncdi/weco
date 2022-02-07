@@ -24,6 +24,7 @@ const NewsFactory = ({ userObj }) => {
       target: { value },
     } = event;
     setType(value);
+    console.log(value);
   };
   const onUrlChange = (event) => {
     const {
@@ -38,6 +39,7 @@ const NewsFactory = ({ userObj }) => {
     setText(value);
   };
   const onSubmit = async (event) => {
+    if (type === "") return alert("카테고리를 입력해 주세요");
     if (title === "") return alert("제목을 입력해 주세요");
     if (url === "") return alert("뉴스의 URL 주소를 입력해 주세요");
     if (text === "") return alert("뉴스를 간단하게 요약해 주세요");
@@ -88,7 +90,6 @@ const NewsFactory = ({ userObj }) => {
               id="Newsletter"
               name="type"
               type="radio"
-              defaultChecked
               onChange={onTypeChange}
             />
             뉴스레터
