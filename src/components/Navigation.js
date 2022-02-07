@@ -30,7 +30,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
             {userObj.uid === "Vf46gZOvLVagkCQbvZxSqXyjrDu1" && (
               <li>
                 <Link to="/write">
-                  <span className="commonBtn formBtn writeBtn">사진</span>
+                  <span className="commonBtn formBtn writeBtn">V</span>
                 </Link>
               </li>
             )}

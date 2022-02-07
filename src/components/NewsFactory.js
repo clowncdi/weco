@@ -1,14 +1,11 @@
 import { dbService } from "fbase";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 const NewsFactory = ({ userObj }) => {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState("News");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
 
@@ -33,6 +30,12 @@ const NewsFactory = ({ userObj }) => {
       target: { value },
     } = event;
     setUrl(value);
+  };
+  const onTextChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setText(value);
   };
   const onSubmit = async (event) => {
     if (title === "") return alert("제목을 입력해 주세요");
@@ -86,6 +89,7 @@ const NewsFactory = ({ userObj }) => {
             className="factoryInput__Input"
             value={title}
             onChange={onTitleChange}
+            placeholder="제목을 입력해 주세요"
             type="text"
           />
         </div>
@@ -95,16 +99,14 @@ const NewsFactory = ({ userObj }) => {
             className="factoryInput__Input"
             value={url}
             onChange={onUrlChange}
+            placeholder="뉴스 URL 주소를 입력해 주세요"
             type="url"
           />
         </div>
-        <CKEditor
-          editor={ClassicEditor}
-          data=""
-          onChange={(event, editor) => {
-            const data = editor.getData();
-            setText(data);
-          }}
+        <textarea
+          className="newsFactoryInput__title"
+          onChange={onTextChange}
+          placeholder="뉴스를 간단하게 요약해 주세요"
         />
         <label htmlFor="news-submit" className="factoryInput__arrow">
           등록
