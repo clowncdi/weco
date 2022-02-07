@@ -24,7 +24,6 @@ const NewsFactory = ({ userObj }) => {
       target: { value },
     } = event;
     setType(value);
-    console.log(value);
   };
   const onUrlChange = (event) => {
     const {

@@ -30,7 +30,7 @@ const NewsBrief = ({ itemObj, isOwner }) => {
 
   return (
     <>
-      <section className="newsContainer">
+      <section className={"newsContainer " + "__" + itemObj.type}>
         {isOwner && (
           <div className="item__actions news__actions">
             <span onClick={onDeleteClick}>

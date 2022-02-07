@@ -564,6 +564,15 @@ textarea.newsFactoryInput__title {
 .newsContainer:focus {
   border-color: #468a7b;
 }
+.__Newsletter {
+  border-color: #484000;
+}
+.__Bookmark {
+  border-color: #541e54;
+}
+.__Etc {
+  border-color: #1c3a42;
+}
 .newsContainer__link {
   padding: 1rem;
 }
