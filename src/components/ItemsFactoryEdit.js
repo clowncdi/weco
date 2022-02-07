@@ -160,16 +160,17 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
             setItem(data);
           }}
         />
-        <label htmlFor="news-submit" className="factoryInput__arrow">
-          수정
-        </label>
-        <input
-          id="news-submit"
-          type="submit"
-          value="&rarr;"
-          className="factoryInput__arrow"
-          style={{ opacity: 0 }}
-        />
+        <div className="submitBtns">
+          <input
+            id="news-submit"
+            type="submit"
+            value="&rarr;"
+            style={{ opacity: 0 }}
+          />
+          <label htmlFor="news-submit" className="factoryInput__arrow">
+            수정
+          </label>
+        </div>
       </div>
       <label htmlFor="attach-file" className="factoryInput__label">
         <span>사진 첨부</span>

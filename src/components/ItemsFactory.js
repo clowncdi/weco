@@ -8,6 +8,11 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 const ItemFactory = ({ userObj }) => {
+  let today = new Date();
+  const offset = today.getTimezoneOffset();
+  today = new Date(today.getTime() - offset * 60 * 1000);
+  const defaultToday = today.toISOString().split("T")[0];
+
   useEffect(() => {
     setDate(defaultToday);
   }, []);
@@ -19,11 +24,6 @@ const ItemFactory = ({ userObj }) => {
   const [high, setHigh] = useState("");
   const [item, setItem] = useState("");
   const [attachment, setAttachment] = useState("");
-
-  let today = new Date();
-  const offset = today.getTimezoneOffset();
-  today = new Date(today.getTime() - offset * 60 * 1000);
-  const defaultToday = today.toISOString().split("T")[0];
 
   const onTitleChange = (event) => {
     const {
@@ -131,16 +131,17 @@ const ItemFactory = ({ userObj }) => {
             setItem(data);
           }}
         />
-        <label htmlFor="news-submit" className="factoryInput__arrow">
-          등록
-        </label>
-        <input
-          id="news-submit"
-          type="submit"
-          value="&rarr;"
-          className="factoryInput__arrow"
-          style={{ opacity: 0 }}
-        />
+        <div className="submitBtns">
+          <input
+            id="news-submit"
+            type="submit"
+            value="&rarr;"
+            style={{ opacity: 0 }}
+          />
+          <label htmlFor="news-submit" className="factoryInput__arrow">
+            등록
+          </label>
+        </div>
       </div>
       <label htmlFor="attach-file" className="factoryInput__label">
         <span>사진 첨부</span>
@@ -155,7 +156,11 @@ const ItemFactory = ({ userObj }) => {
       />
       {attachment && (
         <div className="factoryForm__attachment">
-          <img src={attachment} style={{ backgroundImage: attachment }} />
+          <img
+            src={attachment}
+            style={{ backgroundImage: attachment }}
+            alt={title}
+          />
           <div className="factoryForm__clear" onClick={onClearAttachment}>
             <span>사진 삭제</span>
             <FontAwesomeIcon icon={faTimes} />

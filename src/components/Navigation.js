@@ -5,7 +5,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
   const onLogOutClick = () => {
     authService.signOut();
   };
-  console.log(userObj);
+
   return (
     <nav>
       <div className="brand">

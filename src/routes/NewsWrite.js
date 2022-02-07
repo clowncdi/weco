@@ -11,12 +11,12 @@ const NewsWrite = ({ userObj }) => {
       <div className="container">
         {id ? (
           <>
-            <h2>뉴스 수정하기</h2>
+            <h2>글 수정하기</h2>
             <NewsFactoryEdit userObj={userObj} itemId={id} />
           </>
         ) : (
           <>
-            <h2>뉴스 등록하기</h2>
+            <h2>글 등록하기</h2>
             <NewsFactory userObj={userObj} />
           </>
         )}

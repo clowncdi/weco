@@ -1,11 +1,6 @@
-import { dbService, storageService } from "fbase";
+import { dbService } from "fbase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 const NewsFactoryEdit = ({ userObj, itemId }) => {
   const navigate = useNavigate();
@@ -13,7 +8,6 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
   const [type, setType] = useState("");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
-  const [itemObj, setItemObj] = useState("");
 
   useEffect(() => {
     dbService
@@ -25,7 +19,6 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
         setType(data.type);
         setText(data.text);
         setUrl(data.url);
-        setItemObj(data);
       });
   }, []);
 
@@ -46,6 +39,12 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
       target: { value },
     } = event;
     setUrl(value);
+  };
+  const onTextChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setText(value);
   };
   const onSubmit = async (event) => {
     let today = new Date();
@@ -87,6 +86,27 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
             />
             뉴스
           </label>
+          <label htmlFor="Bookmark">
+            <input
+              value="Bookmark"
+              id="Bookmark"
+              name="type"
+              type="radio"
+              onChange={onTypeChange}
+            />
+            북마크
+          </label>
+          <label htmlFor="Newsletter">
+            <input
+              value="Newsletter"
+              id="Newsletter"
+              name="type"
+              type="radio"
+              defaultChecked
+              onChange={onTypeChange}
+            />
+            뉴스레터
+          </label>
           <label htmlFor="Etc">
             <input
               value="Etc"
@@ -117,13 +137,11 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
             type="url"
           />
         </div>
-        <CKEditor
-          editor={ClassicEditor}
-          data={itemObj.text}
-          onChange={(event, editor) => {
-            const data = editor.getData();
-            setText(data);
-          }}
+        <textarea
+          className="newsFactoryInput__title"
+          onChange={onTextChange}
+          value={text}
+          placeholder="뉴스를 간단하게 요약해 주세요"
         />
         <label htmlFor="news-submit" className="factoryInput__arrow">
           수정

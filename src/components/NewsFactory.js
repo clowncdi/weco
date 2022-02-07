@@ -72,6 +72,27 @@ const NewsFactory = ({ userObj }) => {
             />
             뉴스
           </label>
+          <label htmlFor="Bookmark">
+            <input
+              value="Bookmark"
+              id="Bookmark"
+              name="type"
+              type="radio"
+              onChange={onTypeChange}
+            />
+            북마크
+          </label>
+          <label htmlFor="Newsletter">
+            <input
+              value="Newsletter"
+              id="Newsletter"
+              name="type"
+              type="radio"
+              defaultChecked
+              onChange={onTypeChange}
+            />
+            뉴스레터
+          </label>
           <label htmlFor="Etc">
             <input
               value="Etc"
@@ -84,17 +105,16 @@ const NewsFactory = ({ userObj }) => {
           </label>
         </div>
         <div className="newsFactoryInput__title">
-          <sapn>제목</sapn>
+          <span>제목</span>
           <input
             className="factoryInput__Input"
             value={title}
             onChange={onTitleChange}
-            placeholder="제목을 입력해 주세요"
             type="text"
           />
         </div>
         <div className="newsFactoryInput__title">
-          <sapn>링크</sapn>
+          <span>링크</span>
           <input
             className="factoryInput__Input"
             value={url}
@@ -105,6 +125,7 @@ const NewsFactory = ({ userObj }) => {
         </div>
         <textarea
           className="newsFactoryInput__title"
+          value={text}
           onChange={onTextChange}
           placeholder="뉴스를 간단하게 요약해 주세요"
         />
