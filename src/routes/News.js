@@ -47,6 +47,13 @@ const News = ({ userObj }) => {
         받을 수 있습니다.
       </span>
       <div className="news__type">
+        {/* <label
+          htmlFor="type-all"
+          className={"commonBtn " + (type === "" ? "selected" : "")}
+        >
+          전체
+        </label>
+        <input id="type-all" type="button" value="all" onClick={onClickAll} /> */}
         <label
           htmlFor="type-news"
           className={"commonBtn " + (type === "News" ? "selected" : "")}

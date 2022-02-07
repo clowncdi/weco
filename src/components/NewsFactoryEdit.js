@@ -93,6 +93,7 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
               name="type"
               type="radio"
               onChange={onTypeChange}
+              checked={type === "Bookmark" ? true : false}
             />
             북마크
           </label>
@@ -102,8 +103,8 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
               id="Newsletter"
               name="type"
               type="radio"
-              defaultChecked
               onChange={onTypeChange}
+              checked={type === "Newsletter" ? true : false}
             />
             뉴스레터
           </label>
