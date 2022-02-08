@@ -22,7 +22,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
         </li>
         <li>
           <Link to="/news">
-            <span className="commonBtn formBtn homeBtn">뉴스</span>
+            <span className="commonBtn formBtn homeBtn">새글</span>
           </Link>
         </li>
         {isLoggedIn ? (

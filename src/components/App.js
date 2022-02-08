@@ -37,7 +37,9 @@ function App() {
           userObj={userObj}
         />
       ) : (
-        "Loading..."
+        <div className="loading">
+          <img src={process.env.PUBLIC_URL + "/toolong.gif"} alt="loading..." />
+        </div>
       )}
       <footer className="appFooter dark">
         <p>Made By &copy; {new Date().getFullYear()} INSIDEBIG</p>

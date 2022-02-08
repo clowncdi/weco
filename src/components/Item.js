@@ -16,7 +16,7 @@ const Item = ({ itemObj, isOwner }) => {
   const content = itemObj.text;
   const mid = Number(itemObj.lowestTemp) + Number(itemObj.highestTemp);
   useEffect(() => {
-    if (!mid) setTemp("temp__none");
+    if (mid === "") setTemp("temp__none");
     else if (mid <= -20) setTemp("temp__cold20");
     else if (mid <= -10 && mid > -20) setTemp("temp__cold10");
     else if (mid < 8 && mid > -10) setTemp("temp__cold2");
