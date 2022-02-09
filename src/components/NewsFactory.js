@@ -32,7 +32,7 @@ const NewsFactory = ({ userObj }) => {
     setUrl(value);
   };
   const onTextChange = (event) => {
-    const {
+    let {
       target: { value },
     } = event;
     setText(value);
@@ -48,7 +48,7 @@ const NewsFactory = ({ userObj }) => {
       title: title,
       type: type,
       url: url,
-      text: text,
+      text: text.replaceAll(/(\n|\r\n)/g, "<br>"),
       createdAt: today.toISOString(),
       updatedAt: today.toISOString(),
       creatorId: userObj.uid,

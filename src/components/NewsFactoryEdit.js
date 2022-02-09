@@ -60,10 +60,8 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
       title: title,
       type: type,
       url: url,
-      text: text,
-      // createdAt: today.toISOString(),
+      text: text.replaceAll(/(\n|\r\n)/g, "<br>"),
       updatedAt: today.toISOString(),
-      // creatorId: userObj.uid,
     };
 
     await dbService.doc(`news/${itemId}`).update(newItemObj);

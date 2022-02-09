@@ -44,31 +44,30 @@ form {
 /* Logo */
 .brand img {
   margin-right: 16px;
-  width: 70px;
+  width: 60px;
   vertical-align: middle;
 }
 
 .brand {
   font-size: 32px;
   font-family: "Dongle", "Berkshire Swash", cursive;
-  color: #cfcfcf;
+  color: #fff;
 }
 
 /* Nav */
-nav {
+.nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1.4rem;
   position: fixed;
   z-index: 10;
+  width: 100%;
   background-color: #191f2c;
   border-bottom: 1px solid #303540;
-  width: 100%;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }
-
-nav > ul {
+.nav > ul {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -546,7 +545,7 @@ textarea.newsFactoryInput__title {
   align-self: flex-start;
   grid-gap: 1rem;
   margin: 0 auto;
-  color: #ddd;
+  color: #666;
   text-align: left;
 }
 
@@ -558,7 +557,7 @@ textarea.newsFactoryInput__title {
   border-radius: 5px;
   background-color: #191f2c;
   border: 1px solid #303540;
-  transition: 0.4s;
+  transition: 0.3s;
 }
 .newsContainer:hover,
 .newsContainer:focus {
@@ -572,14 +571,14 @@ textarea.newsFactoryInput__title {
   border-color: rgb(219, 235, 0);
 }
 .__Bookmark {
-  border-color: rgba(182, 0, 182, 0.2);
+  border-color: rgba(182, 0, 182, 0.25);
 }
 .__Bookmark:hover,
 .__Bookmark:focus {
   border-color: rgb(182, 0, 182);
 }
 .__Etc {
-  border-color: rgba(0, 153, 196, 0.25);
+  border-color: rgba(0, 153, 196, 0.2);
 }
 .__Etc:hover,
 .__Etc:focus {
@@ -688,12 +687,6 @@ textarea.newsFactoryInput__title {
   }
 }
 
-/* dark ver */
-.dark {
-  background-color: #0f1421;
-  color: #cfcfcf;
-}
-
 .empty {
   width: 100%;
   height: 80vh;
@@ -712,4 +705,59 @@ textarea.newsFactoryInput__title {
   justify-content: center;
   align-items: center;
   background-color: #fff;
+}
+
+/* dark ver */
+.dark {
+  background-color: #0f1421;
+  color: #cfcfcf;
+}
+
+/* white ver */
+.bright {
+  background-color: #f4f4f0;
+  color: #000;
+}
+.nav__bright {
+  background-color: #f4f4f0;
+  border-bottom: 1px solid #000;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+.brand__bright {
+  color: #000;
+}
+.newsContainer__bright {
+  background-color: #fff;
+  border: 1px solid #000;
+  transition: 0.2s;
+}
+.news__date__bright {
+  color: #999;
+}
+.news__title__bright {
+  color: #000;
+}
+.news__text__bright {
+  color: #666;
+}
+.__Newsletter__bright {
+  border-color: #111f0b;
+}
+.__Newsletter__bright:hover,
+.__Newsletter__bright:focus {
+  border-color: #227000;
+}
+.__Bookmark__bright {
+  border-color: #564147;
+}
+.__Bookmark__bright:hover,
+.__Bookmark__bright:focus {
+  border-color: #86203d;
+}
+.__Etc__bright {
+  border-color: #254d4c;
+}
+.__Etc__bright:hover,
+.__Etc__bright:focus {
+  border-color: #0f8886;
 }

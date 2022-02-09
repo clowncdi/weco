@@ -7,7 +7,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
   };
 
   return (
-    <nav>
+    <nav className="nav">
       <div className="brand">
         <Link to="/">
           <img src={process.env.PUBLIC_URL + "/logo_icon.png"} alt="logo" />
