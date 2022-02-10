@@ -27,7 +27,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
         </li>
         {isLoggedIn ? (
           <>
-            {userObj.uid === "Vf46gZOvLVagkCQbvZxSqXyjrDu1" && (
+            {userObj.uid === process.env.ADMIN_ROLE && (
               <li>
                 <Link to="/write">
                   <span className="commonBtn formBtn writeBtn">V</span>

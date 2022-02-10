@@ -5,40 +5,72 @@ import NewsBrief from "components/NewsBrief";
 const News = ({ userObj }) => {
   const [items, setItems] = useState([]);
   const [type, setType] = useState("");
+  const [page, setPage] = useState(0);
+  const [last, setLast] = useState({});
+  const [more, setMore] = useState(true);
+
+  const itemCount = 20;
 
   useEffect(() => {
+    {
+      type.length > 0 ? findAllByType(itemCount, type) : findAll(itemCount);
+    }
+  }, [type, page]);
+
+  function findAll(itemCount) {
     dbService
       .collection("news")
-      .where("type", "==", `${type}`)
       .orderBy("createdAt", "desc")
+      .startAfter(last)
+      .limit(itemCount)
       .onSnapshot((snapshot) => {
         const itemArray = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setItems(itemArray);
+        setLast(snapshot.docs[snapshot.docs.length - 1]);
+        if (snapshot.docs.length < itemCount) setMore(false);
       });
-  }, [type]);
+  }
 
-  useEffect(() => {
+  function findAllByType(itemCount, typeName) {
     dbService
       .collection("news")
+      .where("type", "==", typeName)
       .orderBy("createdAt", "desc")
+      .startAfter(last)
+      .limit(itemCount)
       .onSnapshot((snapshot) => {
         const itemArray = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setItems(itemArray);
+        setLast(snapshot.docs[snapshot.docs.length - 1]);
+        if (snapshot.docs.length < itemCount) setMore(false);
       });
-  }, []);
+  }
 
   const onClickType = (event) => {
+    setMore(true);
+    setLast({});
+
     const {
       target: { value },
     } = event;
     setType(value);
   };
+
+  const onClickAll = () => {
+    setType("");
+    setMore(true);
+    setLast({});
+  };
+
+  function onClickMore() {
+    setPage(page + 1);
+  }
 
   return (
     <div className="homeContainer dark newsGrid">
@@ -47,13 +79,13 @@ const News = ({ userObj }) => {
         받을 수 있습니다.
       </span>
       <div className="news__type">
-        {/* <label
+        <label
           htmlFor="type-all"
           className={"commonBtn " + (type === "" ? "selected" : "")}
         >
           전체
         </label>
-        <input id="type-all" type="button" value="all" onClick={onClickAll} /> */}
+        <input id="type-all" type="button" value="all" onClick={onClickAll} />
         <label
           htmlFor="type-news"
           className={"commonBtn " + (type === "News" ? "selected" : "")}
@@ -99,25 +131,34 @@ const News = ({ userObj }) => {
         <input id="type-etc" type="button" value="Etc" onClick={onClickType} />
       </div>
       {items.length > 0 ? (
-        <article className="newsGridContainer">
-          {userObj ? (
-            <>
-              {items.map((item) => (
-                <NewsBrief
-                  key={item.id}
-                  itemObj={item}
-                  isOwner={item.creatorId === userObj.uid}
-                />
-              ))}
-            </>
-          ) : (
-            <>
-              {items.map((item) => (
-                <NewsBrief key={item.id} itemObj={item} isOwner={false} />
-              ))}
-            </>
+        <>
+          <article className="newsGridContainer">
+            {userObj ? (
+              <>
+                {items.map((item) => (
+                  <NewsBrief
+                    key={item.id}
+                    itemObj={item}
+                    isOwner={item.creatorId === userObj.uid}
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                {items.map((item) => (
+                  <NewsBrief key={item.id} itemObj={item} isOwner={false} />
+                ))}
+              </>
+            )}
+          </article>
+          {more && (
+            <div className="moreBtnWrap">
+              <span className="formBtn moreBtn" onClick={onClickMore}>
+                다음
+              </span>
+            </div>
           )}
-        </article>
+        </>
       ) : (
         <p className="news__empty">등록된 게시물이 없습니다.</p>
       )}
