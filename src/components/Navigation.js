@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { authService } from "fbase";
 
 const Navigation = ({ userObj, isLoggedIn }) => {
+  console.log(process.env.REACT_APP_ADMIN);
   const onLogOutClick = () => {
     authService.signOut();
   };
@@ -27,7 +28,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
         </li>
         {isLoggedIn ? (
           <>
-            {userObj.uid === process.env.ADMIN_ROLE && (
+            {userObj.uid === process.env.REACT_APP_ADMIN && (
               <li>
                 <Link to="/write">
                   <span className="commonBtn formBtn writeBtn">V</span>
