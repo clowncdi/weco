@@ -23,6 +23,7 @@ const ItemFactory = ({ userObj }) => {
   const [low, setLow] = useState("");
   const [high, setHigh] = useState("");
   const [item, setItem] = useState("");
+  const [tags, setTags] = useState([]);
   const [attachment, setAttachment] = useState("");
 
   const onTitleChange = (event) => {
@@ -68,6 +69,7 @@ const ItemFactory = ({ userObj }) => {
       lowestTemp: low,
       highestTemp: high,
       text: item,
+      tags: tags,
       createdAt: today.toISOString(),
       creatorId: userObj.uid,
       attachmentUrl,
@@ -91,6 +93,22 @@ const ItemFactory = ({ userObj }) => {
     reader.readAsDataURL(theFile);
   };
   const onClearAttachment = () => setAttachment("");
+
+  const onClickTags = () => {
+    if (item === "") return;
+    const start = item.indexOf("#");
+    const tagsOriginal = item.substring(start);
+    const result = splitTags(tagsOriginal);
+    setTags(result);
+  };
+
+  function splitTags(tagsString) {
+    let result = tagsString.replaceAll("<p>", "");
+    result = result.replaceAll("</p>", "");
+    result = result.replaceAll("#", "");
+    result = result.split(" ");
+    return result;
+  }
 
   return (
     <form onSubmit={onSubmit} className="factoryForm">
@@ -131,6 +149,17 @@ const ItemFactory = ({ userObj }) => {
             setItem(data);
           }}
         />
+        <div className="factoryInput__tag">
+          <input
+            className="commonBtn formBtn"
+            onClick={onClickTags}
+            value="Tag 불러오기"
+            type="button"
+          />
+          {tags.map((tag) => (
+            <span className="formBtn tagBtn">{tag}</span>
+          ))}
+        </div>
         <div className="submitBtns">
           <input
             id="news-submit"

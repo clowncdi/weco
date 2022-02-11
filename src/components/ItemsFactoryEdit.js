@@ -14,6 +14,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
   const [low, setLow] = useState("");
   const [high, setHigh] = useState("");
   const [item, setItem] = useState("");
+  const [tags, setTags] = useState([]);
   const [attachment, setAttachment] = useState("");
   const [itemObj, setItemObj] = useState("");
 
@@ -28,6 +29,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
         setDate(data.date);
         setLow(data.lowestTemp);
         setHigh(data.highestTemp);
+        setTags(data.tags);
         setItemObj(data);
       });
   }, []);
@@ -57,9 +59,8 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     setHigh(value);
   };
   const onSubmit = async (event) => {
-    if (item === "") {
-      return;
-    }
+    if (item === "") return alert("내용을 입력해 주세요");
+
     event.preventDefault();
     let attachmentUrl = "";
     if (attachment !== "") {
@@ -78,6 +79,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
       lowestTemp: low,
       highestTemp: high,
       text: item,
+      tags: tags,
       createdAt: itemObj.createdAt,
       creatorId: itemObj.creatorId,
       attachmentUrl,
@@ -93,6 +95,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     alert("등록 완료!");
     navigate(-1);
   };
+
   const onFileChange = (event) => {
     const {
       target: { files },
@@ -119,6 +122,22 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
       navigate(`/write/${itemId}`);
     }
   };
+
+  const onClickTags = () => {
+    if (item === "") return;
+    const start = item.indexOf("#");
+    const tagsOriginal = item.substring(start);
+    const result = splitTags(tagsOriginal);
+    setTags(result);
+  };
+
+  function splitTags(tagsString) {
+    let result = tagsString.replaceAll("<p>", "");
+    result = result.replaceAll("</p>", "");
+    result = result.replaceAll("#", "");
+    result = result.split(" ");
+    return result;
+  }
 
   return (
     <form onSubmit={onSubmit} className="factoryForm">
@@ -160,6 +179,17 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
             setItem(data);
           }}
         />
+        <div className="factoryInput__tag">
+          <input
+            className="commonBtn formBtn"
+            onClick={onClickTags}
+            value="Tag 불러오기"
+            type="button"
+          />
+          {tags.map((tag) => (
+            <span className="formBtn tagBtn">{tag}</span>
+          ))}
+        </div>
         <div className="submitBtns">
           <input
             id="news-submit"
