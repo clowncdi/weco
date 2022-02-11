@@ -9,7 +9,7 @@ const News = ({ userObj }) => {
   const [last, setLast] = useState({});
   const [more, setMore] = useState(true);
 
-  const itemCount = 20;
+  const itemCount = 25;
 
   useEffect(() => {
     {
@@ -18,6 +18,7 @@ const News = ({ userObj }) => {
   }, [type, page]);
 
   function findAll(itemCount) {
+    console.log("findAll");
     dbService
       .collection("news")
       .orderBy("createdAt", "desc")
@@ -35,6 +36,8 @@ const News = ({ userObj }) => {
   }
 
   function findAllByType(itemCount, typeName) {
+    console.log("findAllType");
+
     dbService
       .collection("news")
       .where("type", "==", typeName)
@@ -60,16 +63,20 @@ const News = ({ userObj }) => {
       target: { value },
     } = event;
     setType(value);
+
+    window.scrollTo(0, 0);
   };
 
   const onClickAll = () => {
     setType("");
     setMore(true);
     setLast({});
+    setPage(0);
   };
 
   function onClickMore() {
     setPage(page + 1);
+    window.scrollTo(0, 0);
   }
 
   return (

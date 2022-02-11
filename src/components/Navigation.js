@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { authService } from "fbase";
 
 const Navigation = ({ userObj, isLoggedIn }) => {
-  console.log(process.env.REACT_APP_ADMIN);
   const onLogOutClick = () => {
     authService.signOut();
   };
