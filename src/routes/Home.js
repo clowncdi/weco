@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { dbService } from "fbase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import Item from "components/Item";
 
 const Home = ({ userObj }) => {
@@ -53,6 +55,10 @@ const Home = ({ userObj }) => {
     setKeyword(event.target.outerText);
   };
 
+  const onClickSearchClear = () => {
+    setKeyword("");
+  };
+
   return (
     <div className="homeContainer dark">
       <article className="searchContainer">
@@ -63,7 +69,13 @@ const Home = ({ userObj }) => {
             onChange={onChangeKeyword}
             placeholder="키워드 검색"
           />
+          <span className="searchCancelBtn" onClick={onClickSearchClear}>
+            <FontAwesomeIcon icon={faTimes} />
+          </span>
         </div>
+        <h3 className="keyword__title">
+          {items.length > 0 && items[0].date} 오늘의 키워드
+        </h3>
         <ul className="keywordWrap">
           {items.length > 0 && (
             <>

@@ -728,6 +728,7 @@ textarea.newsFactoryInput__title {
   flex-direction: column;
 }
 .searchInputWrap {
+  position: relative;
   width: 100%;
   text-align: center;
   margin: 30px auto 20px;
@@ -751,7 +752,19 @@ textarea.newsFactoryInput__title {
   flex-direction: row;
   gap: 1rem;
   margin-bottom: 20px;
+  justify-content: center;
+}
+.keyword__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 auto 1rem;
 }
 .keywordWrap > .formBtn {
   width: auto;
+}
+.searchCancelBtn {
+  cursor: pointer;
+  position: relative;
+  right: 2rem;
+  color: #333;
 }

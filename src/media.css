@@ -80,4 +80,8 @@
   .news__empty {
     grid-column: 1;
   }
+  .searchInputWrap > input {
+    width: 80%;
+    height: 2.3rem;
+  }
 }
