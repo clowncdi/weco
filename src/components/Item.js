@@ -39,9 +39,14 @@ const Item = ({ itemObj, isOwner }) => {
   const closeModal = () => {
     setModalOpen(false);
   };
+  const handleKeyPress = (event) => {
+    if (event.keyCode === 27) {
+      closeModal();
+    }
+  };
 
   return (
-    <section className="itemContainer">
+    <section className="itemContainer" onKeyDown={handleKeyPress} tabIndex="0">
       {isOwner && (
         <div className="item__actions">
           <span onClick={onDeleteClick}>

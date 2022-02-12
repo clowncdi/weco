@@ -123,7 +123,7 @@ const Home = ({ userObj }) => {
           </>
         )}
         {items.length === 0 && (
-          <p className="news__empty">등록된 게시물이 없습니다.</p>
+          <p className="news__empty item__empty">등록된 게시물이 없습니다.</p>
         )}
       </article>
     </div>

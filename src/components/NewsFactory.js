@@ -37,7 +37,6 @@ const NewsFactory = ({ userObj }) => {
     } = event;
     setText(value);
   };
-  console.log(userObj);
   const onSubmit = async (event) => {
     if (type === "") return alert("카테고리를 입력해 주세요");
     if (title === "") return alert("제목을 입력해 주세요");

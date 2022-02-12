@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 const Modal = (props) => {
   const { open, close, header } = props;
 
