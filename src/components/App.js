@@ -10,6 +10,7 @@ function App() {
       if (user) {
         setUserObj({
           displayName: user.displayName,
+          email: user.email,
           uid: user.uid,
           updateProfile: (args) => user.updateProfile(args),
         });

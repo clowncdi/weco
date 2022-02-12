@@ -37,6 +37,7 @@ const NewsFactory = ({ userObj }) => {
     } = event;
     setText(value);
   };
+  console.log(userObj);
   const onSubmit = async (event) => {
     if (type === "") return alert("카테고리를 입력해 주세요");
     if (title === "") return alert("제목을 입력해 주세요");
@@ -52,6 +53,7 @@ const NewsFactory = ({ userObj }) => {
       createdAt: today.toISOString(),
       updatedAt: today.toISOString(),
       creatorId: userObj.uid,
+      creatorEmail: userObj.email,
     };
     await dbService.collection("news").add(newsObj);
     alert("등록 완료!");

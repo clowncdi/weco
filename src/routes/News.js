@@ -18,7 +18,6 @@ const News = ({ userObj }) => {
   }, [type, page]);
 
   function findAll(itemCount) {
-    console.log("findAll");
     dbService
       .collection("news")
       .orderBy("createdAt", "desc")
@@ -36,8 +35,6 @@ const News = ({ userObj }) => {
   }
 
   function findAllByType(itemCount, typeName) {
-    console.log("findAllType");
-
     dbService
       .collection("news")
       .where("type", "==", typeName)

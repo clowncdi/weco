@@ -14,6 +14,8 @@ const NewsBrief = ({ itemObj, isOwner }) => {
   const date = itemObj.createdAt.split("T")[0];
 
   const content = itemObj.text;
+  const emailName = itemObj.creatorEmail.split("@")[0];
+
   const onDeleteClick = async () => {
     const ok = window.confirm("삭제하시겠습니까?");
     if (ok) {
@@ -49,7 +51,10 @@ const NewsBrief = ({ itemObj, isOwner }) => {
           </div>
         )}
         <div className="newsContainer__link" onClick={openModal}>
-          <h3 className="news__date">{date}</h3>
+          <h3 className="news__date">
+            {date} <span className="news__creator">@{emailName}</span>
+          </h3>
+
           <h3 className="news__title">{itemObj.title}</h3>
           <div
             className="news__text"
