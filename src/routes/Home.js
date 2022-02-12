@@ -7,6 +7,7 @@ import Item from "components/Item";
 const Home = ({ userObj }) => {
   const [items, setItems] = useState([]);
   const [keyword, setKeyword] = useState("");
+  const [newTags, setNewTags] = useState([]);
 
   useEffect(() => {
     keyword ? findAllKeyword() : findAll();
@@ -15,9 +16,10 @@ const Home = ({ userObj }) => {
   function findAll() {
     dbService
       .collection("items")
-      .where("creatorId", "==", "Vf46gZOvLVagkCQbvZxSqXyjrDu1")
+      .where("creatorId", "==", process.env.REACT_APP_ADMIN)
       .orderBy("date", "desc")
       .onSnapshot((snapshot) => {
+        setNewTags(snapshot.docs[0].data().tags);
         const itemArray = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -29,7 +31,7 @@ const Home = ({ userObj }) => {
   function findAllKeyword() {
     const result = dbService
       .collection("items")
-      .where("creatorId", "==", "Vf46gZOvLVagkCQbvZxSqXyjrDu1")
+      .where("creatorId", "==", process.env.REACT_APP_ADMIN)
       .where("tags", "array-contains", keyword)
       .orderBy("date", "desc");
 
@@ -74,9 +76,9 @@ const Home = ({ userObj }) => {
             list="keyword-options"
           />
           <datalist id="keyword-options">
-            {items.length > 0 && (
+            {newTags && (
               <>
-                {items[0].tags.map(
+                {newTags.map(
                   (tag) =>
                     ![
                       "오늘의날씨",
@@ -87,7 +89,7 @@ const Home = ({ userObj }) => {
                       "오늘날씨",
                       "서울날씨",
                       "시황",
-                    ].includes(tag) && <option value={tag} />
+                    ].includes(tag) && <option value={tag} key={tag} />
                 )}
               </>
             )}
@@ -97,9 +99,9 @@ const Home = ({ userObj }) => {
           {items.length > 0 && items[0].date} 오늘의 키워드
         </h3>
         <ul className="keywordWrap">
-          {items.length > 0 && (
+          {newTags && (
             <>
-              {items[0].tags.map(
+              {newTags.map(
                 (tag) =>
                   ![
                     "오늘의날씨",
