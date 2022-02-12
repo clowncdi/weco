@@ -45,7 +45,7 @@
   background-color: transparent;
 }
 .modal > section > main {
-  height: 50vh;
+  height: 70vh;
   overflow: scroll;
   padding: 15px 20px 3px;
   color: #333;
@@ -116,6 +116,7 @@
 .modal__link {
   display: inline-block;
   margin-top: 10px;
+  margin-left: calc(100% - 20%);
   padding: 8px 15px;
   font-size: 0.7rem;
   background-color: #35405e;

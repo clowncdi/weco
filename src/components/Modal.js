@@ -2,9 +2,14 @@ import { useEffect } from "react";
 
 const Modal = (props) => {
   const { open, close, header } = props;
+  const onClickClose = (event) => {
+    if (event.target.nodeName === "DIV") {
+      close();
+    }
+  };
 
   return (
-    <div className={open ? "openModal modal" : "modal"}>
+    <div className={open ? "openModal modal" : "modal"} onClick={onClickClose}>
       {open && (
         <section>
           <header>

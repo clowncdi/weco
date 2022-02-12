@@ -79,8 +79,7 @@ const News = ({ userObj }) => {
   return (
     <div className="homeContainer dark newsGrid">
       <span className="news__noti">
-        * 성격에 맞지 않은 글이나 도배 등 부적절한 이용은 관리자에 의해 제재를
-        받을 수 있습니다.
+        * 부적절한 이용은 관리자에 의해 제재를 받을 수 있습니다.
       </span>
       <div className="news__type">
         <label

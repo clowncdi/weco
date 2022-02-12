@@ -63,15 +63,35 @@ const Home = ({ userObj }) => {
     <div className="homeContainer dark">
       <article className="searchContainer">
         <div className="searchInputWrap">
+          <span className="searchCancelBtn" onClick={onClickSearchClear}>
+            <FontAwesomeIcon icon={faTimes} />
+          </span>
           <input
             type="text"
             value={keyword}
             onChange={onChangeKeyword}
             placeholder="키워드 검색"
+            list="keyword-options"
           />
-          <span className="searchCancelBtn" onClick={onClickSearchClear}>
-            <FontAwesomeIcon icon={faTimes} />
-          </span>
+          <datalist id="keyword-options">
+            {items.length > 0 && (
+              <>
+                {items[0].tags.map(
+                  (tag) =>
+                    ![
+                      "오늘의날씨",
+                      "오늘의경제",
+                      "날씨",
+                      "경제",
+                      "뉴스",
+                      "오늘날씨",
+                      "서울날씨",
+                      "시황",
+                    ].includes(tag) && <option value={tag} />
+                )}
+              </>
+            )}
+          </datalist>
         </div>
         <h3 className="keyword__title">
           {items.length > 0 && items[0].date} 오늘의 키워드
