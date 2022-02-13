@@ -30,7 +30,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
             {userObj.uid === process.env.REACT_APP_ADMIN && (
               <li>
                 <Link to="/write">
-                  <span className="commonBtn formBtn writeBtn">💊</span>
+                  <span className="commonBtn formBtn writeBtn"></span>
                 </Link>
               </li>
             )}

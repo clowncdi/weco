@@ -80,8 +80,40 @@
   .news__empty.item__empty {
     grid-column: 1;
   }
-  .searchInputWrap > input {
-    width: 80%;
-    height: 2.3rem;
+  .searchContainer {
+    grid-template-columns: 1fr;
+    grid-template-rows: 4fr;
+    margin: 6% 3% 0;
+    text-align: center;
+  }
+  .searchInput__date {
+    grid-row: 1;
+    grid-column: 1;
+    width: 100%;
+  }
+  .searchInput__date > input {
+    height: 2rem;
+    width: 43%;
+    margin: 3%;
+    font-size: 0.8rem;
+    text-indent: 3px;
+  }
+  .searchInput__keyword {
+    grid-row: 2;
+    grid-column: 1;
+    width: 94%;
+    margin: 3%;
+  }
+  .keyword__title {
+    grid-row: 3;
+    grid-column: 1;
+    width: 100%;
+    border: 0;
+  }
+  .keywordWrap {
+    grid-row: 4;
+    grid-column: 1;
+    margin: 0;
+    padding: 1rem;
   }
 }

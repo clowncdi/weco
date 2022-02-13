@@ -23,7 +23,8 @@ const Item = ({ itemObj, isOwner }) => {
     else if (mid >= 8 && mid < 15) setTemp("temp__spring");
     else if (mid >= 15 && mid < 30) setTemp("temp__hot15");
     else if (mid >= 30 && mid < 40) setTemp("temp__hot30");
-    else if (mid >= 40) setTemp("temp__hot40");
+    else if (mid >= 40 && mid < 50) setTemp("temp__hot40");
+    else if (mid >= 50) setTemp("temp__hot50");
   }, []);
   const onDeleteClick = async () => {
     const ok = window.confirm("삭제하시겠습니까?");

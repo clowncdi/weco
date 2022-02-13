@@ -5,18 +5,29 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import Item from "components/Item";
 
 const Home = ({ userObj }) => {
+  let today = new Date();
+  const offset = today.getTimezoneOffset();
+  today = new Date(today.getTime() - offset * 60 * 1000);
+  const defaultEndDate = today.toISOString().split("T")[0];
+  let monthAgo = new Date(today.setMonth(today.getMonth() - 1));
+  const defaultStartDate = monthAgo.toISOString().split("T")[0];
+
   const [items, setItems] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [newTags, setNewTags] = useState([]);
+  const [startDate, setStartDate] = useState(defaultStartDate);
+  const [endDate, setEndDate] = useState(defaultEndDate);
 
   useEffect(() => {
     keyword ? findAllKeyword() : findAll();
-  }, [keyword]);
+  }, [keyword, startDate, endDate]);
 
   function findAll() {
     dbService
       .collection("items")
       .where("creatorId", "==", process.env.REACT_APP_ADMIN)
+      .where("date", ">=", startDate)
+      .where("date", "<=", endDate)
       .orderBy("date", "desc")
       .onSnapshot((snapshot) => {
         setNewTags(snapshot.docs[0].data().tags);
@@ -53,6 +64,22 @@ const Home = ({ userObj }) => {
     setKeyword(value);
   };
 
+  const onChangeStartDate = (event) => {
+    const {
+      target: { value },
+    } = event;
+    if (value > defaultEndDate) return alert("오늘까지만 선택 가능합니다.");
+    setStartDate(value);
+  };
+
+  const onChangeEndDate = (event) => {
+    const {
+      target: { value },
+    } = event;
+    if (value > defaultEndDate) return alert("오늘까지만 선택 가능합니다.");
+    setEndDate(value);
+  };
+
   const onClickKeyword = (event) => {
     setKeyword(event.target.outerText);
   };
@@ -64,7 +91,22 @@ const Home = ({ userObj }) => {
   return (
     <div className="homeContainer dark">
       <article className="searchContainer">
-        <div className="searchInputWrap">
+        <div className="searchInput__date">
+          <input
+            type="date"
+            value={keyword ? "2019-11-18" : startDate}
+            onChange={onChangeStartDate}
+            disabled={keyword && true}
+          />
+          -
+          <input
+            type="date"
+            value={keyword ? defaultEndDate : endDate}
+            onChange={onChangeEndDate}
+            disabled={keyword && true}
+          />
+        </div>
+        <div className="searchInput__keyword">
           <span className="searchCancelBtn" onClick={onClickSearchClear}>
             <FontAwesomeIcon icon={faTimes} />
           </span>
@@ -95,9 +137,7 @@ const Home = ({ userObj }) => {
             )}
           </datalist>
         </div>
-        <h3 className="keyword__title">
-          {items.length > 0 && items[0].date} 오늘의 키워드
-        </h3>
+        <h3 className="keyword__title">{endDate} 이슈</h3>
         <ul className="keywordWrap">
           {newTags && (
             <>
@@ -115,7 +155,7 @@ const Home = ({ userObj }) => {
                   ].includes(tag) && (
                     <li
                       key={tag}
-                      className="formBtn commonBtn"
+                      className="issueKeyword"
                       onClick={onClickKeyword}
                     >
                       {tag}

@@ -465,13 +465,16 @@ textarea.newsFactoryInput__title {
   background-image: linear-gradient(90deg, #45d6b7 0%, #29c536 100%);
 }
 .temp__hot15 {
-  background-image: linear-gradient(90deg, #29c536 0%, #ffcc00 100%);
+  background-image: linear-gradient(90deg, #29c536 0%, #1b8600 100%);
 }
 .temp__hot30 {
-  background-image: linear-gradient(90deg, #ffcc00 0%, #ff9900 100%);
+  background-image: linear-gradient(90deg, #1b8600 0%, #a2a500 100%);
 }
 .temp__hot40 {
-  background-image: linear-gradient(90deg, #ff9900 0%, #ff7300 100%);
+  background-image: linear-gradient(90deg, #a2a500 0%, #ffc400 100%);
+}
+.temp__hot50 {
+  background-image: linear-gradient(90deg, #ffc400 0%, #ff6600 100%);
 }
 
 .item__text {
@@ -731,49 +734,80 @@ textarea.newsFactoryInput__title {
 
 /* search */
 .searchContainer {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1rem 70px 120px 3fr 2fr 1rem;
+  grid-template-rows: 2rem 1fr 1fr 1.5rem;
+  max-width: 1400px;
+  margin: 30px auto 0;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  border: 1px solid #303540;
+  border-radius: 5px;
+  background-color: #191f2c;
 }
-.searchInputWrap {
-  position: relative;
+.searchInput__keyword {
+  grid-column: 3/5;
+  grid-row: 2;
   width: 100%;
-  text-align: center;
-  margin: 30px auto 20px;
+  position: relative;
 }
-.searchInputWrap > input {
-  width: 50%;
-  height: 3.5rem;
-  padding: 0.5rem 1rem;
+.searchInput__keyword > input {
+  width: 100%;
+  height: 2.7rem;
   border-radius: 5px;
   background-color: #fff;
-  font-size: 1.2rem;
-  color: #666;
-  text-align: center;
-}
-.searchInputWrap > input:focus {
-  outline: 5px solid #303540;
-}
-.keywordWrap {
-  display: flex;
-  flex-flow: wrap;
-  flex-direction: row;
-  gap: 1rem;
-  margin-bottom: 20px;
-  justify-content: center;
-}
-.keyword__title {
   font-size: 1rem;
-  font-weight: 700;
-  margin: 0 auto 1rem;
-}
-.keywordWrap > .formBtn {
-  width: auto;
+  color: #666;
+  text-indent: 3rem;
 }
 .searchCancelBtn {
   cursor: pointer;
-  position: relative;
-  left: 2rem;
+  position: absolute;
+  left: 1.5rem;
+  top: 1rem;
   color: #333;
+}
+.searchContainer input:focus {
+  outline: 5px solid #303540;
+}
+.searchInput__date {
+  grid-column: 5;
+  grid-row: 2;
+}
+.searchInput__date > input {
+  height: 2.7rem;
+  border-radius: 5px;
+  margin: 0 1rem;
+  font-size: 1rem;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+  color: #fff;
+  background-color: #303540;
+  font-weight: bold;
+  text-align: center;
+}
+.keyword__title {
+  grid-row: 3;
+  grid-column: 3;
+  font-weight: 700;
+  margin-top: 10px;
+  color: #fff;
+  border-right: 1px solid #666;
+}
+.keywordWrap {
+  grid-column: 4/6;
+  grid-row: 3;
+  display: flex;
+  gap: 1rem;
+  margin: 10px 0 0 10px;
+  flex-flow: row wrap;
+}
+.issueKeyword {
+  cursor: pointer;
+}
+.issueKeyword:hover,
+.issueKeyword:focus {
+  color: #fff;
+  font-weight: bold;
 }
