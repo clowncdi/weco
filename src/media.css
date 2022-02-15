@@ -116,4 +116,12 @@
     margin: 0;
     padding: 1rem;
   }
+  .item__img img:hover,
+  .item__img img:focus {
+    transform: none;
+    outline: none;
+  }
+  .item__newson {
+    top: 10px;
+  }
 }

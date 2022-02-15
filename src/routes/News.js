@@ -12,36 +12,28 @@ const News = ({ userObj }) => {
   const itemCount = 25;
 
   useEffect(() => {
-    {
-      type.length > 0 ? findAllByType(itemCount, type) : findAll(itemCount);
-    }
+    findAll();
   }, [type, page]);
 
-  function findAll(itemCount) {
-    dbService
-      .collection("news")
-      .orderBy("createdAt", "desc")
-      .startAfter(last)
-      .limit(itemCount)
-      .onSnapshot((snapshot) => {
-        const itemArray = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setItems(itemArray);
-        setLast(snapshot.docs[snapshot.docs.length - 1]);
-        if (snapshot.docs.length < itemCount) setMore(false);
-      });
-  }
+  function findAll() {
+    let result = [];
+    if (type.length > 0) {
+      result = dbService
+        .collection("news")
+        .where("type", "==", type)
+        .orderBy("createdAt", "desc")
+        .startAfter(last)
+        .limit(itemCount);
+    } else {
+      result = dbService
+        .collection("news")
+        .orderBy("createdAt", "desc")
+        .startAfter(last)
+        .limit(itemCount);
+    }
 
-  function findAllByType(itemCount, typeName) {
-    dbService
-      .collection("news")
-      .where("type", "==", typeName)
-      .orderBy("createdAt", "desc")
-      .startAfter(last)
-      .limit(itemCount)
-      .onSnapshot((snapshot) => {
+    if (result !== "") {
+      result.onSnapshot((snapshot) => {
         const itemArray = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -50,6 +42,7 @@ const News = ({ userObj }) => {
         setLast(snapshot.docs[snapshot.docs.length - 1]);
         if (snapshot.docs.length < itemCount) setMore(false);
       });
+    }
   }
 
   const onClickType = (event) => {
