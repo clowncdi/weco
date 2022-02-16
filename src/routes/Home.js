@@ -24,7 +24,7 @@ const Home = ({ userObj }) => {
   const [last, setLast] = useState({});
   const [more, setMore] = useState(true);
 
-  const itemCount = 10;
+  const itemCount = 20;
   const skipedKeyword = [
     "오늘의날씨",
     "오늘의경제",
@@ -68,7 +68,10 @@ const Home = ({ userObj }) => {
     }
 
     result.onSnapshot((snapshot) => {
-      if (snapshot.docs.length === 0) return setItems([]);
+      if (snapshot.docs.length === 0) {
+        setMore(false);
+        return setItems([]);
+      }
       setNewTags(snapshot.docs[0].data().tags);
       setNewDate(snapshot.docs[0].data().date);
       const itemArray = snapshot.docs.map((doc) => ({

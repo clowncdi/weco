@@ -770,7 +770,7 @@ textarea.newsFactoryInput__title {
   color: #333;
 }
 .searchContainer input:focus {
-  outline: 5px solid #303540;
+  outline: none;
 }
 .searchInput__date {
   grid-column: 5;

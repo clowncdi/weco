@@ -23,6 +23,9 @@
   .homeContainer {
     padding-top: 100px;
   }
+  .itemContainer {
+    outline: none;
+  }
   .item__date {
     font-size: 1.5rem;
   }
@@ -93,10 +96,13 @@
   }
   .searchInput__date > input {
     height: 2rem;
-    width: 44%;
+    min-width: 44%;
     margin: 2%;
     font-size: 0.8rem;
     text-indent: 3px;
+  }
+  input::-webkit-datetime-edit {
+    min-width: 44%;
   }
   .searchInput__keyword {
     grid-row: 2;
@@ -120,9 +126,6 @@
   .item__img img:focus {
     transform: none;
     outline: none;
-  }
-  ::-webkit-tap-highlight-color {
-    color: rgba(0, 0, 0, 0);
   }
   .item__newson {
     top: 10px;
