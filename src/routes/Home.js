@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { dbService } from "fbase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+// import { debounce } from "lodash";
 import Item from "components/Item";
 
 const Home = ({ userObj }) => {
@@ -16,16 +17,33 @@ const Home = ({ userObj }) => {
   const [items, setItems] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [newTags, setNewTags] = useState([]);
+  const [newDate, setNewDate] = useState("");
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
   const [page, setPage] = useState(0);
   const [last, setLast] = useState({});
   const [more, setMore] = useState(true);
 
-  const itemCount = 20;
+  const itemCount = 10;
+  const skipedKeyword = [
+    "오늘의날씨",
+    "오늘의경제",
+    "날씨",
+    "경제",
+    "뉴스",
+    "오늘날씨",
+    "서울날씨",
+    "시황",
+    "주식",
+    "코인",
+    "경제뉴스",
+    "미국증시",
+    "뉴욕증시",
+  ];
 
   useEffect(() => {
-    findAll();
+    const debounce = setTimeout(findAll(), 500);
+    return () => clearTimeout(debounce);
   }, [keyword, startDate, endDate, page]);
 
   function findAll() {
@@ -50,14 +68,16 @@ const Home = ({ userObj }) => {
     }
 
     result.onSnapshot((snapshot) => {
+      if (snapshot.docs.length === 0) return setItems([]);
       setNewTags(snapshot.docs[0].data().tags);
+      setNewDate(snapshot.docs[0].data().date);
       const itemArray = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setItems(itemArray);
       setLast(snapshot.docs[snapshot.docs.length - 1]);
-      // if (snapshot.docs.length < itemCount) setMore(false);
+      if (snapshot.docs.length < itemCount) setMore(false);
     });
   }
 
@@ -74,20 +94,6 @@ const Home = ({ userObj }) => {
     setKeyword(value);
     init();
   };
-
-  // const onClickSearch = () => {
-  //   init();
-  //   setEndDate(defaultEndDate);
-  //   console.log(123);
-  // };
-
-  // const onKeyPressSearch = (event) => {
-  //   if (event.keyCode === 13) {
-  //     init();
-  //     setEndDate(defaultEndDate);
-  //     findAll();
-  //   }
-  // };
 
   const onChangeStartDate = (event) => {
     const {
@@ -150,14 +156,10 @@ const Home = ({ userObj }) => {
           <span className="searchCancelBtn" onClick={onClickSearchClear}>
             <FontAwesomeIcon icon={faTimes} />
           </span>
-          {/* <span className="searchBtn" onClick={onClickSearch}>
-            <FontAwesomeIcon icon={faSearch} />
-          </span> */}
           <input
             type="text"
             value={keyword}
             onChange={onChangeKeyword}
-            // onKeyPress={onKeyPressSearch}
             placeholder="키워드 검색"
             list="keyword-options"
           />
@@ -166,41 +168,21 @@ const Home = ({ userObj }) => {
               <>
                 {newTags.map(
                   (tag) =>
-                    ![
-                      "오늘의날씨",
-                      "오늘의경제",
-                      "날씨",
-                      "경제",
-                      "뉴스",
-                      "오늘날씨",
-                      "서울날씨",
-                      "시황",
-                      "주식",
-                      "코인",
-                    ].includes(tag) && <option value={tag} key={tag} />
+                    !skipedKeyword.includes(tag) && (
+                      <option value={tag} key={tag} />
+                    )
                 )}
               </>
             )}
           </datalist>
         </div>
-        <h3 className="keyword__title">{endDate} 이슈</h3>
+        <h3 className="keyword__title">{newDate} 이슈</h3>
         <ul className="keywordWrap">
           {newTags && (
             <>
               {newTags.map(
                 (tag) =>
-                  ![
-                    "오늘의날씨",
-                    "오늘의경제",
-                    "날씨",
-                    "경제",
-                    "뉴스",
-                    "오늘날씨",
-                    "서울날씨",
-                    "시황",
-                    "주식",
-                    "코인",
-                  ].includes(tag) && (
+                  !skipedKeyword.includes(tag) && (
                     <li
                       key={tag}
                       className="issueKeyword"

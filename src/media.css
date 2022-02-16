@@ -93,8 +93,8 @@
   }
   .searchInput__date > input {
     height: 2rem;
-    width: 43%;
-    margin: 3%;
+    width: 44%;
+    margin: 2%;
     font-size: 0.8rem;
     text-indent: 3px;
   }
@@ -120,6 +120,9 @@
   .item__img img:focus {
     transform: none;
     outline: none;
+  }
+  ::-webkit-tap-highlight-color {
+    color: rgba(0, 0, 0, 0);
   }
   .item__newson {
     top: 10px;
