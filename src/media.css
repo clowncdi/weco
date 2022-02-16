@@ -102,7 +102,7 @@
     text-indent: 3px;
   }
   input::-webkit-datetime-edit {
-    min-width: 44%;
+    min-width: 40%;
   }
   .searchInput__keyword {
     grid-row: 2;

@@ -1,5 +1,5 @@
 @import "https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css";
-@import url("https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Dongle:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Gowun+Dodum&family=Dongle:wght@400;700&display=swap");
 
 * {
   box-sizing: border-box;
@@ -49,8 +49,8 @@ form {
 }
 
 .brand {
-  font-size: 32px;
-  font-family: "Dongle", "Berkshire Swash", cursive;
+  font-size: 22px;
+  font-family: "Gowun Dodum", "Dongle", "Berkshire Swash", cursive;
   color: #fff;
 }
 
