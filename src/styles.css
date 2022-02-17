@@ -1,5 +1,5 @@
 @import "https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css";
-@import url("https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Gowun+Dodum&family=Dongle:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Gowun+Dodum&display=swap");
 
 * {
   box-sizing: border-box;
@@ -815,4 +815,19 @@ textarea.newsFactoryInput__title {
 .issueKeyword:focus {
   color: #fff;
   font-weight: bold;
+}
+.infoWrap .container {
+  color: #fff;
+  text-align: left;
+  padding-top: 8rem;
+  align-items: flex-start;
+}
+.infoWrap .container p,
+.infoWrap .container li {
+  margin: 10px 0;
+  line-height: 1.6rem;
+}
+#disqus_thread {
+  padding: 0 4%;
+  background-color: #0f1421;
 }

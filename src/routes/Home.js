@@ -2,16 +2,14 @@ import { useEffect, useState } from "react";
 import { dbService } from "fbase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-// import { debounce } from "lodash";
 import Item from "components/Item";
+import Disqus from "disqus-react";
 
 const Home = ({ userObj }) => {
   let today = new Date();
   const offset = today.getTimezoneOffset();
   today = new Date(today.getTime() - offset * 60 * 1000);
   const defaultEndDate = today.toISOString().split("T")[0];
-  // let monthAgo = new Date(today.setMonth(today.getMonth() - 12));
-  // const defaultStartDate = monthAgo.toISOString().split("T")[0];
   const defaultStartDate = "2019-11-18";
 
   const [items, setItems] = useState([]);
@@ -132,6 +130,13 @@ const Home = ({ userObj }) => {
     window.scrollTo(0, 0);
   }
 
+  const disqusShortname = "weco";
+  const disqusConfig = {
+    url: "https://clowncdi.github.io/weco",
+    identifier: "home",
+    title: "오늘의 날씨와 경제",
+  };
+
   return (
     <div className="homeContainer dark">
       <article className="searchContainer">
@@ -228,6 +233,10 @@ const Home = ({ userObj }) => {
           </span>
         </div>
       )}
+      <Disqus.DiscussionEmbed
+        shortname={disqusShortname}
+        config={disqusConfig}
+      />
     </div>
   );
 };

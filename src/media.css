@@ -12,6 +12,10 @@
 @media (max-width: 600px) {
   nav {
     flex-direction: column;
+    height: 100px;
+  }
+  .brand {
+    font-size: 18px;
   }
   .news__noti {
     grid-row: 2;
@@ -59,7 +63,7 @@
     grid-column: 2;
     grid-row: 1;
     flex-direction: row;
-    margin-top: 0.58rem;
+    margin-top: 0;
     gap: 0.8rem;
     width: 100%;
     padding: 2% 3%;
@@ -96,7 +100,7 @@
   }
   .searchInput__date > input {
     height: 2rem;
-    min-width: 44%;
+    min-width: 40%;
     margin: 2%;
     font-size: 0.8rem;
     text-indent: 3px;
