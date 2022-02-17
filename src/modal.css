@@ -16,13 +16,14 @@
 .modal > section {
   width: 90%;
   max-width: 800px;
+  max-height: 90vh;
   margin: 0 auto;
   border-radius: 0.3rem;
   background-color: #fff;
   /* 팝업이 열릴때 스르륵 열리는 효과 */
   -webkit-animation: modal-show 0.3s;
   animation: modal-show 0.3s;
-  overflow: hidden;
+  overflow: scroll;
   box-shadow: 3px 3px 30px rgba(0, 0, 0, 0.1);
 }
 .modal > section > main {
@@ -49,7 +50,7 @@
   background-color: transparent;
 }
 .modal > section > main {
-  height: 70vh;
+  height: 60vh;
   overflow: scroll;
   padding: 15px 20px 3px;
   color: #333;
@@ -128,4 +129,8 @@
   background-color: #35405e;
   color: #fff;
   border-radius: 100px;
+}
+#disqus_thread {
+  width: 94%;
+  margin: 0 auto;
 }

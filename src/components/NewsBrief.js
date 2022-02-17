@@ -75,6 +75,7 @@ const NewsBrief = ({ itemObj, isOwner }) => {
         open={modalOpen}
         close={closeModal}
         onRequestClose={closeModal}
+        itemObj={itemObj}
         header={"간략보기"}
       >
         <h2 className="modal__title">

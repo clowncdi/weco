@@ -90,6 +90,7 @@ const Item = ({ itemObj, isOwner }) => {
         open={modalOpen}
         close={closeModal}
         onRequestClose={closeModal}
+        itemObj={itemObj}
         header={itemObj.date}
       >
         <h2>{itemObj.title}</h2>

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { dbService } from "fbase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-// import { debounce } from "lodash";
 import Item from "components/Item";
 
 const Home = ({ userObj }) => {
@@ -10,8 +9,6 @@ const Home = ({ userObj }) => {
   const offset = today.getTimezoneOffset();
   today = new Date(today.getTime() - offset * 60 * 1000);
   const defaultEndDate = today.toISOString().split("T")[0];
-  // let monthAgo = new Date(today.setMonth(today.getMonth() - 12));
-  // const defaultStartDate = monthAgo.toISOString().split("T")[0];
   const defaultStartDate = "2019-11-18";
 
   const [items, setItems] = useState([]);

@@ -5,6 +5,7 @@ import Write from "routes/Write";
 import NewsWrite from "routes/NewsWrite";
 import Navigation from "./Navigation";
 import News from "routes/News";
+import Infomation from "routes/Infomation";
 
 function AppRouter({ refreshUser, isLoggedIn, userObj }) {
   return (
@@ -27,6 +28,7 @@ function AppRouter({ refreshUser, isLoggedIn, userObj }) {
           </>
         )}
         <Route path="/login" element={<Auth isLoggedIn={isLoggedIn} />}></Route>
+        <Route path="/info" element={<Infomation />}></Route>
         {isLoggedIn && (
           <>
             <Route path="/write" element={<Write userObj={userObj} />}></Route>

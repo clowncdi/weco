@@ -1,6 +1,7 @@
 import AppRouter from "components/Router";
 import { useState, useEffect } from "react";
 import { authService } from "fbase";
+import { Link } from "react-router-dom";
 
 function App() {
   const [init, setInit] = useState(false);
@@ -47,7 +48,9 @@ function App() {
         <address>
           Contact: <a href="mailto:insidebig@naver.com">insidebig@naver.com</a>
         </address>
-        <a onClick={() => alert("준비중입니다")}>개인정보처리방침</a>
+        <a href="/weco#/info" onClick={() => window.scrollTo(0, 0)}>
+          <span>개인정보처리방침</span>
+        </a>
       </footer>
     </>
   );

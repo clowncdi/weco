@@ -96,7 +96,7 @@
   }
   .searchInput__date > input {
     height: 2rem;
-    min-width: 44%;
+    min-width: 40%;
     margin: 2%;
     font-size: 0.8rem;
     text-indent: 3px;
@@ -129,5 +129,8 @@
   }
   .item__newson {
     top: 10px;
+  }
+  .modal > section > main {
+    height: 35vh;
   }
 }
