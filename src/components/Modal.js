@@ -1,18 +1,9 @@
-import Disqus from "disqus-react";
-
 const Modal = (props) => {
-  const { open, close, header, itemObj } = props;
+  const { open, close, header } = props;
   const onClickClose = (event) => {
     if (event.target.nodeName === "DIV") {
       close();
     }
-  };
-
-  const disqusShortname = "weco";
-  const disqusConfig = {
-    url: `${window.location.href}${itemObj.id}`,
-    identifier: itemObj.id,
-    title: itemObj.title,
   };
 
   return (
@@ -27,10 +18,6 @@ const Modal = (props) => {
             </button>
           </header>
           <main className="main">{props.children}</main>
-          <Disqus.DiscussionEmbed
-            shortname={disqusShortname}
-            config={disqusConfig}
-          />
           <footer>
             <button className="close" onClick={close}>
               {" "}

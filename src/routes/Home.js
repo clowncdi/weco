@@ -3,6 +3,7 @@ import { dbService } from "fbase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import Item from "components/Item";
+import Disqus from "disqus-react";
 
 const Home = ({ userObj }) => {
   let today = new Date();
@@ -129,6 +130,13 @@ const Home = ({ userObj }) => {
     window.scrollTo(0, 0);
   }
 
+  const disqusShortname = "weco";
+  const disqusConfig = {
+    url: "https://clowncdi.github.io/weco",
+    identifier: "clowncdi.github.io/weco",
+    title: "날씨",
+  };
+
   return (
     <div className="homeContainer dark">
       <article className="searchContainer">
@@ -225,6 +233,10 @@ const Home = ({ userObj }) => {
           </span>
         </div>
       )}
+      <Disqus.DiscussionEmbed
+        shortname={disqusShortname}
+        config={disqusConfig}
+      />
     </div>
   );
 };

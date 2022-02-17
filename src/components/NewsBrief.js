@@ -8,6 +8,7 @@ import {
 import { dbService } from "fbase";
 import { useState } from "react";
 import Modal from "./Modal";
+import Disqus from "disqus-react";
 
 const NewsBrief = ({ itemObj, isOwner }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -75,7 +76,6 @@ const NewsBrief = ({ itemObj, isOwner }) => {
         open={modalOpen}
         close={closeModal}
         onRequestClose={closeModal}
-        itemObj={itemObj}
         header={"간략보기"}
       >
         <h2 className="modal__title">

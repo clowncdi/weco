@@ -827,3 +827,7 @@ textarea.newsFactoryInput__title {
   margin: 10px 0;
   line-height: 1.6rem;
 }
+#disqus_thread {
+  padding: 0 4%;
+  background-color: #0f1421;
+}
