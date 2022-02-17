@@ -10,6 +10,9 @@
   #disqus_thread {
     padding: 2rem 4%;
   }
+  .indicatorContainer {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 @media (max-width: 600px) {
@@ -137,5 +140,9 @@
   }
   .item__newson {
     top: 10px;
+  }
+  .indicatorContainer {
+    grid-template-columns: repeat(3, 1fr);
+    margin: 3%;
   }
 }
