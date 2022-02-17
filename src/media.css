@@ -7,6 +7,9 @@
   .item__img img {
     max-height: 515px;
   }
+  #disqus_thread {
+    padding: 2rem 4%;
+  }
 }
 
 @media (max-width: 600px) {
@@ -64,6 +67,7 @@
     grid-row: 1;
     flex-direction: row;
     margin-top: 0;
+    left: 0;
     gap: 0.8rem;
     width: 100%;
     padding: 2% 3%;

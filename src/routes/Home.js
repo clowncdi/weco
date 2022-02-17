@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import Item from "components/Item";
 import Disqus from "disqus-react";
+import Upbit from "components/Upbit";
 
 const Home = ({ userObj }) => {
   let today = new Date();
@@ -203,6 +204,9 @@ const Home = ({ userObj }) => {
             </>
           )}
         </ul>
+      </article>
+      <article className="indicatorContainer">
+        <Upbit />
       </article>
       <article className="itemGridContainer">
         {userObj ? (
