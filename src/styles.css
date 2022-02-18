@@ -43,8 +43,8 @@ form {
 
 /* Logo */
 .brand img {
-  margin-right: 16px;
-  width: 60px;
+  margin-right: 12px;
+  width: 34px;
   vertical-align: middle;
 }
 
@@ -861,5 +861,5 @@ textarea.newsFactoryInput__title {
 }
 .indicatorWrap span {
   font-weight: 700;
-  color: #ffc400;
+  color: #fb6e55;
 }

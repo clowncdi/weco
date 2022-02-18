@@ -23,7 +23,7 @@
   /* 팝업이 열릴때 스르륵 열리는 효과 */
   -webkit-animation: modal-show 0.3s;
   animation: modal-show 0.3s;
-  overflow: scroll;
+  overflow: hidden;
   box-shadow: 3px 3px 30px rgba(0, 0, 0, 0.1);
 }
 .modal > section > main {
@@ -61,7 +61,7 @@
   box-shadow: 0 -3px 5px rgba(0, 0, 0, 0.1);
 }
 .modal > section > footer button {
-  width: 50%;
+  width: 100%;
   padding: 6px 12px;
   color: #fff;
   background-color: #191f2c;

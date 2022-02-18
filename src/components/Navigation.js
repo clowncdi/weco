@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
 import { authService } from "fbase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faUserSlash,
+  faHighlighter,
+} from "@fortawesome/free-solid-svg-icons";
 
 const Navigation = ({ userObj, isLoggedIn }) => {
   const onLogOutClick = () => {
@@ -10,7 +16,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
     <nav className="nav">
       <div className="brand">
         <Link to="/">
-          <img src={process.env.PUBLIC_URL + "/logo_icon.png"} alt="logo" />
+          <img src={process.env.PUBLIC_URL + "/logo2.png"} alt="logo" />
           오늘의 날씨와 경제
         </Link>
       </div>
@@ -36,7 +42,9 @@ const Navigation = ({ userObj, isLoggedIn }) => {
             )}
             <li>
               <Link to="/news/write">
-                <span className="commonBtn formBtn writeBtn">등록</span>
+                <span className="commonBtn formBtn writeBtn">
+                  <FontAwesomeIcon icon={faHighlighter} />
+                </span>
               </Link>
             </li>
             <li>
@@ -45,7 +53,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
                   className="commonBtn formBtn cancelBtn logOut"
                   onClick={onLogOutClick}
                 >
-                  로그아웃
+                  <FontAwesomeIcon icon={faUserSlash} />
                 </span>
               </Link>
             </li>
@@ -53,7 +61,9 @@ const Navigation = ({ userObj, isLoggedIn }) => {
         ) : (
           <li>
             <Link to="/login">
-              <span className="commonBtn formBtn">로그인</span>
+              <span className="commonBtn formBtn">
+                <FontAwesomeIcon icon={faUser} />
+              </span>
             </Link>
           </li>
         )}

@@ -144,5 +144,9 @@
   .indicatorContainer {
     grid-template-columns: repeat(3, 1fr);
     margin: 3%;
+    font-size: 0.7rem;
+  }
+  .indicatorWrap > span {
+    font-size: 0.8rem;
   }
 }
