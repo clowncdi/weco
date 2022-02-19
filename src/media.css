@@ -73,11 +73,11 @@
     left: 0;
     gap: 0.8rem;
     width: 100%;
-    padding: 3%;
+    padding: 3% 3% 6%;
     font-size: 0.7rem;
     background-color: #000;
     border-top: 1px solid #222;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 -3px 5px rgba(0, 0, 0, 0.3);
   }
   .news__type label {
     height: auto;
