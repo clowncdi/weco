@@ -24,7 +24,7 @@
     font-size: 18px;
   }
   .news__noti {
-    grid-row: 2;
+    grid-row: 1;
     padding: 0 2rem;
   }
   .wrapContainer {
@@ -61,7 +61,7 @@
   }
   .newsGrid {
     grid-template-columns: 10px 1fr 10px;
-    grid-template-rows: 50px 50px 1fr 50px;
+    grid-template-rows: 50px 1fr 50px;
   }
   .news__type {
     z-index: 10;
@@ -69,14 +69,14 @@
     grid-column: 2;
     grid-row: 1;
     flex-direction: row;
-    margin-top: 0;
+    bottom: 0;
     left: 0;
     gap: 0.8rem;
     width: 100%;
-    padding: 2% 3%;
+    padding: 3%;
     font-size: 0.7rem;
-    background-color: #191f2c;
-    border-bottom: 1px solid #303540;
+    background-color: #000;
+    border-top: 1px solid #222;
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
   }
   .news__type label {
@@ -84,8 +84,9 @@
     width: auto;
     padding: 8px 10px;
   }
-  .newsGridContainer {
-    grid-row: 3;
+  .newsContainer {
+    border: 0;
+    margin: 0;
   }
   .moreBtnWrap {
     grid-column: 2;
@@ -142,11 +143,17 @@
     top: 10px;
   }
   .indicatorContainer {
-    grid-template-columns: repeat(3, 1fr);
+    width: 94%;
+    grid-template-columns: repeat(8, minmax(80px, auto));
+    overflow: scroll;
+    scrollbar-width: none;
     margin: 3%;
     font-size: 0.7rem;
   }
-  .indicatorWrap > span {
-    font-size: 0.8rem;
+  .indicatorContainer::-webkit-scrollbar {
+    display: none;
+  }
+  .indicatorContainer > div > span {
+    font-size: 0.7rem;
   }
 }

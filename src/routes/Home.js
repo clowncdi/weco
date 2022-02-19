@@ -5,6 +5,7 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import Item from "components/Item";
 import Disqus from "disqus-react";
 import Upbit from "components/Upbit";
+import Indicator from "./../components/Indicator";
 
 const Home = ({ userObj }) => {
   let today = new Date();
@@ -22,6 +23,7 @@ const Home = ({ userObj }) => {
   const [page, setPage] = useState(0);
   const [last, setLast] = useState({});
   const [more, setMore] = useState(true);
+  const [text, setText] = useState("");
 
   const itemCount = 20;
   const skipedKeyword = [
@@ -41,11 +43,30 @@ const Home = ({ userObj }) => {
   ];
 
   useEffect(() => {
+    dbService
+      .collection("items")
+      .where("creatorId", "==", process.env.REACT_APP_ADMIN)
+      .orderBy("date", "desc")
+      .limit(1)
+      .onSnapshot((snapshot) => {
+        if (snapshot.docs.length === 0) {
+          return setText("");
+        }
+        const item = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const result = item.shift().text;
+        setText(result);
+      });
+  }, []);
+
+  useEffect(() => {
     const debounce = setTimeout(findAll(), 500);
     return () => clearTimeout(debounce);
   }, [keyword, startDate, endDate, page]);
 
-  function findAll() {
+  const findAll = () => {
     let result = [];
     if (keyword) {
       result = dbService
@@ -81,7 +102,7 @@ const Home = ({ userObj }) => {
       setLast(snapshot.docs[snapshot.docs.length - 1]);
       if (snapshot.docs.length < itemCount) setMore(false);
     });
-  }
+  };
 
   function init() {
     setPage(0);
@@ -140,6 +161,10 @@ const Home = ({ userObj }) => {
 
   return (
     <div className="homeContainer dark">
+      <article className="indicatorContainer">
+        {text && <Indicator text={text} />}
+        <Upbit />
+      </article>
       <article className="searchContainer">
         <div className="searchInput__date">
           <input
@@ -204,9 +229,6 @@ const Home = ({ userObj }) => {
             </>
           )}
         </ul>
-      </article>
-      <article className="indicatorContainer">
-        <Upbit />
       </article>
       <article className="itemGridContainer">
         {userObj ? (

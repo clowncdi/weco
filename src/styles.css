@@ -15,7 +15,7 @@ input {
 }
 
 body {
-  background-color: #0f1421;
+  background-color: #000;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 14px;
@@ -63,8 +63,8 @@ form {
   position: fixed;
   z-index: 10;
   width: 100%;
-  background-color: #191f2c;
-  border-bottom: 1px solid #303540;
+  background-color: #111518;
+  border-bottom: 1px solid #222;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }
 .nav > ul {
@@ -306,7 +306,7 @@ textarea.newsFactoryInput__title {
 }
 .factoryInput__tag > input {
   display: block;
-  width: 18%;
+  width: 25%;
   margin: 10px auto;
 }
 .tagBtn {
@@ -582,8 +582,8 @@ textarea.newsFactoryInput__title {
   position: relative;
   margin: 0.8rem 0;
   border-radius: 5px;
-  background-color: #191f2c;
-  border: 1px solid #303540;
+  background-color: #111518;
+  border: 1px solid #222;
   transition: 0.3s;
 }
 .newsContainer:hover,
@@ -680,8 +680,8 @@ textarea.newsFactoryInput__title {
 
 /* dark ver */
 .dark {
-  background-color: #0f1421;
-  color: #cfcfcf;
+  background-color: #000;
+  color: #fff;
 }
 
 /* white ver */
@@ -743,9 +743,8 @@ textarea.newsFactoryInput__title {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  border: 1px solid #303540;
   border-radius: 5px;
-  background-color: #191f2c;
+  background-color: #111518;
 }
 .searchInput__keyword {
   grid-column: 3/5;
@@ -832,8 +831,8 @@ textarea.newsFactoryInput__title {
   max-width: 1400px;
   margin: 3rem auto 0;
   padding: 2rem 0;
-  background-color: #0f1421;
-  border-top: 1px solid #191f2c;
+  background-color: #000;
+  border-top: 1px solid #222;
 }
 
 /* indicator */
@@ -844,22 +843,34 @@ textarea.newsFactoryInput__title {
   margin: 30px auto 0;
   gap: 1rem;
 }
-.indicatorWrap {
-  border: 1px solid #303540;
+.indicatorContainer > div {
   border-radius: 5px;
-  background-color: #191f2c;
-  height: 4rem;
-  line-height: 1.6rem;
+  background-color: #111518;
+  height: 5rem;
+  line-height: 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: Roboto, Noto Sans KR, sans-serif, Arial, Helvetica;
 }
-.indicatorWrap > h3 {
+.indicatorContainer > h3 {
   color: #ccc;
 }
-.indicatorWrap span {
+.indicatorContainer > div > span {
   font-weight: 700;
   color: #fb6e55;
+}
+.indicatorContainer > div > span:nth-child(3) {
+  background-color: #fb6e55;
+  padding: 0 6px;
+  color: #fff;
+  border-radius: 4px;
+}
+.indicatorContainer > div.minus > span {
+  color: #4b67e7;
+}
+.indicatorContainer > div.minus > span:nth-child(3) {
+  background-color: #2a4ad8;
+  color: #fff;
 }

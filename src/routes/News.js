@@ -10,7 +10,7 @@ const News = ({ userObj }) => {
   const [last, setLast] = useState({});
   const [more, setMore] = useState(true);
 
-  const itemCount = 25;
+  const itemCount = 24;
 
   useEffect(() => {
     findAll();
@@ -63,6 +63,7 @@ const News = ({ userObj }) => {
     setMore(true);
     setLast({});
     setPage(0);
+    window.scrollTo(0, 0);
   };
 
   function onClickMore() {

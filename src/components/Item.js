@@ -78,7 +78,7 @@ const Item = ({ itemObj, isOwner }) => {
         <img
           src={
             itemObj.attachmentUrl === ""
-              ? process.env.PUBLIC_URL + "/item_default2.jpg"
+              ? process.env.PUBLIC_URL + "/logo512.png"
               : itemObj.attachmentUrl
           }
           onClick={openModal}

@@ -15,7 +15,7 @@ const Upbit = () => {
 
   return (
     <div className="indicatorWrap">
-      <h3>비트코인(업비트)</h3>
+      <h3>비트코인</h3>
       {loading ? (
         <strong>Loading...</strong>
       ) : (
