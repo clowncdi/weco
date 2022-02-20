@@ -5,7 +5,8 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import Item from "components/Item";
 import Disqus from "disqus-react";
 import Upbit from "components/Upbit";
-import Indicator from "./../components/Indicator";
+import Indicator from "components/Indicator";
+import Weather from "components/Weather";
 
 const Home = ({ userObj }) => {
   let today = new Date();
@@ -160,75 +161,78 @@ const Home = ({ userObj }) => {
   };
 
   return (
-    <div className="homeContainer dark">
+    <div className="homeContainer dark homeFlex">
       <article className="indicatorContainer">
         {text && <Indicator text={text} />}
         <Upbit />
       </article>
-      <article className="searchContainer">
-        <div className="searchInput__date">
-          <input
-            type="date"
-            value={keyword ? "2019-11-18" : startDate}
-            onChange={onChangeStartDate}
-            disabled={keyword && true}
-          />
-          {keyword ? (
-            "~ 현재까지"
-          ) : (
-            <>
-              -
-              <input
-                type="date"
-                value={keyword ? defaultEndDate : endDate}
-                onChange={onChangeEndDate}
-              />
-            </>
-          )}
-        </div>
-        <div className="searchInput__keyword">
-          <span className="searchCancelBtn" onClick={onClickSearchClear}>
-            <FontAwesomeIcon icon={faTimes} />
-          </span>
-          <input
-            type="text"
-            value={keyword}
-            onChange={onChangeKeyword}
-            placeholder="키워드 검색"
-            list="keyword-options"
-          />
-          <datalist id="keyword-options">
+      <article className="searchContainer__wrap">
+        <div className="searchContainer">
+          <div className="searchInput__date">
+            <input
+              type="date"
+              value={keyword ? "2019-11-18" : startDate}
+              onChange={onChangeStartDate}
+              disabled={keyword && true}
+            />
+            {keyword ? (
+              "~ 현재까지"
+            ) : (
+              <>
+                -
+                <input
+                  type="date"
+                  value={keyword ? defaultEndDate : endDate}
+                  onChange={onChangeEndDate}
+                />
+              </>
+            )}
+          </div>
+          <div className="searchInput__keyword">
+            <span className="searchCancelBtn" onClick={onClickSearchClear}>
+              <FontAwesomeIcon icon={faTimes} />
+            </span>
+            <input
+              type="text"
+              value={keyword}
+              onChange={onChangeKeyword}
+              placeholder="키워드 검색"
+              list="keyword-options"
+            />
+            <datalist id="keyword-options">
+              {newTags && (
+                <>
+                  {newTags.map(
+                    (tag) =>
+                      !skipedKeyword.includes(tag) && (
+                        <option value={tag} key={tag} />
+                      )
+                  )}
+                </>
+              )}
+            </datalist>
+          </div>
+          <h3 className="keyword__title">{newDate} 이슈</h3>
+          <ul className="keywordWrap">
             {newTags && (
               <>
                 {newTags.map(
                   (tag) =>
                     !skipedKeyword.includes(tag) && (
-                      <option value={tag} key={tag} />
+                      <li
+                        key={tag}
+                        className="issueKeyword"
+                        onClick={onClickKeyword}
+                      >
+                        {tag}
+                      </li>
                     )
                 )}
               </>
             )}
-          </datalist>
+          </ul>
         </div>
-        <h3 className="keyword__title">{newDate} 이슈</h3>
-        <ul className="keywordWrap">
-          {newTags && (
-            <>
-              {newTags.map(
-                (tag) =>
-                  !skipedKeyword.includes(tag) && (
-                    <li
-                      key={tag}
-                      className="issueKeyword"
-                      onClick={onClickKeyword}
-                    >
-                      {tag}
-                    </li>
-                  )
-              )}
-            </>
-          )}
-        </ul>
+        <div className="weatherContainer">{text && <Weather />}</div>
       </article>
       <article className="itemGridContainer">
         {userObj ? (

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 
 const Indicator = ({ text }) => {
-  console.log("시작", text.length);
   const [sp500, setSp500] = useState("");
   const [dow, setDow] = useState("");
   const [nasdoq, setNasdoq] = useState("");
