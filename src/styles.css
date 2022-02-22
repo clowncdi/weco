@@ -951,6 +951,9 @@ textarea.newsFactoryInput__title {
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
 }
+.weather__desc::-webkit-scrollbar {
+  display: none;
+}
 .weather__etc {
   grid-row: 4;
   grid-column: 1/3;
