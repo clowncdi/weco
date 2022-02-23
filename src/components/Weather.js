@@ -3,20 +3,22 @@ import { faTemperatureLow } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Weather = () => {
+  const API_KEY = process.env.REACT_APP_WEATHER;
   const [loading, setLoading] = useState(true);
-  const [city, setCity] = useState("Seoul");
+  const [city, setCity] = useState("");
   const [res, setRes] = useState();
 
   useEffect(() => {
-    const apikey = process.env.REACT_APP_WEATHER;
-    fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apikey}&lang=kr`
-    )
-      .then((response) => response.json())
-      .then((json) => {
-        setRes(json);
-        setLoading(false);
-      });
+    if (city === "") {
+      const { geolocation } = navigator;
+      if (!geolocation) {
+        onGeoError();
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(onGeoLocale, onGeoError);
+    } else {
+      selectCity();
+    }
   }, [city]);
 
   const onChangeCity = (event) => {
@@ -24,6 +26,32 @@ const Weather = () => {
       target: { value },
     } = event;
     setCity(value);
+  };
+
+  const selectCity = () => {
+    fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}&lang=kr`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setRes(data);
+        setLoading(false);
+      });
+  };
+
+  const onGeoLocale = (position) => {
+    const { latitude, longitude } = position.coords;
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=kr`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setRes(data);
+        setLoading(false);
+      });
+  };
+
+  const onGeoError = () => {
+    setCity("Seoul");
   };
 
   return (
@@ -46,6 +74,7 @@ const Weather = () => {
               <option value="Ulsan">울산</option>
               <option value="Goyang-si">고양</option>
               <option value="Yongin">용인</option>
+              <option value="yangsan">양산</option>
               <option value="Changwon">창원</option>
               <option value="Seongnam-si">성남</option>
               <option value="Cheongju-si">청주</option>

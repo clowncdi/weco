@@ -127,9 +127,17 @@
     box-shadow: 0 -3px 5px rgba(0, 0, 0, 0.3);
   }
   .news__type label {
+    flex-direction: column;
     height: auto;
     width: auto;
     padding: 8px 10px;
+    border-radius: 6px;
+    background-color: black;
+  }
+  .news__type label > svg {
+    margin-bottom: 5px;
+    margin-left: 0;
+    margin-right: 0;
   }
   .newsContainer {
     border: 0;

@@ -26,7 +26,7 @@ const Home = ({ userObj }) => {
   const [more, setMore] = useState(true);
   const [text, setText] = useState("");
 
-  const itemCount = 20;
+  const itemCount = 18;
   const skipedKeyword = [
     "오늘의날씨",
     "오늘의경제",

@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import { dbService } from "fbase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBookmark,
+  faNewspaper,
+  faEnvelope,
+  faAsterisk,
+  faPaperclip,
+} from "@fortawesome/free-solid-svg-icons";
 import NewsBrief from "components/NewsBrief";
 import Disqus from "disqus-react";
 
@@ -82,13 +90,15 @@ const News = ({ userObj }) => {
     <>
       <div className="homeContainer dark newsGrid">
         <span className="news__noti">
-          부적절한 이용은 관리자에 의해 제재를 받을 수 있습니다.
+          로그인 후 등록 가능합니다. 단, 부적절한 이용은 제재를 받을 수
+          있습니다.
         </span>
         <div className="news__type">
           <label
             htmlFor="type-all"
             className={"commonBtn " + (type === "" ? "selected" : "")}
           >
+            <FontAwesomeIcon icon={faAsterisk} />
             전체
           </label>
           <input id="type-all" type="button" value="all" onClick={onClickAll} />
@@ -96,6 +106,7 @@ const News = ({ userObj }) => {
             htmlFor="type-news"
             className={"commonBtn " + (type === "News" ? "selected" : "")}
           >
+            <FontAwesomeIcon icon={faNewspaper} />
             뉴스
           </label>
           <input
@@ -108,6 +119,7 @@ const News = ({ userObj }) => {
             htmlFor="type-bookmark"
             className={"commonBtn " + (type === "Bookmark" ? "selected" : "")}
           >
+            <FontAwesomeIcon icon={faBookmark} />
             북마크
           </label>
           <input
@@ -120,6 +132,7 @@ const News = ({ userObj }) => {
             htmlFor="type-newsletter"
             className={"commonBtn " + (type === "Newsletter" ? "selected" : "")}
           >
+            <FontAwesomeIcon icon={faEnvelope} />
             뉴스레터
           </label>
           <input
@@ -132,6 +145,7 @@ const News = ({ userObj }) => {
             htmlFor="type-etc"
             className={"commonBtn " + (type === "Etc" ? "selected" : "")}
           >
+            <FontAwesomeIcon icon={faPaperclip} />
             기타
           </label>
           <input
