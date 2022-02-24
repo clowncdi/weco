@@ -112,7 +112,7 @@
   }
   .news__type {
     z-index: 10;
-    justify-content: center;
+    justify-content: space-evenly;
     grid-column: 2;
     grid-row: 1;
     flex-direction: row;
@@ -133,8 +133,15 @@
     padding: 8px 10px;
     border-radius: 6px;
     background-color: black;
+    font-size: 0.6rem;
+  }
+  .news__type label:hover,
+  .news__type label.selected {
+    background-image: none;
+    color: #f8ff8d;
   }
   .news__type label > svg {
+    font-size: 1rem;
     margin-bottom: 5px;
     margin-left: 0;
     margin-right: 0;

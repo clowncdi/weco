@@ -57,7 +57,9 @@ const Weather = () => {
   return (
     <>
       {loading ? (
-        <strong>Loading...</strong>
+        <div className="weather__city">
+          <strong>Loading...</strong>
+        </div>
       ) : (
         <>
           <div className="weather__city">
