@@ -2,6 +2,13 @@ const Infomation = () => {
   return (
     <section className="infoWrap dark">
       <div className="container">
+        <div className="infoWrap__logo">
+          <img
+            src={process.env.PUBLIC_URL + "/logo2.png"}
+            width="100"
+            alt="오늘의 날씨와 경제 로고"
+          />
+        </div>
         <p>
           [ INSIDEBIG ]('clowncdi.github.io/weco'이하 '오늘의날씨와경제') 은(는)
           「개인정보 보호법」 제30조에 따라 정보주체의 개인정보를 보호하고 이와

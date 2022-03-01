@@ -37,7 +37,7 @@ form {
 }
 
 .wrapContainer {
-  height: 92vh;
+  min-height: 92vh;
   padding-top: 8rem;
 }
 
@@ -147,6 +147,11 @@ form {
 .cancelBtn {
   background-color: #242b3c;
   color: #fff;
+}
+.smallBtn {
+  width: auto;
+  padding: 5px 8px;
+  font-size: 0.6rem;
 }
 
 /* Auth */
@@ -281,6 +286,21 @@ form {
 textarea.newsFactoryInput__title {
   min-height: 12rem;
 }
+.factoryInput__img {
+  display: flex;
+  width: 94%;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 8px;
+  background-color: #333;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+.factoryInput__img > input:nth-child(1) {
+  flex-grow: 1;
+  padding: 4px;
+  border-radius: 30px;
+}
 
 .factoryInput__title > input {
   width: 12%;
@@ -315,6 +335,10 @@ textarea.newsFactoryInput__title {
   width: 18%;
   padding: 5px 10px;
   margin: 5px 5px 0;
+}
+
+.editor {
+  width: 94%;
 }
 
 .ck.ck-editor {
@@ -840,6 +864,9 @@ textarea.newsFactoryInput__title {
   text-align: left;
   padding-top: 8rem;
   align-items: flex-start;
+}
+.infoWrap__logo {
+  margin: 0 auto 30px;
 }
 .infoWrap .container p,
 .infoWrap .container li {

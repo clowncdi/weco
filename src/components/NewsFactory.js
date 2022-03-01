@@ -8,6 +8,7 @@ const NewsFactory = ({ userObj }) => {
   const [type, setType] = useState("News");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
+  const [imgUrl, setImgUrl] = useState("");
 
   let today = new Date();
   const offset = today.getTimezoneOffset();
@@ -36,6 +37,21 @@ const NewsFactory = ({ userObj }) => {
       target: { value },
     } = event;
     setText(value);
+  };
+  const onChangeImageUrl = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setImgUrl(value);
+  };
+  const onClickInsertImageUrl = () => {
+    if (imgUrl === "") return;
+    setText(
+      `${text}<br><img src='${imgUrl}' max-width='100%' alt='${
+        title ? title : "참고 이미지"
+      }' />`
+    );
+    setImgUrl("");
   };
   const onSubmit = async (event) => {
     if (type === "") return alert("카테고리를 입력해 주세요");
@@ -130,6 +146,20 @@ const NewsFactory = ({ userObj }) => {
           onChange={onTextChange}
           placeholder="뉴스를 간단하게 요약해 주세요"
         />
+        <div className="factoryInput__img">
+          <input
+            type="text"
+            placeholder="이미지 URL을 넣어주세요(선택사항)"
+            value={imgUrl}
+            onChange={onChangeImageUrl}
+          />
+          <input
+            className="commonBtn formBtn homeBtn smallBtn"
+            type="button"
+            value="이미지삽입"
+            onClick={onClickInsertImageUrl}
+          />
+        </div>
         <label htmlFor="news-submit" className="factoryInput__arrow">
           등록
         </label>

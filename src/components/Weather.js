@@ -47,6 +47,7 @@ const Weather = () => {
       .then((data) => {
         setRes(data);
         setLoading(false);
+        setCity(data.name);
       });
   };
 
