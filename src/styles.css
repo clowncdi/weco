@@ -508,6 +508,9 @@ textarea.newsFactoryInput__title {
 .item__text > p {
   margin: 20px auto;
 }
+.item__text > img {
+  max-width: 100%;
+}
 .item__date {
   font-size: 0.8rem;
   font-weight: bold;

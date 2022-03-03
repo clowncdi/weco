@@ -56,7 +56,7 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
   const onClickInsertImageUrl = () => {
     if (imgUrl === "") return;
     setText(
-      `${text}<br><img src='${imgUrl}' max-width='100%' alt='${
+      `${text}<br><img src='${imgUrl}' alt='${
         title ? title : "참고 이미지"
       }' />`
     );

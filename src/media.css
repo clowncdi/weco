@@ -239,4 +239,7 @@
   .item__newson {
     top: 10px;
   }
+  .item__text > img {
+    width: 100%;
+  }
 }
