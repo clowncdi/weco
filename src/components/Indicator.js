@@ -28,29 +28,29 @@ const Indicator = ({ text }) => {
     const endPoint = line.indexOf(",", startPoint);
     return line.slice(startPoint + title.length, endPoint);
   };
-  const sp500Array = sp500.split("(").replaceAll(",", "");
-  const dowArray = dow.split("(").replaceAll(",", "");
-  const nasdoqArray = nasdoq.split("(").replaceAll(",", "");
-  const wtiArray = wti.split("(").replaceAll(",", "");
-  const dxyArray = dxy.split("(").replaceAll(",", "");
-  const vixArray = vix.split("(").replaceAll(",", "");
-  const goldArray = gold.split("(").replaceAll(",", "");
+  const sp500Array = sp500.split("(");
+  const dowArray = dow.split("(");
+  const nasdoqArray = nasdoq.split("(");
+  const wtiArray = wti.split("(");
+  const dxyArray = dxy.split("(");
+  const vixArray = vix.split("(");
+  const goldArray = gold.split("(");
 
   return (
     <>
       <div className={sp500.indexOf("-") > 0 ? "minus" : ""}>
         <h3>S&P500</h3>
-        <span>{sp500Array[0]}</span>
+        <span>{sp500Array[0].replaceAll(",", "")}</span>
         <span>{sp500Array[1]}</span>
       </div>
       <div className={dow.indexOf("-") > 0 ? "minus" : ""}>
         <h3>다우</h3>
-        <span>{dowArray[0]}</span>
+        <span>{dowArray[0].replaceAll(",", "")}</span>
         <span>{dowArray[1]}</span>
       </div>
       <div className={nasdoq.indexOf("-") > 0 ? "minus" : ""}>
         <h3>나스닥</h3>
-        <span>{nasdoqArray[0]}</span>
+        <span>{nasdoqArray[0].replaceAll(",", "")}</span>
         <span>{nasdoqArray[1]}</span>
       </div>
       <div className={wti.indexOf("-") > 0 ? "minus" : ""}>
@@ -70,7 +70,7 @@ const Indicator = ({ text }) => {
       </div>
       <div className={gold.indexOf("-") > 0 ? "minus" : ""}>
         <h3>금</h3>
-        <span>{goldArray[0]}</span>
+        <span>{goldArray[0].replaceAll(",", "")}</span>
         <span>{goldArray[1]}</span>
       </div>
     </>
