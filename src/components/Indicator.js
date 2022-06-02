@@ -28,13 +28,13 @@ const Indicator = ({ text }) => {
     const endPoint = line.indexOf(",", startPoint);
     return line.slice(startPoint + title.length, endPoint);
   };
-  const sp500Array = sp500.split("(");
-  const dowArray = dow.split("(");
-  const nasdoqArray = nasdoq.split("(");
-  const wtiArray = wti.split("(");
-  const dxyArray = dxy.split("(");
-  const vixArray = vix.split("(");
-  const goldArray = gold.split("(");
+  const sp500Array = sp500.split("(").replaceAll(",", "");
+  const dowArray = dow.split("(").replaceAll(",", "");
+  const nasdoqArray = nasdoq.split("(").replaceAll(",", "");
+  const wtiArray = wti.split("(").replaceAll(",", "");
+  const dxyArray = dxy.split("(").replaceAll(",", "");
+  const vixArray = vix.split("(").replaceAll(",", "");
+  const goldArray = gold.split("(").replaceAll(",", "");
 
   return (
     <>
