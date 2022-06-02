@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/weco/static/css/main.497ef52d.css",
-    "main.js": "/weco/static/js/main.fbcb7974.js",
+    "main.js": "/weco/static/js/main.f74be146.js",
     "index.html": "/weco/index.html",
     "main.497ef52d.css.map": "/weco/static/css/main.497ef52d.css.map",
-    "main.fbcb7974.js.map": "/weco/static/js/main.fbcb7974.js.map"
+    "main.f74be146.js.map": "/weco/static/js/main.f74be146.js.map"
   },
   "entrypoints": [
     "static/css/main.497ef52d.css",
-    "static/js/main.fbcb7974.js"
+    "static/js/main.f74be146.js"
   ]
 }
