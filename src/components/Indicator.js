@@ -39,17 +39,17 @@ const Indicator = ({ text }) => {
     <>
       <div className={sp500.indexOf("-") > 0 ? "minus" : ""}>
         <h3>S&P500</h3>
-        <span>{sp500Array[0].replaceAll(",", "")}</span>
+        <span>{sp500Array[0]}</span>
         <span>{sp500Array[1]}</span>
       </div>
       <div className={dow.indexOf("-") > 0 ? "minus" : ""}>
         <h3>다우</h3>
-        <span>{dowArray[0].replaceAll(",", "")}</span>
+        <span>{dowArray[0]}</span>
         <span>{dowArray[1]}</span>
       </div>
       <div className={nasdoq.indexOf("-") > 0 ? "minus" : ""}>
         <h3>나스닥</h3>
-        <span>{nasdoqArray[0].replaceAll(",", "")}</span>
+        <span>{nasdoqArray[0]}</span>
         <span>{nasdoqArray[1]}</span>
       </div>
       <div className={wti.indexOf("-") > 0 ? "minus" : ""}>
