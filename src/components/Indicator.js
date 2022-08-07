@@ -12,8 +12,7 @@ const Indicator = ({ text }) => {
   useEffect(() => {
     const startPoint = text.indexOf("<br>S");
     const endPoint = text.indexOf("원</p>");
-    const lineDataOrigin = text.slice(startPoint + 4, endPoint + 1);
-    const line = lineDataOrigin.replaceAll(")", "");
+    const line = text.slice(startPoint + 4, endPoint + 1);
     setSp500(sliceLine(line, "S&amp;P500"));
     setDow(sliceLine(line, "다우"));
     setNasdoq(sliceLine(line, "나스닥"));
@@ -25,7 +24,7 @@ const Indicator = ({ text }) => {
 
   const sliceLine = (line, title) => {
     const startPoint = line.indexOf(title);
-    const endPoint = line.indexOf(",", startPoint);
+    const endPoint = line.indexOf("),", startPoint);
     return line.slice(startPoint + title.length, endPoint);
   };
   const sp500Array = sp500.split("(");
