@@ -1,3 +1,4 @@
 # https://www.robotstxt.org/robotstxt.html
+Sitemap: https://clowncdi.github.io/weco/sitemap.xml
 User-agent: *
-Disallow:
+Allow: /
