@@ -311,13 +311,12 @@ form {
 }
 
 .detail__news {
-  width: 80%;
   background-color: #fff;
   margin: 20px 0;
   border-radius: 10px;
   line-height: 1.8;
   font-size: 16px;
-  padding: 8%;
+  padding: 8% 8% 10%;
 }
 
 .detail__news img {
@@ -348,6 +347,18 @@ h2.detail__news__title {
 
 .detail__news__creator {
   margin-left: 10px;
+}
+
+.detail__content__wrap {
+  position: relative;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.detail__content__more {
+  position: absolute;
+  bottom: 30px;
+  left: calc(50% - 48px);
 }
 
 /* Item Factory */

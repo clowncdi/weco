@@ -94,10 +94,23 @@ const TopicDetail = ({ userObj, itemId }) => {
               </h3>
             </div>
           )}
-          <div
-            className="detail__news"
-            dangerouslySetInnerHTML={{ __html: text }}
-          ></div>
+
+          <div className="detail__content__wrap">
+            <div
+              className="detail__news"
+              dangerouslySetInnerHTML={{ __html: text }}
+            ></div>
+            <div className='detail__content__more'>
+              <a
+                className="modal__link"
+                target="_blank"
+                href={url}
+                rel="noreferrer"
+              >
+                <FontAwesomeIcon icon={faLink} /> 자세히 보기
+              </a>
+            </div>
+          </div>
 
           <div className="detail__btns">
             <label className="factoryInput__arrow" onClick={() => navigate(-1)}>

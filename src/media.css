@@ -245,10 +245,14 @@
 
   .detail__top,
   .detail__content,
+  .detail__content__wrap,
   .detail__tag {
     width: 90%;
   }
   .tagBtn {
     width: 30%;
+  }
+  .detail__content__more {
+    bottom: 15px;
   }
 }
