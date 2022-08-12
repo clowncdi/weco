@@ -242,4 +242,13 @@
   .item__text > img {
     width: 100%;
   }
+
+  .detail__top,
+  .detail__content,
+  .detail__tag {
+    width: 90%;
+  }
+  .tagBtn {
+    width: 30%;
+  }
 }

@@ -1,6 +1,6 @@
-import { faHandMiddleFinger } from "@fortawesome/free-solid-svg-icons";
 import { dbService, storageService } from "fbase";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 
 const ItemDetail = ({ userObj, itemId }) => {
@@ -29,6 +29,8 @@ const ItemDetail = ({ userObj, itemId }) => {
               {line
                 .replace("<p>", "")
                 .replace("</p>", "")
+                .replace("&amp;", "&")
+                .replace("&nbsp;", "")
                 .split("<br>")
                 .map((line2) => {
                   count = count + 1;
@@ -107,54 +109,63 @@ const ItemDetail = ({ userObj, itemId }) => {
   };
 
   return (
-    <div className="factoryForm">
-      <div className="factoryInput__container">
-        {itemObj && (
-          <div className="detail__top">
-            <h1>{title}</h1>
-            <h2 className="item__date">{date}</h2>
-            <div className={`item__temperature ${temp}`}>
-              <span>최저 {low}°C</span>
-              <span>최고 {high}°C</span>
+    <>
+      <Helmet>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
+          crossorigin="anonymous"
+        ></script>
+      </Helmet>
+      <div className="factoryForm">
+        <div className="factoryInput__container">
+          {itemObj && (
+            <div className="detail__top">
+              <h1>{title}</h1>
+              <h2 className="item__date">{date}</h2>
+              <div className={`item__temperature ${temp}`}>
+                <span>최저 {low}°C</span>
+                <span>최고 {high}°C</span>
+              </div>
+              <div className="detail__img">
+                {attachmentUrl && (
+                  <img src={attachmentUrl} alt={title} width={"100%"} />
+                )}
+              </div>
             </div>
-            <div className="detail__img">
-              {attachmentUrl && (
-                <img src={attachmentUrl} alt={title} width={"100%"} />
-              )}
-            </div>
-          </div>
-        )}
-        <div className="detail__content">{text}</div>
-        <div className="detail__tag">
-          <h5>Tags</h5>
-          {tags.map(
-            (tag) =>
-              !skipedKeyword.includes(tag) && (
-                <span className="formBtn tagBtn" key={tag}>
-                  {tag}
-                </span>
-              )
           )}
-        </div>
-        <div className="detail__btns">
-          <label className="factoryInput__arrow" onClick={() => navigate(-1)}>
-            목록
-          </label>
-          <button
-            id="kakao-link-btn"
-            className="detail__btn__kakao"
-            onClick={shareToKatalk}
-          >
-            <img
-              src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
-              width={"20px"}
-              style={{ verticalAlign: "middle", marginRight: 10 }}
-            />
-            카톡 공유
-          </button>
+          <div className="detail__content">{text}</div>
+          <div className="detail__tag">
+            <h5>오늘의 이슈</h5>
+            {tags.map(
+              (tag) =>
+                !skipedKeyword.includes(tag) && (
+                  <span className="formBtn tagBtn" key={tag}>
+                    {tag}
+                  </span>
+                )
+            )}
+          </div>
+          <div className="detail__btns">
+            <label className="factoryInput__arrow" onClick={() => navigate(-1)}>
+              목록
+            </label>
+            <button
+              id="kakao-link-btn"
+              className="detail__btn__kakao"
+              onClick={shareToKatalk}
+            >
+              <img
+                src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
+                width={"20px"}
+                style={{ verticalAlign: "middle", marginRight: 10 }}
+              />
+              카톡 공유
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
