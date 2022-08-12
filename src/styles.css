@@ -242,6 +242,10 @@ form {
   font-size: 14px;
 }
 
+.detail__top > h2 {
+  color: #fff;
+}
+
 .detail__top > .item__temperature {
   height: 32px;
   font-weight: bold;
@@ -304,6 +308,46 @@ form {
   background-image: linear-gradient(to bottom, #fff171 0%, #ffd900e7 100%);
   background-size: 200% auto;
   border: none;
+}
+
+.detail__news {
+  width: 80%;
+  background-color: #fff;
+  margin: 20px 0;
+  border-radius: 10px;
+  line-height: 1.8;
+  font-size: 16px;
+  padding: 8%;
+}
+
+.detail__news img {
+  width: 100%;
+}
+
+h2.detail__news__title {
+  margin-bottom: 0;
+  line-height: 1.3;
+}
+
+.detail__news__type {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ccc;
+  padding: 4px 10px;
+  background-color: #333;
+  border-radius: 30px;
+}
+
+.detail__news__date {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail__news__creator {
+  margin-left: 10px;
 }
 
 /* Item Factory */
@@ -957,7 +1001,7 @@ textarea.newsFactoryInput__title {
 }
 
 #disqus_thread {
-  max-width: 1400px;
+  width: 100%;
   margin: 3rem auto 0;
   padding: 2rem 0;
   background-color: #000;

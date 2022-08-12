@@ -2,6 +2,7 @@ import { dbService, storageService } from "fbase";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
+import Disqus from "disqus-react";
 
 const ItemDetail = ({ userObj, itemId }) => {
   const navigate = useNavigate();
@@ -108,16 +109,23 @@ const ItemDetail = ({ userObj, itemId }) => {
     });
   };
 
+  const disqusShortname = "weco";
+  const disqusConfig = {
+    url: window.location.href,
+    identifier: itemId,
+    title: date,
+  };
+
   return (
     <>
-      <Helmet>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
-          crossorigin="anonymous"
-        ></script>
-      </Helmet>
       <div className="factoryForm">
+        <Helmet>
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
+            crossorigin="anonymous"
+          ></script>
+        </Helmet>
         <div className="factoryInput__container">
           {itemObj && (
             <div className="detail__top">
@@ -165,6 +173,10 @@ const ItemDetail = ({ userObj, itemId }) => {
           </div>
         </div>
       </div>
+      <Disqus.DiscussionEmbed
+        shortname={disqusShortname}
+        config={disqusConfig}
+      />
     </>
   );
 };

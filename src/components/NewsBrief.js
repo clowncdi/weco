@@ -59,19 +59,26 @@ const NewsBrief = ({ itemObj, isOwner }) => {
             </Link>
           </div>
         )}
-        <div className="newsContainer__link" onClick={openModal}>
-          <h3 className="news__date">
-            {date} <span className="news__creator">@{emailName}</span>
-          </h3>
+        <Link
+          to={{
+            pathname: `/news/${itemObj.id}`,
+            state: { uid: itemObj.creatorId },
+          }}
+        >
+          <div className="newsContainer__link">
+            <h3 className="news__date">
+              {date} <span className="news__creator">@{emailName}</span>
+            </h3>
 
-          <h3 className="news__title">{itemObj.title}</h3>
-          <div
-            className="news__text"
-            dangerouslySetInnerHTML={{ __html: content }}
-          ></div>
-        </div>
+            <h3 className="news__title">{itemObj.title}</h3>
+            <div
+              className="news__text"
+              dangerouslySetInnerHTML={{ __html: content }}
+            ></div>
+          </div>
+        </Link>
       </section>
-      <Modal
+      {/* <Modal
         open={modalOpen}
         close={closeModal}
         onRequestClose={closeModal}
@@ -95,7 +102,7 @@ const NewsBrief = ({ itemObj, isOwner }) => {
         >
           자세히
         </a>
-      </Modal>
+      </Modal> */}
     </>
   );
 };

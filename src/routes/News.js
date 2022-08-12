@@ -9,7 +9,7 @@ import {
   faPaperclip,
 } from "@fortawesome/free-solid-svg-icons";
 import NewsBrief from "components/NewsBrief";
-import Disqus from "disqus-react";
+import { Helmet } from "react-helmet-async";
 
 const News = ({ userObj }) => {
   const [items, setItems] = useState([]);
@@ -79,15 +79,15 @@ const News = ({ userObj }) => {
     window.scrollTo(0, 0);
   }
 
-  const disqusShortname = "weco";
-  const disqusConfig = {
-    url: "https://clowncdi.github.io/weco/news",
-    identifier: "news",
-    title: "뉴스",
-  };
-
   return (
     <>
+      <Helmet>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
+          crossorigin="anonymous"
+        ></script>
+      </Helmet>
       <div className="homeContainer dark newsGrid">
         <span className="news__noti">
           로그인 후 등록 가능합니다. 단, 부적절한 이용은 제재를 받을 수
@@ -188,10 +188,6 @@ const News = ({ userObj }) => {
           <p className="news__empty">등록된 게시물이 없습니다.</p>
         )}
       </div>
-      <Disqus.DiscussionEmbed
-        shortname={disqusShortname}
-        config={disqusConfig}
-      />
     </>
   );
 };

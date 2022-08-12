@@ -6,7 +6,8 @@ import NewsWrite from "routes/NewsWrite";
 import Navigation from "./Navigation";
 import News from "routes/News";
 import Infomation from "routes/Infomation";
-import WeacoDetail from "./../routes/WeacoDetail";
+import WeacoDetail from "routes/WeacoDetail";
+import NewsDetail from "routes/NewsDetail";
 
 function AppRouter({ refreshUser, isLoggedIn, userObj }) {
   return (
@@ -25,12 +26,17 @@ function AppRouter({ refreshUser, isLoggedIn, userObj }) {
               element={<WeacoDetail userObj={userObj} />}
             ></Route>
             <Route path="/news" element={<News userObj={userObj} />}></Route>
+            <Route
+              path="/news/:id"
+              element={<NewsDetail userObj={userObj} />}
+            ></Route>
           </>
         ) : (
           <>
             <Route path="/" element={<Home />}></Route>
             <Route path="/:id" element={<WeacoDetail />}></Route>
             <Route path="/news" element={<News userObj={userObj} />}></Route>
+            <Route path="/news/:id" element={<NewsDetail />}></Route>
           </>
         )}
         <Route path="/login" element={<Auth isLoggedIn={isLoggedIn} />}></Route>

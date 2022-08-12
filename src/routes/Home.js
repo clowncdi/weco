@@ -3,10 +3,10 @@ import { dbService } from "fbase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import Item from "components/Item";
-import Disqus from "disqus-react";
 import Upbit from "components/Upbit";
 import Indicator from "components/Indicator";
 import Weather from "components/Weather";
+import { Helmet } from "react-helmet-async";
 
 const Home = ({ userObj }) => {
   let today = new Date();
@@ -153,15 +153,15 @@ const Home = ({ userObj }) => {
     window.scrollTo(0, 0);
   }
 
-  const disqusShortname = "weco";
-  const disqusConfig = {
-    url: "https://clowncdi.github.io/weco",
-    identifier: "home",
-    title: "오늘의 날씨와 경제",
-  };
-
   return (
     <div className="homeContainer dark homeFlex">
+      <Helmet>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
+          crossorigin="anonymous"
+        ></script>
+      </Helmet>
       <article className="indicatorContainer">
         {text && <Indicator text={text} />}
         <Upbit />
@@ -263,10 +263,6 @@ const Home = ({ userObj }) => {
           </span>
         </div>
       )}
-      <Disqus.DiscussionEmbed
-        shortname={disqusShortname}
-        config={disqusConfig}
-      />
     </div>
   );
 };
