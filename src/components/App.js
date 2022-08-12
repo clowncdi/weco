@@ -2,6 +2,7 @@ import AppRouter from "components/Router";
 import { useState, useEffect } from "react";
 import { authService } from "fbase";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 function App() {
   const [init, setInit] = useState(false);
@@ -32,6 +33,9 @@ function App() {
 
   return (
     <>
+      <Helmet>
+        <title>오늘의 날씨와 경제 Weaco</title>
+      </Helmet>
       {init ? (
         <AppRouter
           // refreshUser={refreshUser}
@@ -44,7 +48,7 @@ function App() {
         </div>
       )}
       <footer className="appFooter dark">
-        <p>Made By &copy; {new Date().getFullYear()} INSIDEBIG</p>
+        <p>Made By &copy; {new Date().getFullYear()} WEACO</p>
         <address>
           Contact: <a href="mailto:insidebig@naver.com">insidebig@naver.com</a>
         </address>

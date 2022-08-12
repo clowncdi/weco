@@ -74,19 +74,26 @@ const Item = ({ itemObj, isOwner }) => {
         </span>
       </header>
 
-      <div className="item__img">
-        <img
-          src={
-            itemObj.attachmentUrl === ""
-              ? process.env.PUBLIC_URL + "/logo512.png"
-              : itemObj.attachmentUrl
-          }
-          onClick={openModal}
-          alt={itemObj.title}
-        />
-      </div>
+      <Link
+        to={{
+          pathname: `/${itemObj.id}`,
+          state: { uid: itemObj.creatorId },
+        }}
+      >
+        <div className="item__img">
+          <img
+            src={
+              itemObj.attachmentUrl === ""
+                ? process.env.PUBLIC_URL + "/logo512.png"
+                : itemObj.attachmentUrl
+            }
+            onClick={openModal}
+            alt={itemObj.title}
+          />
+        </div>
+      </Link>
 
-      <Modal
+      {/* <Modal
         open={modalOpen}
         close={closeModal}
         onRequestClose={closeModal}
@@ -98,7 +105,7 @@ const Item = ({ itemObj, isOwner }) => {
           className="item__text"
           dangerouslySetInnerHTML={{ __html: content }}
         ></div>
-      </Modal>
+      </Modal> */}
     </section>
   );
 };
