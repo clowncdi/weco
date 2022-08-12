@@ -87,19 +87,21 @@ const ItemDetail = ({ userObj, itemId }) => {
   const initKakao = () => {
     const { Kakao } = window;
     if (!Kakao.isInitialized()) {
-      Kakao.init(`${process.env.REACT_APP_KAKAO_KEY}`);
+      Kakao.init(process.env.REACT_APP_KAKAO_KEY);
     }
   };
 
+  const editedTags = tags.filter((tag) => !skipedKeyword.includes(tag));
   const shareToKatalk = () => {
     window.Kakao.Share.createCustomButton({
       container: "#kakao-link-btn",
       templateId: 81294,
       templateArgs: {
-        TITLE: title,
-        TEXT: text,
-        THUMB: attachmentUrl,
-        ID: itemId,
+        TITLE: `${title}`,
+        DATE: `${date}`,
+        TAGS: `${editedTags}`,
+        THUMB: `${attachmentUrl}`,
+        ID: `${itemId}`,
       },
     });
   };
@@ -138,9 +140,9 @@ const ItemDetail = ({ userObj, itemId }) => {
           <label className="factoryInput__arrow" onClick={() => navigate(-1)}>
             목록
           </label>
-          <label
+          <button
             id="kakao-link-btn"
-            className="detail__btn__list"
+            className="detail__btn__kakao"
             onClick={shareToKatalk}
           >
             <img
@@ -149,7 +151,7 @@ const ItemDetail = ({ userObj, itemId }) => {
               style={{ verticalAlign: "middle", marginRight: 10 }}
             />
             카톡 공유
-          </label>
+          </button>
         </div>
       </div>
     </div>

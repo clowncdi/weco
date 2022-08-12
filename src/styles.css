@@ -286,15 +286,14 @@ form {
   margin: 30px;
 }
 
-.detail__btns > .detail__btn__list {
+.detail__btns > .detail__btn__kakao {
   display: inline-block;
   cursor: pointer;
   margin: 1rem;
-  height: 40px;
   width: 120px;
   padding: 10px 0px;
   text-align: center;
-  border-radius: 20px;
+  border-radius: 30px;
   color: #000;
   background-image: linear-gradient(to bottom, #fff171 0%, #ffd900e7 100%);
   background-size: 200% auto;
