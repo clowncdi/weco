@@ -161,6 +161,15 @@ const Home = ({ userObj }) => {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
           crossorigin="anonymous"
         ></script>
+        <title>{defaultEndDate} - 오늘의 날씨와 경제 weaco</title>
+        <meta name="description" content={text} />
+        <meta name="keywords" content={newTags} />
+        <meta property="og:title" content={"오늘의 날씨와 경제 weaco"} />
+        <meta
+          property="og:image"
+          content={process.env.PUBLIC_URL + "/logo2.png"}
+        />
+        <meta property="og:site_name" content="오늘의 날씨와 경제 weaco" />
       </Helmet>
       <article className="indicatorContainer">
         {text && <Indicator text={text} />}

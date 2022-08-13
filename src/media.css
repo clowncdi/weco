@@ -252,7 +252,10 @@
   .tagBtn {
     width: 30%;
   }
+  .detail__news {
+    padding-bottom: 18%;
+  }
   .detail__content__more {
-    bottom: 15px;
+    bottom: 25px;
   }
 }

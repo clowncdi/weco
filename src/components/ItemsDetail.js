@@ -125,6 +125,13 @@ const ItemDetail = ({ userObj, itemId }) => {
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
             crossorigin="anonymous"
           ></script>
+          <title>{date} - 오늘의 날씨와 경제 weaco</title>
+          <meta name="description" content={itemObj.text} />
+          <meta name="keywords" content={tags} />
+          <meta property="og:title" content={title} />
+          <meta property="og:image" content={attachmentUrl} />
+          <meta property="og:site_name" content="오늘의 날씨와 경제 weaco" />
+          <meta property="og:description" content={itemObj.text} />
         </Helmet>
         <div className="factoryInput__container">
           {itemObj && (

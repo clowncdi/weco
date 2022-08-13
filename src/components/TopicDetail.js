@@ -70,6 +70,16 @@ const TopicDetail = ({ userObj, itemId }) => {
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
             crossorigin="anonymous"
           ></script>
+          <title>{title} - weaco 토픽</title>
+          <meta name="description" content={text} />
+          <meta name="keywords" content={title} />
+          <meta property="og:title" content={title} />
+          <meta
+            property="og:image"
+            content={process.env.PUBLIC_URL + "/logo2.png"}
+          />
+          <meta property="og:site_name" content="오늘의 날씨와 경제 weaco" />
+          <meta property="og:description" content={text} />
         </Helmet>
         <div className="factoryInput__container">
           {title && (
@@ -100,7 +110,7 @@ const TopicDetail = ({ userObj, itemId }) => {
               className="detail__news"
               dangerouslySetInnerHTML={{ __html: text }}
             ></div>
-            <div className='detail__content__more'>
+            <div className="detail__content__more">
               <a
                 className="modal__link"
                 target="_blank"

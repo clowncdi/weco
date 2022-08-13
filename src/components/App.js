@@ -52,7 +52,7 @@ function App() {
         <address>
           Contact: <a href="mailto:insidebig@naver.com">insidebig@naver.com</a>
         </address>
-        <a href="/weco#/info" onClick={() => window.scrollTo(0, 0)}>
+        <a href="/#/info" onClick={() => window.scrollTo(0, 0)}>
           <span>개인정보처리방침</span>
         </a>
       </footer>
