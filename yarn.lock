@@ -1337,6 +1337,13 @@
   "resolved" "https://registry.npmjs.org/@csstools/normalize.css/-/normalize.css-12.0.0.tgz"
   "version" "12.0.0"
 
+"@ctrl/react-adsense@^1.6.0":
+  "integrity" "sha512-FlekDNpaSkXpxVH9ic9p3fue3FTQl/Cwqv/DG8ZbN00XL6aujHsArCPo0ElnBBB3imGLtnL3q01L/PrB+5NahA=="
+  "resolved" "https://registry.npmjs.org/@ctrl/react-adsense/-/react-adsense-1.6.0.tgz"
+  "version" "1.6.0"
+  dependencies:
+    "tslib" "^2.4.0"
+
 "@deckdeckgo/utils@^5.1.0":
   "integrity" "sha512-ue/1BXkDBZ9k+Tqs3vyCRIjqxjPnl06ab9WGhGubAXoRtJIE7ZN58/pbLsPCYc4xFcY0TPH3tsWhE7eF/FU8Ew=="
   "resolved" "https://registry.npmjs.org/@deckdeckgo/utils/-/utils-5.1.0.tgz"
@@ -9208,10 +9215,10 @@
   "resolved" "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   "version" "1.14.1"
 
-"tslib@^2.0.3", "tslib@^2.1.0":
-  "integrity" "sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw=="
-  "resolved" "https://registry.npmjs.org/tslib/-/tslib-2.3.1.tgz"
-  "version" "2.3.1"
+"tslib@^2.0.3", "tslib@^2.1.0", "tslib@^2.4.0":
+  "integrity" "sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ=="
+  "resolved" "https://registry.npmjs.org/tslib/-/tslib-2.4.0.tgz"
+  "version" "2.4.0"
 
 "tsutils@^3.21.0":
   "integrity" "sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA=="

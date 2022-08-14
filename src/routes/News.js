@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import NewsBrief from "components/NewsBrief";
 import { Helmet } from "react-helmet-async";
+import { Adsense } from "@ctrl/react-adsense";
 
 const News = ({ userObj }) => {
   const [items, setItems] = useState([]);
@@ -82,11 +83,6 @@ const News = ({ userObj }) => {
   return (
     <>
       <Helmet>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
-          crossorigin="anonymous"
-        ></script>
         <title>weaco 토픽</title>
         <meta property="og:title" content={"weaco 토픽"} />
         <meta
@@ -194,6 +190,15 @@ const News = ({ userObj }) => {
         ) : (
           <p className="news__empty">등록된 게시물이 없습니다.</p>
         )}
+      </div>
+      <div>
+        <Adsense
+          client="ca-pub-6288876729056336"
+          slot="2083968513"
+          style={{ display: "block" }}
+          format="auto"
+          responsive="true"
+        />
       </div>
     </>
   );

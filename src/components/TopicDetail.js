@@ -65,11 +65,6 @@ const TopicDetail = ({ userObj, itemId }) => {
     <>
       <div className="factoryForm">
         <Helmet>
-          <script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
-            crossorigin="anonymous"
-          ></script>
           <title>{title} - weaco 토픽</title>
           <meta name="description" content={text} />
           <meta name="keywords" content={title} />

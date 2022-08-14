@@ -7,6 +7,7 @@ import Upbit from "components/Upbit";
 import Indicator from "components/Indicator";
 import Weather from "components/Weather";
 import { Helmet } from "react-helmet-async";
+import { Adsense } from "@ctrl/react-adsense";
 
 const Home = ({ userObj }) => {
   let today = new Date();
@@ -156,11 +157,6 @@ const Home = ({ userObj }) => {
   return (
     <div className="homeContainer dark homeFlex">
       <Helmet>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
-          crossorigin="anonymous"
-        ></script>
         <title>{defaultEndDate} - 오늘의 날씨와 경제 weaco</title>
         <meta name="description" content={text} />
         <meta name="keywords" content={newTags} />
@@ -272,6 +268,15 @@ const Home = ({ userObj }) => {
           </span>
         </div>
       )}
+      <div>
+        <Adsense
+          client="ca-pub-6288876729056336"
+          slot="9445236176"
+          style={{ display: "block" }}
+          format="autorelaxed"
+          layoutKey=""
+        />
+      </div>
     </div>
   );
 };

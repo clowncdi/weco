@@ -120,11 +120,6 @@ const ItemDetail = ({ userObj, itemId }) => {
     <>
       <div className="factoryForm">
         <Helmet>
-          <script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
-            crossorigin="anonymous"
-          ></script>
           <title>{date} - 오늘의 날씨와 경제 weaco</title>
           <meta name="description" content={itemObj.text} />
           <meta name="keywords" content={tags} />

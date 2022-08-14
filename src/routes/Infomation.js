@@ -213,7 +213,7 @@ const Infomation = () => {
           <li>성명 : 최대일</li>
           <li>직책 : 관리자</li>
           <li>직급 : 관리자</li>
-          <li>연락처 : WEACO@naver.com</li>
+          <li>연락처 : insidebig@naver.com</li>
         </ul>
         <p>
           <strong>제10조(권익침해 구제방법)</strong>
