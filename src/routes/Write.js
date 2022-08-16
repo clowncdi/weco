@@ -1,10 +1,9 @@
 import ItemFactory from "components/ItemsFactory";
 import ItemFactoryEdit from "components/ItemsFactoryEdit";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const Write = ({ userObj }) => {
-  const location = useLocation();
-  const id = location.pathname.split("/write/")[1];
+  let { id } = useParams();
 
   return (
     <section className="wrapContainer dark">

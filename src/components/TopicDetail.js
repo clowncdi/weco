@@ -65,7 +65,7 @@ const TopicDetail = ({ userObj, itemId }) => {
     <>
       <div className="factoryForm">
         <Helmet>
-          <title>{title} - weaco 토픽</title>
+          <title>{title} - Weaco 토픽</title>
           <meta name="description" content={text} />
           <meta name="keywords" content={title} />
           <meta property="og:title" content={title} />
@@ -73,7 +73,6 @@ const TopicDetail = ({ userObj, itemId }) => {
             property="og:image"
             content={process.env.PUBLIC_URL + "/logo2.png"}
           />
-          <meta property="og:site_name" content="오늘의 날씨와 경제 weaco" />
           <meta property="og:description" content={text} />
         </Helmet>
         <div className="factoryInput__container">
@@ -130,6 +129,7 @@ const TopicDetail = ({ userObj, itemId }) => {
                 src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
                 width={"20px"}
                 style={{ verticalAlign: "middle", marginRight: 10 }}
+                alt={"카카오톡 공유"}
               />
               카톡 공유
             </button>

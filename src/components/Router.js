@@ -1,4 +1,4 @@
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Auth from "routes/Auth";
 import Home from "routes/Home";
 import Write from "routes/Write";
@@ -9,38 +9,25 @@ import Infomation from "routes/Infomation";
 import WeacoDetail from "routes/WeacoDetail";
 import NewsDetail from "routes/NewsDetail";
 
-function AppRouter({ refreshUser, isLoggedIn, userObj }) {
+function AppRouter({ isLoggedIn, userObj }) {
   return (
-    <Router>
+    <>
       {isLoggedIn ? (
         <Navigation userObj={userObj} isLoggedIn={isLoggedIn} />
       ) : (
         <Navigation isLoggedIn={isLoggedIn} />
       )}
       <Routes>
-        {isLoggedIn ? (
-          <>
-            <Route path="/" element={<Home userObj={userObj} />}></Route>
-            <Route
-              path="/:id"
-              element={<WeacoDetail userObj={userObj} />}
-            ></Route>
-            <Route path="/news" element={<News userObj={userObj} />}></Route>
-            <Route
-              path="/news/:id"
-              element={<NewsDetail userObj={userObj} />}
-            ></Route>
-          </>
-        ) : (
-          <>
-            <Route path="/" element={<Home />}></Route>
-            <Route path="/:id" element={<WeacoDetail />}></Route>
-            <Route path="/news" element={<News userObj={userObj} />}></Route>
-            <Route path="/news/:id" element={<NewsDetail />}></Route>
-          </>
-        )}
+        <Route exact path="/" element={<Home userObj={userObj} />}></Route>
+        <Route path="/:id" element={<WeacoDetail userObj={userObj} />}></Route>
+        <Route path="/news" element={<News userObj={userObj} />}></Route>
+        <Route
+          path="/news/:id"
+          element={<NewsDetail userObj={userObj} />}
+        ></Route>
         <Route path="/login" element={<Auth isLoggedIn={isLoggedIn} />}></Route>
         <Route path="/info" element={<Infomation />}></Route>
+        <Route path="*" element={<Navigate replace to={"/"} />}></Route>
         {isLoggedIn && (
           <>
             <Route path="/write" element={<Write userObj={userObj} />}></Route>
@@ -59,7 +46,7 @@ function AppRouter({ refreshUser, isLoggedIn, userObj }) {
           </>
         )}
       </Routes>
-    </Router>
+    </>
   );
 }
 

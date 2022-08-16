@@ -120,13 +120,10 @@ const ItemDetail = ({ userObj, itemId }) => {
     <>
       <div className="factoryForm">
         <Helmet>
-          <title>{date} - 오늘의 날씨와 경제 weaco</title>
-          <meta name="description" content={itemObj.text} />
+          <title>{date} - 오늘의 날씨와 경제 - Weaco</title>
           <meta name="keywords" content={tags} />
           <meta property="og:title" content={title} />
           <meta property="og:image" content={attachmentUrl} />
-          <meta property="og:site_name" content="오늘의 날씨와 경제 weaco" />
-          <meta property="og:description" content={itemObj.text} />
         </Helmet>
         <div className="factoryInput__container">
           {itemObj && (
@@ -169,6 +166,7 @@ const ItemDetail = ({ userObj, itemId }) => {
                 src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
                 width={"20px"}
                 style={{ verticalAlign: "middle", marginRight: 10 }}
+                alt={"카카오톡 공유"}
               />
               카톡 공유
             </button>

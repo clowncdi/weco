@@ -1,9 +1,8 @@
 import TopicDetail from "components/TopicDetail";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const NewsDetail = ({ userObj }) => {
-  const location = useLocation();
-  const id = location.pathname.split("/")[2];
+  let { id } = useParams();
 
   return (
     <section className="wrapContainer dark">

@@ -83,13 +83,12 @@ const News = ({ userObj }) => {
   return (
     <>
       <Helmet>
-        <title>weaco 토픽</title>
-        <meta property="og:title" content={"weaco 토픽"} />
+        <title>Weaco 토픽</title>
+        <meta property="og:title" content={"Weaco 토픽"} />
         <meta
           property="og:image"
           content={process.env.PUBLIC_URL + "/logo2.png"}
         />
-        <meta property="og:site_name" content="오늘의 날씨와 경제 weaco" />
       </Helmet>
       <div className="homeContainer dark newsGrid">
         <span className="news__noti">

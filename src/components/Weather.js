@@ -5,20 +5,24 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const Weather = () => {
   const API_KEY = process.env.REACT_APP_WEATHER;
   const [loading, setLoading] = useState(true);
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState("Seoul");
   const [res, setRes] = useState();
 
+  // useEffect(() => {
+  //   if (city === "") {
+  //     const { geolocation } = navigator;
+  //     if (!geolocation) {
+  //       onGeoError();
+  //       return;
+  //     }
+  //     navigator.geolocation.getCurrentPosition(onGeoLocale, onGeoError);
+  //   } else {
+  //     selectCity();
+  //   }
+  // }, [city]);
+
   useEffect(() => {
-    if (city === "") {
-      const { geolocation } = navigator;
-      if (!geolocation) {
-        onGeoError();
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(onGeoLocale, onGeoError);
-    } else {
-      selectCity();
-    }
+    selectCity();
   }, [city]);
 
   const onChangeCity = (event) => {

@@ -1,10 +1,9 @@
 import NewsFactory from "components/NewsFactory";
 import NewsFactoryEdit from "components/NewsFactoryEdit";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const NewsWrite = ({ userObj }) => {
-  const location = useLocation();
-  const id = location.pathname.split("/write/")[1];
+  let { id } = useParams();
 
   return (
     <section className="wrapContainer dark">

@@ -227,6 +227,9 @@ form {
 .appFooter address {
   margin: 10px auto;
 }
+.privacy {
+  cursor: pointer;
+}
 
 /* Item Detail */
 

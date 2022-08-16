@@ -1,9 +1,8 @@
 import ItemsDetail from "components/ItemsDetail";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const WeacoDetail = ({ userObj }) => {
-  const location = useLocation();
-  const id = location.pathname.split("/")[1];
+  let { id } = useParams();
 
   return (
     <section className="wrapContainer dark">

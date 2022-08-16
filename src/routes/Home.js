@@ -8,6 +8,7 @@ import Indicator from "components/Indicator";
 import Weather from "components/Weather";
 import { Helmet } from "react-helmet-async";
 import { Adsense } from "@ctrl/react-adsense";
+import { Outlet } from "react-router-dom";
 
 const Home = ({ userObj }) => {
   let today = new Date();
@@ -157,15 +158,13 @@ const Home = ({ userObj }) => {
   return (
     <div className="homeContainer dark homeFlex">
       <Helmet>
-        <title>{defaultEndDate} - 오늘의 날씨와 경제 weaco</title>
+        <title>{defaultEndDate} - 오늘의 날씨와 경제 - Weaco</title>
         <meta name="description" content={text} />
         <meta name="keywords" content={newTags} />
-        <meta property="og:title" content={"오늘의 날씨와 경제 weaco"} />
         <meta
           property="og:image"
           content={process.env.PUBLIC_URL + "/logo2.png"}
         />
-        <meta property="og:site_name" content="오늘의 날씨와 경제 weaco" />
       </Helmet>
       <article className="indicatorContainer">
         {text && <Indicator text={text} />}

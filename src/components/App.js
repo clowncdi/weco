@@ -1,8 +1,7 @@
 import AppRouter from "components/Router";
 import { useState, useEffect } from "react";
 import { authService } from "fbase";
-import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import { Link, useNavigate } from "react-router-dom";
 
 function App() {
   const [init, setInit] = useState(false);
@@ -22,26 +21,18 @@ function App() {
       setInit(true);
     });
   }, []);
-  // const refreshUser = () => {
-  //   const user = authService.currentUser;
-  //   setUserObj({
-  //     displayName: user.displayName,
-  //     uid: user.uid,
-  //     updateProfile: (args) => user.updateProfile(args),
-  //   });
-  // };
+
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/info");
+    window.scrollTo(0, 0);
+  };
 
   return (
     <>
-      <Helmet>
-        <title>오늘의 날씨와 경제 Weaco</title>
-      </Helmet>
       {init ? (
-        <AppRouter
-          // refreshUser={refreshUser}
-          isLoggedIn={Boolean(userObj)}
-          userObj={userObj}
-        />
+        <AppRouter isLoggedIn={Boolean(userObj)} userObj={userObj} />
       ) : (
         <div className="loading">
           <img src={process.env.PUBLIC_URL + "/toolong.gif"} alt="loading..." />
@@ -52,9 +43,9 @@ function App() {
         <address>
           Contact: <a href="mailto:insidebig@naver.com">insidebig@naver.com</a>
         </address>
-        <a href="/#/info" onClick={() => window.scrollTo(0, 0)}>
-          <span>개인정보처리방침</span>
-        </a>
+        <span className="privacy" onClick={handleClick}>
+          개인정보처리방침
+        </span>
       </footer>
     </>
   );

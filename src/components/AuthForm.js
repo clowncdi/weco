@@ -1,7 +1,5 @@
 import { authService } from "fbase";
 import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLongArrowAltUp } from "@fortawesome/free-solid-svg-icons";
 
 const AuthForm = () => {
   const [email, setEmail] = useState("");
