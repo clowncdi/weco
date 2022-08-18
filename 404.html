@@ -34,6 +34,9 @@
         l.hash
       );
 
+      console.log('path: '+l.pathname)
+      window.history.replaceState(null, null, l.pathname);
+
       console.log('public[404] replaced l: ' + l);
 
     </script>
