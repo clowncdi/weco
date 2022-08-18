@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/static/css/main.afefd6fd.css",
-    "main.js": "/static/js/main.d40f2245.js",
-    "index.html": "/index.html",
-    "main.afefd6fd.css.map": "/static/css/main.afefd6fd.css.map",
-    "main.d40f2245.js.map": "/static/js/main.d40f2245.js.map"
+    "main.css": "https://weaco.co.kr/static/css/main.afefd6fd.css",
+    "main.js": "https://weaco.co.kr/static/js/main.266cb1af.js",
+    "index.html": "https://weaco.co.kr/index.html",
+    "main.afefd6fd.css.map": "https://weaco.co.kr/static/css/main.afefd6fd.css.map",
+    "main.266cb1af.js.map": "https://weaco.co.kr/static/js/main.266cb1af.js.map"
   },
   "entrypoints": [
     "static/css/main.afefd6fd.css",
-    "static/js/main.d40f2245.js"
+    "static/js/main.266cb1af.js"
   ]
 }
