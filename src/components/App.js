@@ -39,7 +39,7 @@ function App() {
         </div>
       )}
       <footer className="appFooter dark">
-        <p>Made By &copy; {new Date().getFullYear()} WEACO</p>
+        <p>Copyright &copy; {new Date().getFullYear()} WEACO</p>
         <address>
           Contact: <a href="mailto:insidebig@naver.com">insidebig@naver.com</a>
         </address>

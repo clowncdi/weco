@@ -154,7 +154,10 @@ const ItemDetail = ({ userObj, itemId }) => {
             )}
           </div>
           <div className="detail__btns">
-            <label className="factoryInput__arrow" onClick={() => navigate(-1)}>
+            <label
+              className="factoryInput__arrow"
+              onClick={() => navigate("/")}
+            >
               목록
             </label>
             <button

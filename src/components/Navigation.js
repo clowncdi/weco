@@ -1,11 +1,5 @@
 import { Link } from "react-router-dom";
 import { authService } from "fbase";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUser,
-  faUserSlash,
-  faHighlighter,
-} from "@fortawesome/free-solid-svg-icons";
 
 const Navigation = ({ userObj, isLoggedIn }) => {
   const onLogOutClick = () => {
@@ -42,9 +36,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
             )}
             <li>
               <Link to="/news/write">
-                <span className="commonBtn formBtn writeBtn">
-                  <FontAwesomeIcon icon={faHighlighter} />
-                </span>
+                <span className="commonBtn formBtn writeBtn">글쓰기</span>
               </Link>
             </li>
             <li>
@@ -53,7 +45,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
                   className="commonBtn formBtn cancelBtn logOut"
                   onClick={onLogOutClick}
                 >
-                  <FontAwesomeIcon icon={faUserSlash} />
+                  로그아웃
                 </span>
               </Link>
             </li>
@@ -61,9 +53,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
         ) : (
           <li>
             <Link to="/login">
-              <span className="commonBtn formBtn">
-                <FontAwesomeIcon icon={faUser} />
-              </span>
+              <span className="commonBtn formBtn">로그인</span>
             </Link>
           </li>
         )}
