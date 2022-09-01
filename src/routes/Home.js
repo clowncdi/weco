@@ -8,7 +8,12 @@ import Indicator from "components/Indicator";
 import Weather from "components/Weather";
 import { Helmet } from "react-helmet-async";
 import { Adsense } from "@ctrl/react-adsense";
-import { Outlet } from "react-router-dom";
+import {
+  adfitLong,
+  adfitLong2,
+  adfitMobile,
+  adfitMobile2,
+} from "components/ad";
 
 const Home = ({ userObj }) => {
   let today = new Date();
@@ -28,7 +33,7 @@ const Home = ({ userObj }) => {
   const [more, setMore] = useState(true);
   const [text, setText] = useState("");
 
-  const itemCount = 18;
+  const itemCount = 36;
   const skipedKeyword = [
     "오늘의날씨",
     "오늘의경제",
@@ -155,16 +160,19 @@ const Home = ({ userObj }) => {
     window.scrollTo(0, 0);
   }
 
+  useEffect(() => {
+    adfitLong();
+    adfitLong2();
+    adfitMobile();
+    adfitMobile2();
+  }, []);
+
   return (
     <div className="homeContainer dark homeFlex">
       <Helmet>
         <title>{defaultEndDate} - 오늘의 날씨와 경제 - Weaco</title>
         <meta name="description" content={text} />
         <meta name="keywords" content={newTags} />
-        <meta
-          property="og:image"
-          content={process.env.PUBLIC_URL + "/logo2.png"}
-        />
       </Helmet>
       <article className="indicatorContainer">
         {text && <Indicator text={text} />}
@@ -238,6 +246,17 @@ const Home = ({ userObj }) => {
         </div>
         <div className="weatherContainer">{text && <Weather />}</div>
       </article>
+      <article>
+        <div className="adfit adfit-l" style={{ marginTop: 15 }}></div>
+        <div
+          className="adfit adfit-m2"
+          style={{
+            marginTop: "3%",
+            marginLeft: "3%",
+            marginRight: "3%",
+          }}
+        ></div>
+      </article>
       <article className="itemGridContainer">
         {userObj ? (
           <>
@@ -268,6 +287,8 @@ const Home = ({ userObj }) => {
         </div>
       )}
       <div>
+        <div className="adfit adfit-l2"></div>
+        <div className="adfit adfit-m"></div>
         <Adsense
           client="ca-pub-6288876729056336"
           slot="9445236176"

@@ -1,4 +1,15 @@
 /* media query */
+@media (max-width: 3000px) {
+  .adfit-l,
+  .adfit-l2 {
+    display: block;
+  }
+  .adfit-m,
+  .adfit-m2,
+  .adfit-m3 {
+    display: none;
+  }
+}
 
 @media (max-width: 1399px) {
   .itemGridContainer {
@@ -58,6 +69,15 @@
   .weather__city select {
     width: auto;
   }
+  .adfit-l,
+  .adfit-l2 {
+    display: block;
+  }
+  .adfit-m,
+  .adfit-m2,
+  .adfit-m3 {
+    display: none;
+  }
 }
 
 @media (max-width: 600px) {
@@ -106,7 +126,7 @@
   }
   .newsGrid {
     grid-template-columns: 10px 1fr 10px;
-    grid-template-rows: 50px 1fr 50px;
+    grid-template-rows: 50px 120px 1fr 150px;
   }
   .news__type {
     z-index: 10;
@@ -257,5 +277,21 @@
   }
   .detail__content__more {
     bottom: 25px;
+  }
+  .wrapContainer {
+    padding-top: 100px;
+  }
+  .wrapContainer .adfit-m2,
+  .wrapContainer .adfit-m3 {
+    width: 100%;
+  }
+  .adfit-l,
+  .adfit-l2 {
+    display: none;
+  }
+  .adfit-m,
+  .adfit-m2,
+  .adfit-m3 {
+    display: block;
   }
 }

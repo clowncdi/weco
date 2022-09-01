@@ -1,5 +1,6 @@
 import { authService } from "fbase";
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 
 const AuthForm = () => {
   const [email, setEmail] = useState("");
@@ -35,6 +36,11 @@ const AuthForm = () => {
   const toggleAccount = () => setNewAccount((prev) => !prev);
   return (
     <>
+      <Helmet>
+        <title>로그인/회원가입 - Weaco</title>
+        <meta property="og:title" content={"로그인/회원가입"} />
+        <meta name="og:url" content="https://weaco.co.kr/login" />
+      </Helmet>
       <form onSubmit={onSubmit} className="container">
         <input
           name="email"

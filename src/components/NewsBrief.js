@@ -1,16 +1,9 @@
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPencilAlt,
-  faTrash,
-  faLink,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { dbService } from "fbase";
-import { useState } from "react";
-import Modal from "./Modal";
 
 const NewsBrief = ({ itemObj, isOwner }) => {
-  const [modalOpen, setModalOpen] = useState(false);
   const date = itemObj.createdAt.split("T")[0];
 
   const content = itemObj.text;
@@ -23,25 +16,10 @@ const NewsBrief = ({ itemObj, isOwner }) => {
       alert("삭제 완료!");
     }
   };
-  const openModal = () => {
-    setModalOpen(true);
-  };
-  const closeModal = () => {
-    setModalOpen(false);
-  };
-  const handleKeyPress = (event) => {
-    if (event.keyCode === 27) {
-      closeModal();
-    }
-  };
 
   return (
     <>
-      <section
-        className={"newsContainer " + "__" + itemObj.type}
-        onKeyDown={handleKeyPress}
-        tabIndex="0"
-      >
+      <section className={"newsContainer " + "__" + itemObj.type} tabIndex="0">
         {isOwner && (
           <div className="item__actions news__actions">
             <span onClick={onDeleteClick}>
@@ -78,31 +56,6 @@ const NewsBrief = ({ itemObj, isOwner }) => {
           </div>
         </Link>
       </section>
-      {/* <Modal
-        open={modalOpen}
-        close={closeModal}
-        onRequestClose={closeModal}
-        header={"간략보기"}
-      >
-        <h2 className="modal__title">
-          {itemObj.title}
-          <a target="_blank" href={itemObj.url} rel="noreferrer">
-            _ <FontAwesomeIcon icon={faLink} style={{ opacity: 0.5 }} />
-          </a>
-        </h2>
-        <div
-          className="item__text"
-          dangerouslySetInnerHTML={{ __html: content }}
-        ></div>
-        <a
-          className="modal__link"
-          target="_blank"
-          href={itemObj.url}
-          rel="noreferrer"
-        >
-          자세히
-        </a>
-      </Modal> */}
     </>
   );
 };

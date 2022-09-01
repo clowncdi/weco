@@ -7,13 +7,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { dbService, storageService } from "fbase";
 import { useEffect, useState } from "react";
-import Modal from "./Modal";
 
 const Item = ({ itemObj, isOwner }) => {
   const [temp, setTemp] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const content = itemObj.text;
   const mid = Number(itemObj.lowestTemp) + Number(itemObj.highestTemp);
   useEffect(() => {
     if (mid === "") setTemp("temp__none");
@@ -34,20 +30,9 @@ const Item = ({ itemObj, isOwner }) => {
       alert("삭제 완료!");
     }
   };
-  const openModal = () => {
-    setModalOpen(true);
-  };
-  const closeModal = () => {
-    setModalOpen(false);
-  };
-  const handleKeyPress = (event) => {
-    if (event.keyCode === 27) {
-      closeModal();
-    }
-  };
 
   return (
-    <section className="itemContainer" onKeyDown={handleKeyPress} tabIndex="0">
+    <section className="itemContainer" tabIndex="0">
       {isOwner && (
         <div className="item__actions">
           <span onClick={onDeleteClick}>
@@ -87,25 +72,10 @@ const Item = ({ itemObj, isOwner }) => {
                 ? process.env.PUBLIC_URL + "/logo512.png"
                 : itemObj.attachmentUrl
             }
-            onClick={openModal}
             alt={itemObj.title}
           />
         </div>
       </Link>
-
-      {/* <Modal
-        open={modalOpen}
-        close={closeModal}
-        onRequestClose={closeModal}
-        itemObj={itemObj}
-        header={itemObj.date}
-      >
-        <h2>{itemObj.title}</h2>
-        <div
-          className="item__text"
-          dangerouslySetInnerHTML={{ __html: content }}
-        ></div>
-      </Modal> */}
     </section>
   );
 };

@@ -12,7 +12,6 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
-    "@papyrs/stylo": "^0.0.8-2",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
@@ -30,8 +29,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts --max_old_space_size=4096 start",
-    "build": "react-scripts --max_old_space_size=4096 build",
+    "start": "react-scripts --max_old_space_size=8192 start",
+    "build": "react-scripts --max_old_space_size=8192 build",
     "eject": "react-scripts eject",
     "predeploy": "npm run build && cp CNAME ./build",
     "deploy": "gh-pages -d build"

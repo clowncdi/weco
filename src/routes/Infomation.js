@@ -1,6 +1,15 @@
+import { Helmet } from "react-helmet-async";
+
 const Infomation = () => {
   return (
     <section className="infoWrap dark">
+      <Helmet>
+        <title>개인정보처리방침 - Weaco</title>
+        <meta property="og:title" content={"개인정보처리방침 - Weaco"} />
+        <meta name="description" content={"개인정보처리방침"} />
+        <meta name="keywords" content={"개인정보처리방침"} />
+        <meta name="og:url" content="https://weaco.co.kr/info" />
+      </Helmet>
       <div className="container">
         <div className="infoWrap__logo">
           <img

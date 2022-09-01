@@ -11,6 +11,12 @@ import {
 import NewsBrief from "components/NewsBrief";
 import { Helmet } from "react-helmet-async";
 import { Adsense } from "@ctrl/react-adsense";
+import {
+  adfitLong,
+  adfitLong2,
+  adfitMobile,
+  adfitMobile2,
+} from "components/ad";
 
 const News = ({ userObj }) => {
   const [items, setItems] = useState([]);
@@ -19,7 +25,7 @@ const News = ({ userObj }) => {
   const [last, setLast] = useState({});
   const [more, setMore] = useState(true);
 
-  const itemCount = 24;
+  const itemCount = 48;
 
   useEffect(() => {
     findAll();
@@ -80,21 +86,27 @@ const News = ({ userObj }) => {
     window.scrollTo(0, 0);
   }
 
+  useEffect(() => {
+    adfitLong();
+    adfitLong2();
+    adfitMobile();
+    adfitMobile2();
+  }, []);
+
   return (
     <>
       <Helmet>
         <title>Weaco 토픽</title>
         <meta property="og:title" content={"Weaco 토픽"} />
-        <meta
-          property="og:image"
-          content={process.env.PUBLIC_URL + "/logo2.png"}
-        />
+        <meta name="og:url" content="https://weaco.co.kr/news" />
       </Helmet>
       <div className="homeContainer dark newsGrid">
         <span className="news__noti">
           로그인 후 등록 가능합니다. 단, 부적절한 이용은 제재를 받을 수
           있습니다.
         </span>
+        <div className="adfit adfit-l"></div>
+        <div className="adfit adfit-m2"></div>
         <div className="news__type">
           <label
             htmlFor="type-all"
@@ -191,6 +203,8 @@ const News = ({ userObj }) => {
         )}
       </div>
       <div>
+        <div className="adfit adfit-l2"></div>
+        <div className="adfit adfit-m"></div>
         <Adsense
           client="ca-pub-6288876729056336"
           slot="2083968513"

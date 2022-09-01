@@ -3,9 +3,10 @@ import ReactDOM from "react-dom";
 import App from "./components/App";
 import { BrowserRouter } from "react-router-dom";
 import "./styles.css";
-import "./modal.css";
 import "./media.css";
 import { HelmetProvider } from "react-helmet-async";
+
+const root = document.getElementById("root");
 
 ReactDOM.render(
   <React.StrictMode>
@@ -15,5 +16,5 @@ ReactDOM.render(
       </BrowserRouter>
     </HelmetProvider>
   </React.StrictMode>,
-  document.getElementById("root")
+  root
 );

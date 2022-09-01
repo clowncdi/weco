@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import Disqus from "disqus-react";
+import {
+  adfitLong,
+  adfitLong2,
+  adfitMobile,
+  adfitMobile2,
+} from "components/ad";
 
 const ItemDetail = ({ userObj, itemId }) => {
   const navigate = useNavigate();
@@ -116,6 +122,15 @@ const ItemDetail = ({ userObj, itemId }) => {
     title: date,
   };
 
+  let ogurl = "https://weaco.co.kr/" + { itemId };
+
+  useEffect(() => {
+    adfitLong();
+    adfitLong2();
+    adfitMobile();
+    adfitMobile2();
+  }, []);
+
   return (
     <>
       <div className="factoryForm">
@@ -124,8 +139,11 @@ const ItemDetail = ({ userObj, itemId }) => {
           <meta name="keywords" content={tags} />
           <meta property="og:title" content={title} />
           <meta property="og:image" content={attachmentUrl} />
+          <meta name="og:url" content={ogurl} />
         </Helmet>
         <div className="factoryInput__container">
+          <div className="adfit adfit-l"></div>
+          <div className="adfit adfit-m2"></div>
           {itemObj && (
             <div className="detail__top">
               <h1>{title}</h1>
@@ -142,6 +160,8 @@ const ItemDetail = ({ userObj, itemId }) => {
             </div>
           )}
           <div className="detail__content">{text}</div>
+          <div className="adfit adfit-l2"></div>
+          <div className="adfit adfit-m"></div>
           <div className="detail__tag">
             <h5>오늘의 이슈</h5>
             {tags.map(

@@ -5,6 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import Disqus from "disqus-react";
+import {
+  adfitLong,
+  adfitLong2,
+  adfitMobile,
+  adfitMobile3,
+} from "components/ad";
 
 const TopicDetail = ({ userObj, itemId }) => {
   const navigate = useNavigate();
@@ -61,6 +67,15 @@ const TopicDetail = ({ userObj, itemId }) => {
     title: title,
   };
 
+  let ogurl = "https://weaco.co.kr/news/" + { itemId };
+
+  useEffect(() => {
+    adfitLong();
+    adfitLong2();
+    adfitMobile();
+    adfitMobile3();
+  }, []);
+
   return (
     <>
       <div className="factoryForm">
@@ -69,13 +84,12 @@ const TopicDetail = ({ userObj, itemId }) => {
           <meta name="description" content={text} />
           <meta name="keywords" content={title} />
           <meta property="og:title" content={title} />
-          <meta
-            property="og:image"
-            content={process.env.PUBLIC_URL + "/logo2.png"}
-          />
           <meta property="og:description" content={text} />
+          <meta name="og:url" content={ogurl} />
         </Helmet>
         <div className="factoryInput__container">
+          <div className="adfit adfit-l"></div>
+          <div className="adfit adfit-m3"></div>
           {title && (
             <div className="detail__top">
               <p className="detail__news__type">{type}</p>
@@ -88,7 +102,7 @@ const TopicDetail = ({ userObj, itemId }) => {
                   </span>
                 </span>
                 <a
-                  className="modal__link"
+                  className="button__link"
                   target="_blank"
                   href={url}
                   rel="noreferrer"
@@ -106,7 +120,7 @@ const TopicDetail = ({ userObj, itemId }) => {
             ></div>
             <div className="detail__content__more">
               <a
-                className="modal__link"
+                className="button__link"
                 target="_blank"
                 href={url}
                 rel="noreferrer"
@@ -115,6 +129,8 @@ const TopicDetail = ({ userObj, itemId }) => {
               </a>
             </div>
           </div>
+          <div className="adfit adfit-l2"></div>
+          <div className="adfit adfit-m"></div>
 
           <div className="detail__btns">
             <label className="factoryInput__arrow" onClick={() => navigate(-1)}>

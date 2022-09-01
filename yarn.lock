@@ -1344,11 +1344,6 @@
   dependencies:
     "tslib" "^2.4.0"
 
-"@deckdeckgo/utils@^5.1.0":
-  "integrity" "sha512-ue/1BXkDBZ9k+Tqs3vyCRIjqxjPnl06ab9WGhGubAXoRtJIE7ZN58/pbLsPCYc4xFcY0TPH3tsWhE7eF/FU8Ew=="
-  "resolved" "https://registry.npmjs.org/@deckdeckgo/utils/-/utils-5.1.0.tgz"
-  "version" "5.1.0"
-
 "@eslint/eslintrc@^1.0.5":
   "integrity" "sha512-BLxsnmK3KyPunz5wmCCpqy0YelEoxxGmH73Is+Z74oOTMtExcjkr3dDR6quwrjh1YspA8DH9gnX1o069KiS9AQ=="
   "resolved" "https://registry.npmjs.org/@eslint/eslintrc/-/eslintrc-1.0.5.tgz"
@@ -2007,13 +2002,6 @@
   dependencies:
     "@nodelib/fs.scandir" "2.1.5"
     "fastq" "^1.6.0"
-
-"@papyrs/stylo@^0.0.8-2":
-  "integrity" "sha512-RoTYcw3MKeHazdxcntskZpbjZeP/uKmXNhr4wo3Nr3NQdEeuhAXQF6eYfwH/5hzjF9Ab5QkN2p546qYg992qIA=="
-  "resolved" "https://registry.npmjs.org/@papyrs/stylo/-/stylo-0.0.8-2.tgz"
-  "version" "0.0.8-2"
-  dependencies:
-    "@deckdeckgo/utils" "^5.1.0"
 
 "@pmmmwh/react-refresh-webpack-plugin@^0.5.3":
   "integrity" "sha512-zZbZeHQDnoTlt2AF+diQT0wsSXpvWiaIOZwBRdltNFhG1+I3ozyaw7U/nBiUwyJ0D+zwdXp0E3bWOl38Ag2BMw=="

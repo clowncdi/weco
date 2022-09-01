@@ -39,7 +39,7 @@ form {
 
 .wrapContainer {
   min-height: 92vh;
-  padding-top: 8rem;
+  padding-top: 77px;
 }
 
 /* Logo */
@@ -235,7 +235,7 @@ form {
 
 .detail__top {
   width: 80%;
-  margin: 0 auto;
+  margin: 20px auto 0;
 }
 
 .detail__top > h1 {
@@ -280,6 +280,7 @@ form {
 
 .detail__tag {
   width: 80%;
+  margin-top: 20px;
 }
 
 .detail__tag > h5 {
@@ -327,8 +328,8 @@ form {
 }
 
 h2.detail__news__title {
-  margin-bottom: 0;
   line-height: 1.3;
+  margin-bottom: 0;
 }
 
 .detail__news__type {
@@ -679,7 +680,7 @@ textarea.newsFactoryInput__title {
 .newsGrid {
   display: grid;
   grid-template-columns: 200px 1fr 100px;
-  grid-template-rows: 50px 1fr 30px;
+  grid-template-rows: 50px 90px 1fr 30px;
 }
 .news__noti {
   grid-column: 2;
@@ -740,7 +741,7 @@ textarea.newsFactoryInput__title {
 }
 .newsGridContainer {
   grid-column: 2;
-  grid-row: 2;
+  grid-row: 3;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, auto));
   justify-self: flex-start;
@@ -821,7 +822,7 @@ textarea.newsFactoryInput__title {
   margin: 2rem auto;
   height: 2rem;
   grid-column: 2;
-  grid-row: 3;
+  grid-row: 4;
   align-self: center;
   justify-self: center;
 }
@@ -906,6 +907,17 @@ textarea.newsFactoryInput__title {
 .__Etc__bright:hover,
 .__Etc__bright:focus {
   border-color: #0f8886;
+}
+.button__link {
+  align-self: flex-end;
+  display: inline-block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 8px 15px;
+  font-size: 0.7rem;
+  background-color: #35405e;
+  color: #fff;
+  border-radius: 100px;
 }
 
 /* search */
@@ -1145,4 +1157,11 @@ textarea.newsFactoryInput__title {
 .weather__etc span i {
   color: #888;
   margin-right: 8px;
+}
+
+.adfit {
+  margin: 0 auto;
+  grid-row: 2;
+  grid-column: 2;
+  text-align: center;
 }
