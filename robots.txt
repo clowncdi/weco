@@ -1,4 +1,4 @@
 # https://www.robotstxt.org/robotstxt.html
-Sitemap: https://clowncdi.github.io/weco/sitemap.xml
+Sitemap: https://weaco.co.kr/sitemap.xml
 User-agent: *
 Allow: /
