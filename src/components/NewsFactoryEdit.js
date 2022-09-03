@@ -1,6 +1,7 @@
 import { dbService } from "fbase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { EditorBox } from "./ToastEditor";
 
 const NewsFactoryEdit = ({ userObj, itemId }) => {
   const navigate = useNavigate();
@@ -41,42 +42,27 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
     } = event;
     setUrl(value);
   };
-  const onTextChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setText(value);
+
+  const editorRef = useRef();
+  const onContentChange = () => {
+    setText(editorRef.current?.getInstance().getHTML());
   };
-  const onChangeImageUrl = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setImgUrl(value);
-  };
-  const onClickInsertImageUrl = () => {
-    if (imgUrl === "") return;
-    setText(
-      `${text}<br><img src='${imgUrl}' alt='${
-        title ? title : "참고 이미지"
-      }' />`
-    );
-    setImgUrl("");
-  };
+
   const onSubmit = async (event) => {
     let today = new Date();
     const offset = today.getTimezoneOffset();
     today = new Date(today.getTime() - offset * 60 * 1000);
 
     if (title === "") return alert("제목을 입력해 주세요");
-    if (url === "") return alert("뉴스의 URL 주소를 입력해 주세요");
-    if (text === "") return alert("뉴스를 간단하게 요약해 주세요");
+    if (url === "") return alert("토픽 출처 URL 주소를 입력해 주세요");
+    if (text === "") return alert("토픽을 간단하게 요약해 주세요");
 
     event.preventDefault();
     const newItemObj = {
       title: title,
       type: type,
       url: url,
-      text: text.replaceAll(/(\n|\r\n)/g, "<br>"),
+      text: text,
       updatedAt: today.toISOString(),
       creatorEmail: userObj.email,
     };
@@ -136,7 +122,7 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
           </label>
         </div>
         <div className="newsFactoryInput__title">
-          <sapn>제목</sapn>
+          <span>제목</span>
           <input
             className="factoryInput__Input"
             value={title}
@@ -145,34 +131,22 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
           />
         </div>
         <div className="newsFactoryInput__title">
-          <sapn>링크</sapn>
+          <span>출처</span>
           <input
             className="factoryInput__Input"
             value={url}
+            placeholder="출처 링크를 입력해 주세요"
             onChange={onUrlChange}
             type="url"
           />
         </div>
-        <textarea
-          className="newsFactoryInput__title"
-          onChange={onTextChange}
-          value={text}
-          placeholder="뉴스를 간단하게 요약해 주세요"
-        />
-        <div className="factoryInput__img">
-          <input
-            type="text"
-            placeholder="이미지 URL을 넣어주세요(선택사항)"
-            value={imgUrl}
-            onChange={onChangeImageUrl}
+        {text && (
+          <EditorBox
+            editorRef={editorRef}
+            onChange={onContentChange}
+            text={text}
           />
-          <input
-            className="commonBtn formBtn homeBtn smallBtn"
-            type="button"
-            value="이미지삽입"
-            onClick={onClickInsertImageUrl}
-          />
-        </div>
+        )}
         <label htmlFor="news-submit" className="factoryInput__arrow">
           수정
         </label>

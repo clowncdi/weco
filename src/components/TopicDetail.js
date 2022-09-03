@@ -1,7 +1,7 @@
-import { dbService, storageService } from "fbase";
+import { dbService } from "fbase";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import Disqus from "disqus-react";
@@ -21,6 +21,8 @@ const TopicDetail = ({ userObj, itemId }) => {
   const [date, setDate] = useState("");
   const [creator, setCreator] = useState("");
   const [news, setNews] = useState("");
+
+  const isOwner = userObj.uid === news.creatorId;
 
   useEffect(() => {
     dbService
@@ -58,6 +60,14 @@ const TopicDetail = ({ userObj, itemId }) => {
         ID: `${itemId}`,
       },
     });
+  };
+
+  const onDeleteClick = async () => {
+    const ok = window.confirm("삭제하시겠습니까?");
+    if (ok) {
+      await dbService.doc(`news/${itemId}`).delete();
+      alert("삭제 완료!");
+    }
   };
 
   const disqusShortname = "weco";
@@ -133,9 +143,30 @@ const TopicDetail = ({ userObj, itemId }) => {
           <div className="adfit adfit-m"></div>
 
           <div className="detail__btns">
-            <label className="factoryInput__arrow" onClick={() => navigate(-1)}>
+            <label
+              className="factoryInput__arrow"
+              onClick={() => navigate("/news")}
+            >
               목록
             </label>
+            {isOwner && (
+              <>
+                <span
+                  onClick={onDeleteClick}
+                  className="factoryInput__arrow topicEdit"
+                >
+                  삭제
+                </span>
+                <Link
+                  to={{
+                    pathname: `/news/write/${itemId}`,
+                    state: { uid: news.creatorId },
+                  }}
+                >
+                  <span className="factoryInput__arrow topicEdit">수정</span>
+                </Link>
+              </>
+            )}
             <button
               id="kakao-link-btn"
               className="detail__btn__kakao"

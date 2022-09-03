@@ -207,10 +207,11 @@ const News = ({ userObj }) => {
         <div className="adfit adfit-m"></div>
         <Adsense
           client="ca-pub-6288876729056336"
-          slot="2083968513"
-          style={{ display: "block" }}
-          format="auto"
+          slot="5991551212"
+          style={{ display: "block", textAlign: "center" }}
+          format="fluid"
           responsive="true"
+          layout="in-article"
         />
       </div>
     </>

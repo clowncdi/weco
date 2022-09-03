@@ -294,4 +294,10 @@
   .adfit-m3 {
     display: block;
   }
+  .factoryInput__arrow {
+    width: 70px;
+  }
+  .edit_wrap p {
+    font-size: 16px;
+  }
 }

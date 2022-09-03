@@ -1,6 +1,7 @@
 import { dbService } from "fbase";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { EditorBox } from "./ToastEditor";
 
 const NewsFactory = ({ userObj }) => {
   const navigate = useNavigate();
@@ -32,39 +33,24 @@ const NewsFactory = ({ userObj }) => {
     } = event;
     setUrl(value);
   };
-  const onTextChange = (event) => {
-    let {
-      target: { value },
-    } = event;
-    setText(value);
+
+  const editorRef = useRef();
+  const onContentChange = () => {
+    setText(editorRef.current?.getInstance().getHTML());
   };
-  const onChangeImageUrl = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setImgUrl(value);
-  };
-  const onClickInsertImageUrl = () => {
-    if (imgUrl === "") return;
-    setText(
-      `${text}<br><img src='${imgUrl}' alt='${
-        title ? title : "참고 이미지"
-      }' />`
-    );
-    setImgUrl("");
-  };
+
   const onSubmit = async (event) => {
     if (type === "") return alert("카테고리를 입력해 주세요");
     if (title === "") return alert("제목을 입력해 주세요");
-    if (url === "") return alert("뉴스의 URL 주소를 입력해 주세요");
-    if (text === "") return alert("뉴스를 간단하게 요약해 주세요");
+    if (url === "") return alert("토픽 출처 URL 주소를 입력해 주세요");
+    if (text === "") return alert("토픽을 간단하게 요약해 주세요");
 
     event.preventDefault();
     const newsObj = {
       title: title,
       type: type,
       url: url,
-      text: text.replaceAll(/(\n|\r\n)/g, "<br>"),
+      text: text,
       createdAt: today.toISOString(),
       updatedAt: today.toISOString(),
       creatorId: userObj.uid,
@@ -131,35 +117,16 @@ const NewsFactory = ({ userObj }) => {
           />
         </div>
         <div className="newsFactoryInput__title">
-          <span>링크</span>
+          <span>출처</span>
           <input
             className="factoryInput__Input"
             value={url}
             onChange={onUrlChange}
-            placeholder="뉴스 URL 주소를 입력해 주세요"
+            placeholder="출처 링크를 입력해 주세요"
             type="url"
           />
         </div>
-        <textarea
-          className="newsFactoryInput__title"
-          value={text}
-          onChange={onTextChange}
-          placeholder="뉴스를 간단하게 요약해 주세요"
-        />
-        <div className="factoryInput__img">
-          <input
-            type="text"
-            placeholder="이미지 URL을 넣어주세요(선택사항)"
-            value={imgUrl}
-            onChange={onChangeImageUrl}
-          />
-          <input
-            className="commonBtn formBtn homeBtn smallBtn"
-            type="button"
-            value="이미지삽입"
-            onClick={onClickInsertImageUrl}
-          />
-        </div>
+        <EditorBox editorRef={editorRef} onChange={onContentChange} />
         <label htmlFor="news-submit" className="factoryInput__arrow">
           등록
         </label>
