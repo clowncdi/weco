@@ -289,13 +289,15 @@ const Home = ({ userObj }) => {
       <div>
         <div className="adfit adfit-l2"></div>
         <div className="adfit adfit-m"></div>
-        <Adsense
-          client="ca-pub-6288876729056336"
-          slot="9445236176"
-          style={{ display: "block" }}
-          format="autorelaxed"
-          layoutKey=""
-        />
+        <div className="googleAd">
+          <Adsense
+            client="ca-pub-6288876729056336"
+            slot="4660559185"
+            style={{ display: "block" }}
+            format="auto"
+            responsive="true"
+          />
+        </div>
       </div>
     </div>
   );

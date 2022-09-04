@@ -300,4 +300,10 @@
   .edit_wrap p {
     font-size: 16px;
   }
+  .ck.ck-editor {
+    width: 94%;
+  }
+  .ck-content > p {
+    font-size: 16px;
+  }
 }

@@ -69,7 +69,7 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
 
     await dbService.doc(`news/${itemId}`).update(newItemObj);
     alert("수정 완료!");
-    navigate(-1);
+    navigate(`/news/${itemId}`);
   };
 
   return (

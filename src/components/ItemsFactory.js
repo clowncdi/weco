@@ -74,9 +74,9 @@ const ItemFactory = ({ userObj }) => {
       creatorId: userObj.uid,
       attachmentUrl,
     };
-    await dbService.collection("items").add(itemObj);
+    const docRef = await dbService.collection("items").add(itemObj);
     alert("등록 완료!");
-    navigate(-1);
+    navigate(`/${docRef.id}`);
   };
   const onFileChange = (event) => {
     const {

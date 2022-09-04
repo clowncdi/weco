@@ -86,14 +86,8 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     };
 
     await dbService.doc(`items/${itemId}`).update(newItemObj);
-    setItem("");
-    setTitle("");
-    setDate("");
-    setAttachment("");
-    setLow("");
-    setHigh("");
-    alert("등록 완료!");
-    navigate(-1);
+    alert("수정 완료!");
+    navigate(`/${itemId}`);
   };
 
   const onFileChange = (event) => {

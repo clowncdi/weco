@@ -205,14 +205,15 @@ const News = ({ userObj }) => {
       <div>
         <div className="adfit adfit-l2"></div>
         <div className="adfit adfit-m"></div>
-        <Adsense
-          client="ca-pub-6288876729056336"
-          slot="5991551212"
-          style={{ display: "block", textAlign: "center" }}
-          format="fluid"
-          responsive="true"
-          layout="in-article"
-        />
+        <div className="googleAd">
+          <Adsense
+            client="ca-pub-6288876729056336"
+            slot="4660559185"
+            style={{ display: "block" }}
+            format="auto"
+            responsive="true"
+          />
+        </div>
       </div>
     </>
   );

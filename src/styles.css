@@ -88,7 +88,7 @@ form {
 }
 .container h2 {
   font-size: 1.4rem;
-  margin-bottom: 20px;
+  margin: 20px;
   color: #cfcfcf;
 }
 
@@ -465,7 +465,7 @@ textarea.newsFactoryInput__title {
 }
 .factoryInput__tag > input {
   display: block;
-  width: 25%;
+  width: 30%;
   margin: 10px auto;
 }
 .tagBtn {
@@ -476,11 +476,7 @@ textarea.newsFactoryInput__title {
   margin: 5px 5px 0;
 }
 
-.editor {
-  width: 94%;
-}
-
-.ck.ck-editor {
+.ck.ck-reset.ck-editor {
   width: 94%;
 }
 
@@ -499,6 +495,7 @@ textarea.newsFactoryInput__title {
 
 .ck-content > p {
   margin: 20px auto;
+  font-size: 14px;
 }
 .submitBtns {
   width: 94%;
@@ -1163,6 +1160,12 @@ textarea.newsFactoryInput__title {
 .weather__etc span i {
   color: #888;
   margin-right: 8px;
+}
+
+.googleAd {
+  width: 100%;
+  margin: 30px auto 0;
+  text-align: center;
 }
 
 .adfit {

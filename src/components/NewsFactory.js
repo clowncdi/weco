@@ -56,9 +56,9 @@ const NewsFactory = ({ userObj }) => {
       creatorId: userObj.uid,
       creatorEmail: userObj.email,
     };
-    await dbService.collection("news").add(newsObj);
+    const docRef = await dbService.collection("news").add(newsObj);
     alert("등록 완료!");
-    navigate(-1);
+    navigate(`/news/${docRef.id}`);
   };
 
   return (
