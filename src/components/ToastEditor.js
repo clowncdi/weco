@@ -31,6 +31,23 @@ export function EditorBox({ editorRef, onChange, text }) {
           ["table", "image", "link"],
           // ["code", "codeblock"],
         ]}
+        // 유튜브 삽입 및 미리보기 를 위한 설정(iframe)
+        customHTMLRenderer={{
+          htmlBlock: {
+            iframe(node) {
+              return [
+                {
+                  type: "openTag",
+                  tagName: "iframe",
+                  outerNewLine: true,
+                  attributes: node.attrs,
+                },
+                { type: "html", content: node.childrenHTML },
+                { type: "closeTag", tagName: "iframe", outerNewLine: true },
+              ];
+            },
+          },
+        }}
       />
     </div>
   );

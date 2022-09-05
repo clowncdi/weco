@@ -30,9 +30,13 @@ const TopicDetail = ({ userObj, itemId }) => {
       .get()
       .then((doc) => {
         const data = doc.data();
+        const content = data.text
+          .replace("<p>&lt;iframe", "<iframe")
+          .replace("&lt;/iframe&gt;</p>", "</iframe>");
+        console.log(content);
         setTitle(data.title);
         setType(data.type);
-        setText(data.text);
+        setText(content);
         setUrl(data.url);
         setDate(data.createdAt.split("T")[0]);
         setCreator(data.creatorEmail.split("@")[0]);
