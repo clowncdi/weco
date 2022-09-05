@@ -46,6 +46,21 @@ function App() {
         <span className="privacy" onClick={handleClick}>
           개인정보처리방침
         </span>
+        <a
+          href="https://open.kakao.com/o/gQcRJPye"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span className="kakaochat">
+            <img
+              src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
+              width={"20px"}
+              style={{ verticalAlign: "middle", marginRight: 10 }}
+              alt={"카카오톡 공유"}
+            />
+            매일 아침 카카오톡 오픈채팅으로 받아보세요
+          </span>
+        </a>
       </footer>
     </>
   );
