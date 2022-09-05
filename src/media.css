@@ -3,6 +3,8 @@
   .adfit-l,
   .adfit-l2 {
     display: block;
+    border-radius: 5px;
+    background-color: #111518;
   }
   .adfit-m,
   .adfit-m2,
@@ -72,6 +74,8 @@
   .adfit-l,
   .adfit-l2 {
     display: block;
+    border-radius: 5px;
+    background-color: #111518;
   }
   .adfit-m,
   .adfit-m2,
@@ -174,6 +178,7 @@
   }
   .news__empty.item__empty {
     grid-column: 1;
+    font-size: 18px;
   }
   .searchContainer__wrap {
     margin-top: 0;
@@ -181,9 +186,10 @@
   .searchContainer {
     grid-template-columns: 1fr;
     grid-template-rows: 4fr;
-    margin: 3% 3% 0;
+    /* margin: 3% 3% 0; */
     text-align: center;
     grid-column: 1/10;
+    grid-row: 2;
   }
   .searchInput__date {
     grid-row: 1;
@@ -219,9 +225,10 @@
     padding: 1rem;
   }
   .weatherContainer {
-    width: 94%;
+    /* width: 94%; */
     margin: 0 auto;
     grid-column: 1/10;
+    grid-row: 1;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr 1fr;
   }

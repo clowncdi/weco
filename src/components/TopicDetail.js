@@ -22,7 +22,7 @@ const TopicDetail = ({ userObj, itemId }) => {
   const [creator, setCreator] = useState("");
   const [news, setNews] = useState("");
 
-  const isOwner = userObj.uid === news.creatorId;
+  const isOwner = userObj?.uid === news.creatorId;
 
   useEffect(() => {
     dbService

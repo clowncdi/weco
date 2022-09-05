@@ -234,7 +234,7 @@ form {
 /* Item Detail */
 
 .detail__top {
-  width: 80%;
+  width: 100%;
   margin: 20px auto 0;
 }
 
@@ -322,6 +322,7 @@ form {
   line-height: 1.8;
   font-size: 16px;
   padding: 8% 8% 10%;
+  min-height: 300px;
 }
 
 .detail__news img {
@@ -330,7 +331,7 @@ form {
 
 h2.detail__news__title {
   line-height: 1.3;
-  margin-bottom: 0;
+  margin: 0;
 }
 
 .detail__news__type {
@@ -356,7 +357,7 @@ h2.detail__news__title {
 
 .detail__content__wrap {
   position: relative;
-  width: 80%;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -821,7 +822,7 @@ textarea.newsFactoryInput__title {
 }
 .moreBtnWrap {
   display: flex;
-  width: 20%;
+  width: 67%;
   margin: 2rem auto;
   height: 2rem;
   grid-column: 2;
@@ -832,6 +833,7 @@ textarea.newsFactoryInput__title {
 .moreBtn {
   display: block;
   align-items: center;
+  font-size: 1.1rem;
 }
 
 .empty {
@@ -847,7 +849,15 @@ textarea.newsFactoryInput__title {
   align-self: center;
 }
 .news__empty.item__empty {
-  grid-column: 3;
+  grid-column: 1/7;
+  font-size: 24px;
+  font-weight: 200;
+  line-height: 160px;
+}
+.news__empty.item__empty > i {
+  color: #fff171;
+  font-weight: 700;
+  padding-right: 5px;
 }
 .loading {
   height: 100vh;
