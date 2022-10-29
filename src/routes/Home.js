@@ -7,7 +7,7 @@ import Upbit from "components/Upbit";
 import Indicator from "components/Indicator";
 import Weather from "components/Weather";
 import { Helmet } from "react-helmet-async";
-import { Adsense } from "@ctrl/react-adsense";
+// import { Adsense } from "@ctrl/react-adsense";
 import {
   adfitLong,
   adfitLong2,
@@ -291,7 +291,7 @@ const Home = ({ userObj }) => {
       <div>
         <div className="adfit adfit-l2"></div>
         <div className="adfit adfit-m"></div>
-        <div className="googleAd">
+        {/* <div className="googleAd">
           <Adsense
             client="ca-pub-6288876729056336"
             slot="4660559185"
@@ -299,7 +299,7 @@ const Home = ({ userObj }) => {
             format="auto"
             responsive="true"
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -11,6 +11,10 @@
   .adfit-m3 {
     display: none;
   }
+  .indicatorContainer.itemDetail {
+    margin: 30px 0;
+    width: 100%;
+  }
 }
 
 @media (max-width: 1399px) {
@@ -36,6 +40,10 @@
   }
   .indicatorContainer > div > span {
     font-size: 0.7rem;
+  }
+  .indicatorContainer.itemDetail {
+    margin: 30px 0;
+    width: 100%;
   }
   .searchContainer__wrap {
     width: 94%;
@@ -180,6 +188,10 @@
   .news__empty.item__empty {
     grid-column: 1;
     font-size: 18px;
+  }
+  .indicatorContainer.itemDetail {
+    margin: 30px 0;
+    width: 90%;
   }
   .searchContainer__wrap {
     margin-top: 0;

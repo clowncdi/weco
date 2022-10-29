@@ -1066,7 +1066,7 @@ textarea.newsFactoryInput__title {
   justify-content: center;
   font-family: Roboto, Noto Sans KR, sans-serif, Arial, Helvetica;
 }
-.indicatorContainer > h3 {
+.indicatorContainer h3 {
   color: #ccc;
 }
 .indicatorContainer > div > span {

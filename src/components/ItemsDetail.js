@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import Disqus from "disqus-react";
+import Indicator from "./Indicator";
+import Upbit from "./Upbit";
 import {
   adfitLong,
   adfitLong2,
@@ -145,19 +147,25 @@ const ItemDetail = ({ userObj, itemId }) => {
           <div className="adfit adfit-l"></div>
           <div className="adfit adfit-m2"></div>
           {itemObj && (
-            <div className="detail__top">
-              <h1>{title}</h1>
-              <h2 className="item__date">{date}</h2>
-              <div className={`item__temperature ${temp}`}>
-                <span>최저 {low}°C</span>
-                <span>최고 {high}°C</span>
+            <>
+              <div className="detail__top">
+                <h1>{title}</h1>
+                <h2 className="item__date">{date}</h2>
+                <div className={`item__temperature ${temp}`}>
+                  <span>최저 {low}°C</span>
+                  <span>최고 {high}°C</span>
+                </div>
+                <div className="detail__img">
+                  {attachmentUrl && (
+                    <img src={attachmentUrl} alt={title} width={"100%"} />
+                  )}
+                </div>
               </div>
-              <div className="detail__img">
-                {attachmentUrl && (
-                  <img src={attachmentUrl} alt={title} width={"100%"} />
-                )}
+              <div className="indicatorContainer itemDetail">
+                <Indicator text={itemObj.text} />
+                <Upbit />
               </div>
-            </div>
+            </>
           )}
           <div className="detail__content">{text}</div>
           <div className="adfit adfit-l2"></div>
