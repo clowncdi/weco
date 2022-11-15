@@ -6,10 +6,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 // import Disqus from "disqus-react";
 import {
-  adfitLong,
+  // adfitLong,
   adfitLong2,
   adfitMobile,
-  adfitMobile3,
+  // adfitMobile3,
 } from "components/ad";
 
 const TopicDetail = ({ userObj, itemId }) => {
@@ -33,7 +33,6 @@ const TopicDetail = ({ userObj, itemId }) => {
         const content = data.text
           .replace("<p>&lt;iframe", "<iframe")
           .replace("&lt;/iframe&gt;</p>", "</iframe>");
-        console.log(content);
         setTitle(data.title);
         setType(data.type);
         setText(content);
@@ -84,10 +83,10 @@ const TopicDetail = ({ userObj, itemId }) => {
   let ogurl = "https://weaco.co.kr/news/" + { itemId };
 
   useEffect(() => {
-    adfitLong();
+    // adfitLong();
     adfitLong2();
     adfitMobile();
-    adfitMobile3();
+    // adfitMobile3();
   }, []);
 
   return (
@@ -102,8 +101,8 @@ const TopicDetail = ({ userObj, itemId }) => {
           <meta name="og:url" content={ogurl} />
         </Helmet>
         <div className="factoryInput__container">
-          <div className="adfit adfit-l"></div>
-          <div className="adfit adfit-m3"></div>
+          {/* <div className="adfit adfit-l"></div>
+          <div className="adfit adfit-m3"></div> */}
           {title && (
             <div className="detail__top">
               <p className="detail__news__type">{type}</p>

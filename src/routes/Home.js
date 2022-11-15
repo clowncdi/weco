@@ -9,7 +9,7 @@ import Weather from "components/Weather";
 import { Helmet } from "react-helmet-async";
 // import { Adsense } from "@ctrl/react-adsense";
 import {
-  adfitLong,
+  // adfitLong,
   adfitLong2,
   adfitMobile,
   adfitMobile2,
@@ -17,12 +17,12 @@ import {
 
 const Home = ({ userObj }) => {
   let today = new Date();
-  const offset = today.getTimezoneOffset();
-  today = new Date(today.getTime() - offset * 60 * 1000);
-  const defaultEndDate = today.toISOString().split("T")[0];
-  const defaultStartDate = "2019-11-18";
-
+  let defaultEndDate = today.toISOString().split("T")[0];
+  today.setMonth(today.getMonth()-1);
+  let defaultStartDate = today.toISOString().split("T")[0];
+  
   const [items, setItems] = useState([]);
+  const [items2, setItems2] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [newTags, setNewTags] = useState([]);
   const [newDate, setNewDate] = useState("");
@@ -30,10 +30,13 @@ const Home = ({ userObj }) => {
   const [endDate, setEndDate] = useState(defaultEndDate);
   const [page, setPage] = useState(0);
   const [last, setLast] = useState({});
+  const [last2, setLast2] = useState({});
   const [more, setMore] = useState(true);
   const [text, setText] = useState("");
 
-  const itemCount = 30;
+
+
+  const itemCount = 6;
   const skipedKeyword = [
     "오늘의날씨",
     "오늘의경제",
@@ -76,6 +79,7 @@ const Home = ({ userObj }) => {
 
   const findAll = () => {
     let result = [];
+    let result2 = [];
     if (keyword) {
       result = dbService
         .collection("items")
@@ -93,6 +97,18 @@ const Home = ({ userObj }) => {
         .orderBy("date", "desc")
         .startAfter(last)
         .limit(itemCount);
+
+      let lastYear = new Number(startDate.substring(0,4)) - 1;
+      let lastYearStartDate = lastYear + startDate.substring(4);
+      let lastYearEndDate = lastYear + endDate.substring(4);
+      result2 = dbService
+        .collection("items")
+        .where("creatorId", "==", process.env.REACT_APP_ADMIN)
+        .where("date", ">=", lastYearStartDate)
+        .where("date", "<=", lastYearEndDate)
+        .orderBy("date", "desc")
+        .startAfter(last2)
+        .limit(itemCount);
     }
 
     result.onSnapshot((snapshot) => {
@@ -108,6 +124,20 @@ const Home = ({ userObj }) => {
       }));
       setItems(itemArray);
       setLast(snapshot.docs[snapshot.docs.length - 1]);
+      if (snapshot.docs.length < itemCount) setMore(false);
+    });
+
+    result2.onSnapshot((snapshot) => {
+      if (snapshot.docs.length === 0) {
+        setMore(false);
+        return setItems2([]);
+      }
+      const itemArray = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setItems2(itemArray);
+      setLast2(snapshot.docs[snapshot.docs.length - 1]);
       if (snapshot.docs.length < itemCount) setMore(false);
     });
   };
@@ -161,7 +191,7 @@ const Home = ({ userObj }) => {
   }
 
   useEffect(() => {
-    adfitLong();
+    // adfitLong();
     adfitLong2();
     adfitMobile();
     adfitMobile2();
@@ -174,10 +204,14 @@ const Home = ({ userObj }) => {
         <meta name="description" content={text} />
         <meta name="keywords" content={newTags} />
       </Helmet>
-      <article className="indicatorContainer">
-        {text && <Indicator text={text} />}
-        <Upbit />
-      </article>
+      <div className="indicator-wrap">
+        <div className="indicator-arrow prev">{'<'}</div>
+        <div className="indicator-arrow next">{'>'}</div>
+        <article className="indicatorContainer">
+          {text && <Indicator text={text} />}
+          <Upbit />
+        </article>
+      </div>
       <article className="searchContainer__wrap">
         <div className="searchContainer">
           <div className="searchInput__date">
@@ -247,7 +281,7 @@ const Home = ({ userObj }) => {
         <div className="weatherContainer">{text && <Weather />}</div>
       </article>
       <article>
-        <div className="adfit adfit-l" style={{ marginTop: 15 }}></div>
+        {/* <div className="adfit adfit-l" style={{ marginTop: 15 }}></div> */}
         <div
           className="adfit adfit-m2"
           style={{
@@ -257,6 +291,7 @@ const Home = ({ userObj }) => {
           }}
         ></div>
       </article>
+      <h2 className="itemTitle">올해 날씨와 경제</h2>
       <article className="itemGridContainer">
         {userObj ? (
           <>
@@ -271,6 +306,31 @@ const Home = ({ userObj }) => {
         ) : (
           <>
             {items.map((item) => (
+              <Item key={item.id} itemObj={item} isOwner={false} />
+            ))}
+          </>
+        )}
+        {items.length === 0 && (
+          <p className="news__empty item__empty">
+            <i>{keyword}</i>에 대한 게시물이 없습니다.
+          </p>
+        )}
+      </article>
+      <h2 className="itemTitle">1년 전 날씨와 경제</h2>
+      <article className="itemGridContainer">
+        {userObj ? (
+          <>
+            {items2.map((item) => (
+              <Item
+                key={item.id}
+                itemObj={item}
+                isOwner={item.creatorId === userObj.uid}
+              />
+            ))}
+          </>
+        ) : (
+          <>
+            {items2.map((item) => (
               <Item key={item.id} itemObj={item} isOwner={false} />
             ))}
           </>

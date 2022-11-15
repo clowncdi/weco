@@ -578,11 +578,17 @@ textarea.newsFactoryInput__title {
 .itemGridContainer {
   display: grid;
   grid-gap: 1rem;
-  margin: 0 auto;
+  margin: 0 auto 2rem;
   grid-template-columns: repeat(auto-fill, minmax(210px, auto));
   max-width: 1400px;
 }
-
+.itemTitle {
+  margin-top: 1rem;
+  font-size: 18px;
+  background-color: #111518;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+}
 .itemContainer {
   position: relative;
   margin-top: 2rem;
@@ -827,7 +833,7 @@ textarea.newsFactoryInput__title {
 .moreBtnWrap {
   display: flex;
   width: 67%;
-  margin: 2rem auto;
+  margin: 0 auto 2rem;
   height: 2rem;
   grid-column: 2;
   grid-row: 4;

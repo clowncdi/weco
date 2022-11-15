@@ -127,10 +127,10 @@ const ItemDetail = ({ userObj, itemId }) => {
   let ogurl = "https://weaco.co.kr/" + { itemId };
 
   useEffect(() => {
-    adfitLong();
+    // adfitLong();
     adfitLong2();
     adfitMobile();
-    adfitMobile2();
+    // adfitMobile2();
   }, []);
 
   return (
@@ -144,8 +144,8 @@ const ItemDetail = ({ userObj, itemId }) => {
           <meta name="og:url" content={ogurl} />
         </Helmet>
         <div className="factoryInput__container">
-          <div className="adfit adfit-l"></div>
-          <div className="adfit adfit-m2"></div>
+          {/* <div className="adfit adfit-l"></div>
+          <div className="adfit adfit-m2"></div> */}
           {itemObj && (
             <>
               <div className="detail__top">
