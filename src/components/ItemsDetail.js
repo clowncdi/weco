@@ -2,7 +2,7 @@ import { dbService, storageService } from "fbase";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
-import Disqus from "disqus-react";
+// import Disqus from "disqus-react";
 import Indicator from "./Indicator";
 import Upbit from "./Upbit";
 import {
@@ -117,12 +117,12 @@ const ItemDetail = ({ userObj, itemId }) => {
     });
   };
 
-  const disqusShortname = "weco";
-  const disqusConfig = {
-    url: window.location.href,
-    identifier: itemId,
-    title: date,
-  };
+  // const disqusShortname = "weco";
+  // const disqusConfig = {
+  //   url: window.location.href,
+  //   identifier: itemId,
+  //   title: date,
+  // };
 
   let ogurl = "https://weaco.co.kr/" + { itemId };
 
@@ -161,9 +161,13 @@ const ItemDetail = ({ userObj, itemId }) => {
                   )}
                 </div>
               </div>
-              <div className="indicatorContainer itemDetail">
-                <Indicator text={itemObj.text} />
-                <Upbit />
+              <div className="indicator-wrap">
+                <div className="indicator-arrow prev">{'<'}</div>
+                <div className="indicator-arrow next">{'>'}</div>
+                <div className="indicatorContainer itemDetail">
+                  <Indicator text={itemObj.text} />
+                  <Upbit />
+                </div>
               </div>
             </>
           )}
@@ -204,10 +208,10 @@ const ItemDetail = ({ userObj, itemId }) => {
           </div>
         </div>
       </div>
-      <Disqus.DiscussionEmbed
+      {/* <Disqus.DiscussionEmbed
         shortname={disqusShortname}
         config={disqusConfig}
-      />
+      /> */}
     </>
   );
 };

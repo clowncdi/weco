@@ -107,6 +107,7 @@
   }
   .wrapContainer {
     height: 100%;
+    padding-top: 100px;
   }
   .homeContainer {
     padding-top: 100px;
@@ -189,9 +190,37 @@
     grid-column: 1;
     font-size: 18px;
   }
+  .indicator-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    /* padding: 30px 0; */
+    position: relative;
+  }
   .indicatorContainer.itemDetail {
-    margin: 30px 0;
     width: 90%;
+    position: relative;
+  }
+  .indicator-arrow {
+    flex: 1 1 50%;
+    padding: 0 3px;
+    margin: 0 4px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    border-radius: 100px;
+    color:#fff;
+    background-color: rgba(255, 255, 255, 0.1);
+    z-index: 10;
+    position: absolute;
+    top: calc(50% - 15px);
+  }
+  .indicator-arrow.prev {
+    left: 0;
+  }
+  .indicator-arrow.next {
+    right: 0;
   }
   .searchContainer__wrap {
     margin-top: 0;
@@ -297,9 +326,6 @@
   }
   .detail__content__more {
     bottom: 25px;
-  }
-  .wrapContainer {
-    padding-top: 100px;
   }
   .wrapContainer .adfit-m2,
   .wrapContainer .adfit-m3 {

@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
-import Disqus from "disqus-react";
+// import Disqus from "disqus-react";
 import {
   adfitLong,
   adfitLong2,
@@ -74,12 +74,12 @@ const TopicDetail = ({ userObj, itemId }) => {
     }
   };
 
-  const disqusShortname = "weco";
-  const disqusConfig = {
-    url: window.location.href,
-    identifier: itemId,
-    title: title,
-  };
+  // const disqusShortname = "weco";
+  // const disqusConfig = {
+  //   url: window.location.href,
+  //   identifier: itemId,
+  //   title: title,
+  // };
 
   let ogurl = "https://weaco.co.kr/news/" + { itemId };
 
@@ -187,10 +187,10 @@ const TopicDetail = ({ userObj, itemId }) => {
           </div>
         </div>
       </div>
-      <Disqus.DiscussionEmbed
+      {/* <Disqus.DiscussionEmbed
         shortname={disqusShortname}
         config={disqusConfig}
-      />
+      /> */}
     </>
   );
 };

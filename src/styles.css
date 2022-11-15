@@ -64,9 +64,13 @@ form {
   position: fixed;
   z-index: 10;
   width: 100%;
-  background-color: #111518;
-  border-bottom: 1px solid #222;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.1);
+  /* for iPhone */
+	-webkit-backdrop-filter: saturate(180%) blur(15px);
+	-moz-backdrop-filter: saturate(180%) blur(15px);
+	-o-backdrop-filter: saturate(180%) blur(15px);
+	backdrop-filter: saturate(180%) blur(15px);
 }
 .nav > ul {
   display: flex;
@@ -273,7 +277,7 @@ form {
 }
 
 .detail__text:nth-child(1) {
-  background-color: #111;
+  background-color: #222;
   color: #fff;
   margin-top: 0;
 }
