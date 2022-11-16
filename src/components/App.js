@@ -1,7 +1,7 @@
 import AppRouter from "components/Router";
 import { useState, useEffect } from "react";
 import { authService } from "fbase";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function App() {
   const [init, setInit] = useState(false);

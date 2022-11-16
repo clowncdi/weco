@@ -4,7 +4,6 @@
   .adfit-l2 {
     display: block;
     border-radius: 5px;
-    background-color: #111518;
   }
   .adfit-m,
   .adfit-m2,
@@ -23,6 +22,7 @@
 @media (max-width: 1399px) {
   .itemGridContainer {
     margin: 0 3% 2rem;
+    grid-template-columns: repeat(6, 1fr);
   }
   .item__img img {
     max-height: 515px;
@@ -90,12 +90,17 @@
     width: 94%;
     display: block;
     border-radius: 5px;
-    background-color: #111518;
   }
   .adfit-m,
   .adfit-m2,
   .adfit-m3 {
     display: none;
+  }
+}
+
+@media (max-width: 1000px) {
+  .itemGridContainer {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

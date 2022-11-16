@@ -1,8 +1,7 @@
 import { dbService, storageService } from "fbase";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
-// import Disqus from "disqus-react";
+import { useNavigate, Link } from "react-router-dom";
 import Indicator from "./Indicator";
 import Upbit from "./Upbit";
 import {
@@ -23,6 +22,7 @@ const ItemDetail = ({ userObj, itemId }) => {
   const [attachmentUrl, setAttachmentUrl] = useState("");
   const [itemObj, setItemObj] = useState("");
   const [temp, setTemp] = useState("");
+  const [isOwner, setOwner] = useState(false); 
 
   useEffect(() => {
     let count = 0;
@@ -61,6 +61,7 @@ const ItemDetail = ({ userObj, itemId }) => {
         setTags(data.tags);
         setAttachmentUrl(data.attachmentUrl);
         setItemObj(data);
+        setOwner(data.creatorId === userObj.uid);
 
         const mid = Number(data.lowestTemp) + Number(data.highestTemp);
         if (mid === "") setTemp("temp__none");
@@ -117,12 +118,14 @@ const ItemDetail = ({ userObj, itemId }) => {
     });
   };
 
-  // const disqusShortname = "weco";
-  // const disqusConfig = {
-  //   url: window.location.href,
-  //   identifier: itemId,
-  //   title: date,
-  // };
+  const onDeleteClick = async () => {
+    const ok = window.confirm("삭제하시겠습니까?");
+    if (ok) {
+      await dbService.doc(`items/${itemObj.id}`).delete();
+      await storageService.refFromURL(itemObj.attachmentUrl).delete();
+      alert("삭제 완료!");
+    }
+  };
 
   let ogurl = "https://weaco.co.kr/" + { itemId };
 
@@ -205,13 +208,27 @@ const ItemDetail = ({ userObj, itemId }) => {
               />
               카톡 공유
             </button>
+            {isOwner && (
+              <>
+                <span
+                  onClick={onDeleteClick}
+                  className="factoryInput__arrow topicEdit"
+                >
+                  삭제
+                </span>
+                <Link
+                  to={{
+                    pathname: `/write/${itemId}`,
+                    state: { uid: itemObj.creatorId },
+                  }}
+                >
+                  <span className="factoryInput__arrow topicEdit">수정</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
-      {/* <Disqus.DiscussionEmbed
-        shortname={disqusShortname}
-        config={disqusConfig}
-      /> */}
     </>
   );
 };

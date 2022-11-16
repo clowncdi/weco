@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPencilAlt,
-  faTrash,
   faNewspaper,
 } from "@fortawesome/free-solid-svg-icons";
-import { dbService, storageService } from "fbase";
 import { useEffect, useState } from "react";
 
 const Item = ({ itemObj, isOwner }) => {
@@ -22,34 +19,10 @@ const Item = ({ itemObj, isOwner }) => {
     else if (mid >= 40 && mid < 50) setTemp("temp__hot40");
     else if (mid >= 50) setTemp("temp__hot50");
   }, []);
-  const onDeleteClick = async () => {
-    const ok = window.confirm("삭제하시겠습니까?");
-    if (ok) {
-      await dbService.doc(`items/${itemObj.id}`).delete();
-      await storageService.refFromURL(itemObj.attachmentUrl).delete();
-      alert("삭제 완료!");
-    }
-  };
+  
 
   return (
     <section className="itemContainer" tabIndex="0">
-      {isOwner && (
-        <div className="item__actions">
-          <span onClick={onDeleteClick}>
-            <FontAwesomeIcon icon={faTrash} />
-          </span>
-          <Link
-            to={{
-              pathname: `/write/${itemObj.id}`,
-              state: { uid: itemObj.creatorId },
-            }}
-          >
-            <span>
-              <FontAwesomeIcon icon={faPencilAlt} />
-            </span>
-          </Link>
-        </div>
-      )}
       <h2 className="item__date">{itemObj.date}</h2>
       <header className={`item__temperature ${temp}`}>
         <span>{itemObj.lowestTemp}°C</span>

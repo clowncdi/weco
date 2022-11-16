@@ -17,12 +17,15 @@ import {
 
 const Home = ({ userObj }) => {
   let today = new Date();
+  const offset = today.getTimezoneOffset();
+  today = new Date(today.getTime() - offset * 60 * 1000);
   let defaultEndDate = today.toISOString().split("T")[0];
   today.setMonth(today.getMonth()-1);
   let defaultStartDate = today.toISOString().split("T")[0];
   
   const [items, setItems] = useState([]);
   const [items2, setItems2] = useState([]);
+  const [items3, setItems3] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [newTags, setNewTags] = useState([]);
   const [newDate, setNewDate] = useState("");
@@ -31,10 +34,9 @@ const Home = ({ userObj }) => {
   const [page, setPage] = useState(0);
   const [last, setLast] = useState({});
   const [last2, setLast2] = useState({});
+  const [last3, setLast3] = useState({});
   const [more, setMore] = useState(true);
   const [text, setText] = useState("");
-
-
 
   const itemCount = 6;
   const skipedKeyword = [
@@ -77,19 +79,29 @@ const Home = ({ userObj }) => {
     return () => clearTimeout(debounce);
   }, [keyword, startDate, endDate, page]);
 
-  const findAll = () => {
+  const findAll = async () => {
     let result = [];
     let result2 = [];
+    let result3 = [];
+    let lastYear = new Number(startDate.substring(0,4)) - 1;
+    let lastYearStartDate = lastYear + startDate.substring(4);
+    let lastYearEndDate = lastYear + endDate.substring(4);
+    let beforeLastYear = lastYear - 1;
+    let beforeLastYearStartDate = beforeLastYear + startDate.substring(4);
+    let beforeLastYearEndDate = beforeLastYear + endDate.substring(4);
+
     if (keyword) {
-      result = dbService
+      setItems2([]);
+      result = await dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("tags", "array-contains", keyword)
         .orderBy("date", "desc")
         .startAfter(last)
         .limit(itemCount);
+
     } else {
-      result = dbService
+      result = await dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("date", ">=", startDate)
@@ -98,16 +110,22 @@ const Home = ({ userObj }) => {
         .startAfter(last)
         .limit(itemCount);
 
-      let lastYear = new Number(startDate.substring(0,4)) - 1;
-      let lastYearStartDate = lastYear + startDate.substring(4);
-      let lastYearEndDate = lastYear + endDate.substring(4);
-      result2 = dbService
+      result2 = await dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("date", ">=", lastYearStartDate)
         .where("date", "<=", lastYearEndDate)
         .orderBy("date", "desc")
         .startAfter(last2)
+        .limit(itemCount);
+
+      result3 = await dbService
+        .collection("items")
+        .where("creatorId", "==", process.env.REACT_APP_ADMIN)
+        .where("date", ">=", beforeLastYearStartDate)
+        .where("date", "<=", beforeLastYearEndDate)
+        .orderBy("date", "desc")
+        .startAfter(last3)
         .limit(itemCount);
     }
 
@@ -138,6 +156,20 @@ const Home = ({ userObj }) => {
       }));
       setItems2(itemArray);
       setLast2(snapshot.docs[snapshot.docs.length - 1]);
+      if (snapshot.docs.length < itemCount) setMore(false);
+    });
+
+    result3.onSnapshot((snapshot) => {
+      if (snapshot.docs.length === 0) {
+        setMore(false);
+        return setItems3([]);
+      }
+      const itemArray = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setItems3(itemArray);
+      setLast3(snapshot.docs[snapshot.docs.length - 1]);
       if (snapshot.docs.length < itemCount) setMore(false);
     });
   };
@@ -291,7 +323,7 @@ const Home = ({ userObj }) => {
           }}
         ></div>
       </article>
-      <h2 className="itemTitle">올해 날씨와 경제</h2>
+      <h2 className="itemTitle">{keyword || startDate.substring(0,4)}</h2>
       <article className="itemGridContainer">
         {userObj ? (
           <>
@@ -316,31 +348,60 @@ const Home = ({ userObj }) => {
           </p>
         )}
       </article>
-      <h2 className="itemTitle">1년 전 날씨와 경제</h2>
-      <article className="itemGridContainer">
-        {userObj ? (
-          <>
-            {items2.map((item) => (
-              <Item
-                key={item.id}
-                itemObj={item}
-                isOwner={item.creatorId === userObj.uid}
-              />
-            ))}
-          </>
-        ) : (
-          <>
-            {items2.map((item) => (
-              <Item key={item.id} itemObj={item} isOwner={false} />
-            ))}
-          </>
-        )}
-        {items.length === 0 && (
-          <p className="news__empty item__empty">
-            <i>{keyword}</i>에 대한 게시물이 없습니다.
-          </p>
-        )}
-      </article>
+      {!keyword && (
+        <>
+          <h2 className="itemTitle">{new Number(startDate.substring(0,4)) - 1}</h2>
+          <article className="itemGridContainer">
+            {userObj ? (
+              <>
+                {items2.map((item) => (
+                  <Item
+                    key={item.id}
+                    itemObj={item}
+                    isOwner={item.creatorId === userObj.uid}
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                {items2.map((item) => (
+                  <Item key={item.id} itemObj={item} isOwner={false} />
+                ))}
+              </>
+            )}
+            {items2.length === 0 && (
+              <p className="news__empty item__empty">
+                <i>{keyword}</i>에 대한 게시물이 없습니다.
+              </p>
+            )}
+          </article>
+          <h2 className="itemTitle">{new Number(startDate.substring(0,4)) - 2}</h2>
+          <article className="itemGridContainer">
+            {userObj ? (
+              <>
+                {items3.map((item) => (
+                  <Item
+                    key={item.id}
+                    itemObj={item}
+                    isOwner={item.creatorId === userObj.uid}
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                {items3.map((item) => (
+                  <Item key={item.id} itemObj={item} isOwner={false} />
+                ))}
+              </>
+            )}
+            {items3.length === 0 && (
+              <p className="news__empty item__empty">
+                <i>{keyword}</i>에 대한 게시물이 없습니다.
+              </p>
+            )}
+          </article>
+        </>
+      )}
       {more && (
         <div className="moreBtnWrap">
           <span className="formBtn moreBtn" onClick={onClickMore}>
