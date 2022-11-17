@@ -7,6 +7,7 @@ import Upbit from "components/Upbit";
 import Indicator from "components/Indicator";
 import Weather from "components/Weather";
 import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
 // import { Adsense } from "@ctrl/react-adsense";
 import {
   // adfitLong,
@@ -16,6 +17,7 @@ import {
 } from "components/ad";
 
 const Home = ({ userObj }) => {
+  const location = useLocation();
   let today = new Date();
   const offset = today.getTimezoneOffset();
   today = new Date(today.getTime() - offset * 60 * 1000);
@@ -26,7 +28,7 @@ const Home = ({ userObj }) => {
   const [items, setItems] = useState([]);
   const [items2, setItems2] = useState([]);
   const [items3, setItems3] = useState([]);
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(location.state.tagged || "");
   const [newTags, setNewTags] = useState([]);
   const [newDate, setNewDate] = useState("");
   const [startDate, setStartDate] = useState(defaultStartDate);
@@ -323,7 +325,7 @@ const Home = ({ userObj }) => {
           }}
         ></div>
       </article>
-      <h2 className="itemTitle">{keyword || startDate.substring(0,4)}</h2>
+      <h2 className="itemTitle">{keyword || endDate.substring(0,4)}</h2>
       <article className="itemGridContainer">
         {userObj ? (
           <>
@@ -350,7 +352,7 @@ const Home = ({ userObj }) => {
       </article>
       {!keyword && (
         <>
-          <h2 className="itemTitle">{new Number(startDate.substring(0,4)) - 1}</h2>
+          <h2 className="itemTitle">{new Number(endDate.substring(0,4)) - 1}</h2>
           <article className="itemGridContainer">
             {userObj ? (
               <>
@@ -375,7 +377,7 @@ const Home = ({ userObj }) => {
               </p>
             )}
           </article>
-          <h2 className="itemTitle">{new Number(startDate.substring(0,4)) - 2}</h2>
+          <h2 className="itemTitle">{new Number(endDate.substring(0,4)) - 2}</h2>
           <article className="itemGridContainer">
             {userObj ? (
               <>

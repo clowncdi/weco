@@ -287,14 +287,14 @@ form {
   margin-top: 20px;
 }
 
-.detail__tag > h5 {
+.detail__tag h5 {
   text-align: center;
   font-size: 16px;
   color: #fff;
   margin-bottom: 10px;
 }
 
-.detail__tag > .tagBtn {
+.detail__tag .tagBtn {
   padding: 10px;
   margin-bottom: 10px;
   font-weight: 400;

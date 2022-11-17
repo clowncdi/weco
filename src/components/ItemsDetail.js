@@ -51,7 +51,7 @@ const ItemDetail = ({ userObj, itemId }) => {
 
         const firstText = text[0].props.children[0].props.children;
         firstText.includes("날씨와 경제") && text[0].props.children.shift();
-        text[1].props.children.pop();
+        text[1] && text[1].props.children.pop();
         text.pop();
 
         setTitle(data.title);
@@ -185,9 +185,11 @@ const ItemDetail = ({ userObj, itemId }) => {
             {tags.map(
               (tag) =>
                 !skipedKeyword.includes(tag) && (
-                  <span className="formBtn tagBtn" key={tag}>
-                    {tag}
-                  </span>
+                  <Link to={`/`} state={{tagged: tag}}>
+                    <span className="formBtn tagBtn" key={tag}>
+                      {tag}
+                    </span>
+                  </Link>
                 )
             )}
           </div>
