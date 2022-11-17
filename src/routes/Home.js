@@ -18,6 +18,7 @@ import {
 
 const Home = ({ userObj }) => {
   const location = useLocation();
+  const tagged = location.state?.tagged;
   let today = new Date();
   const offset = today.getTimezoneOffset();
   today = new Date(today.getTime() - offset * 60 * 1000);
@@ -28,7 +29,7 @@ const Home = ({ userObj }) => {
   const [items, setItems] = useState([]);
   const [items2, setItems2] = useState([]);
   const [items3, setItems3] = useState([]);
-  const [keyword, setKeyword] = useState(location.state.tagged || "");
+  const [keyword, setKeyword] = useState(tagged || "");
   const [newTags, setNewTags] = useState([]);
   const [newDate, setNewDate] = useState("");
   const [startDate, setStartDate] = useState(defaultStartDate);
