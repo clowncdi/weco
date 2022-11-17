@@ -49,7 +49,8 @@ const ItemDetail = ({ userObj, itemId }) => {
           );
         });
 
-        text[0].props.children.shift();
+        const firstText = text[0].props.children[0].props.children;
+        firstText.includes("날씨와 경제") && text[0].props.children.shift();
         text[1].props.children.pop();
         text.pop();
 
@@ -61,7 +62,7 @@ const ItemDetail = ({ userObj, itemId }) => {
         setTags(data.tags);
         setAttachmentUrl(data.attachmentUrl);
         setItemObj(data);
-        setOwner(data.creatorId === userObj.uid);
+        userObj && setOwner(data.creatorId === userObj.uid);
 
         const mid = Number(data.lowestTemp) + Number(data.highestTemp);
         if (mid === "") setTemp("temp__none");
@@ -164,14 +165,16 @@ const ItemDetail = ({ userObj, itemId }) => {
                   )}
                 </div>
               </div>
-              <div className="indicator-wrap">
-                <div className="indicator-arrow prev">{'<'}</div>
-                <div className="indicator-arrow next">{'>'}</div>
-                <div className="indicatorContainer itemDetail">
-                  <Indicator text={itemObj.text} />
-                  <Upbit />
+              {itemObj.text.indexOf("<br>S") > 0 && (
+                <div className="indicator-wrap">
+                  <div className="indicator-arrow prev">{'<'}</div>
+                  <div className="indicator-arrow next">{'>'}</div>
+                  <div className="indicatorContainer itemDetail">
+                    <Indicator text={itemObj.text} />
+                    <Upbit />
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
           <div className="detail__content">{text}</div>
