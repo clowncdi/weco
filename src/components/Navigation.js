@@ -6,6 +6,18 @@ const Navigation = ({ userObj, isLoggedIn }) => {
     authService.signOut();
   };
 
+  const nav = document.querySelector(".nav");
+  let prevScrollpos = window.pageYOffset;
+  window.onscroll = function () {
+    let currentScrollPos = window.pageYOffset;
+    if (prevScrollpos > currentScrollPos) {
+      nav.style.top = "0";
+    } else {
+      nav.style.top = "-100px";
+    }
+    prevScrollpos = currentScrollPos;
+  };
+
   return (
     <nav className="nav">
       <div className="brand">

@@ -71,6 +71,7 @@ form {
 	-moz-backdrop-filter: saturate(180%) blur(15px);
 	-o-backdrop-filter: saturate(180%) blur(15px);
 	backdrop-filter: saturate(180%) blur(15px);
+  transition: all 0.3s ease-in-out;
 }
 .nav > ul {
   display: flex;
