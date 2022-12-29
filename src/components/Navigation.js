@@ -1,21 +1,34 @@
 import { Link } from "react-router-dom";
 import { authService } from "fbase";
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 const Navigation = ({ userObj, isLoggedIn }) => {
   const onLogOutClick = () => {
     authService.signOut();
   };
 
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [lazyPoint, setLazyPoint] = useState(0);
   const nav = document.querySelector(".nav");
-  let prevScrollpos = window.pageYOffset;
+  
+  useEffect(() => {
+    setPrevScrollPos(window.pageYOffset);
+    setLazyPoint(0);
+  }, []);
+  
   window.onscroll = function () {
     let currentScrollPos = window.pageYOffset;
-    if (prevScrollpos > currentScrollPos) {
-      nav.style.top = "0";
+    if (prevScrollPos > currentScrollPos || currentScrollPos < 50) {
+      setLazyPoint(lazyPoint + (prevScrollPos - currentScrollPos));
+      if (lazyPoint > 30) {
+        nav.style.top = "0";     
+      }
     } else {
+      setLazyPoint(0);
       nav.style.top = "-100px";
     }
-    prevScrollpos = currentScrollPos;
+    setPrevScrollPos(currentScrollPos);
   };
 
   return (
