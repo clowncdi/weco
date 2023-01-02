@@ -86,12 +86,14 @@ const Home = ({ userObj }) => {
     let result = [];
     let result2 = [];
     let result3 = [];
-    let lastYear = new Number(startDate.substring(0,4)) - 1;
-    let lastYearStartDate = lastYear + startDate.substring(4);
-    let lastYearEndDate = lastYear + endDate.substring(4);
-    let beforeLastYear = lastYear - 1;
-    let beforeLastYearStartDate = beforeLastYear + startDate.substring(4);
-    let beforeLastYearEndDate = beforeLastYear + endDate.substring(4);
+    let lastEndYear = new Number(endDate.substring(0,4)) - 1;
+    let lastStartYear = new Number(startDate.substring(0,4)) - 1;
+    let lastYearStartDate = lastStartYear + startDate.substring(4);
+    let lastYearEndDate = lastEndYear + endDate.substring(4);
+    let beforeLastEndYear = lastEndYear - 1;
+    let beforeLastStartYear = lastStartYear - 1;
+    let beforeLastYearStartDate = beforeLastStartYear + startDate.substring(4);
+    let beforeLastYearEndDate = beforeLastEndYear + endDate.substring(4);
 
     if (keyword) {
       setItems2([]);
