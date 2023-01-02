@@ -19,7 +19,8 @@ export function EditorBox({ editorRef, onChange, text }) {
         previewStyle="vertical"
         height="600px"
         initialEditType="wysiwyg"
-        useCommandShortcut={false}
+        useCommandShortcut={true}
+        usageStatistics={false}
         hideModeSwitch={true}
         plugins={[colorSyntax]}
         language="ko-KR"

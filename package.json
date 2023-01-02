@@ -17,6 +17,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@toast-ui/editor-plugin-color-syntax": "^3.1.0",
     "@toast-ui/react-editor": "^3.2.0",
+    "browser-image-compression": "^2.0.0",
     "disqus-react": "^1.1.2",
     "firebase": "^9.6.1",
     "gh-pages": "^3.2.3",

@@ -25,7 +25,7 @@ const News = ({ userObj }) => {
   const [last, setLast] = useState({});
   const [more, setMore] = useState(true);
 
-  const itemCount = 48;
+  const itemCount = 20;
 
   useEffect(() => {
     findAll();
@@ -49,7 +49,7 @@ const News = ({ userObj }) => {
     }
 
     if (result !== "") {
-      result.onSnapshot((snapshot) => {
+      result.get().then((snapshot) => {
         const itemArray = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),

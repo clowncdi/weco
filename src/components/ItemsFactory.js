@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import imageCompression from 'browser-image-compression';
 
 const ItemFactory = ({ userObj }) => {
   let today = new Date();
@@ -25,6 +26,7 @@ const ItemFactory = ({ userObj }) => {
   const [item, setItem] = useState("");
   const [tags, setTags] = useState([]);
   const [attachment, setAttachment] = useState("");
+  const [ext, setExt] = useState("");
 
   const onTitleChange = (event) => {
     const {
@@ -59,7 +61,7 @@ const ItemFactory = ({ userObj }) => {
     if (attachment !== "") {
       const attachmentRef = storageService
         .ref()
-        .child(`${userObj.uid}/${uuidv4()}`);
+        .child(`${userObj.uid}/${uuidv4()}${ext ? '.'+ext : '.jpg'}`);
       const response = await attachmentRef.putString(attachment, "data_url");
       attachmentUrl = await response.ref.getDownloadURL();
     }
@@ -78,21 +80,39 @@ const ItemFactory = ({ userObj }) => {
     alert("등록 완료!");
     navigate(`/${docRef.id}`);
   };
-  const onFileChange = (event) => {
-    const {
-      target: { files },
-    } = event;
-    const theFile = files[0];
-    const reader = new FileReader();
-    reader.onloadend = (finishedEvent) => {
-      const {
-        currentTarget: { result },
-      } = finishedEvent;
-      setAttachment(result);
-    };
-    reader.readAsDataURL(theFile);
-  };
+  
   const onClearAttachment = () => setAttachment("");
+
+  async function handleImageUpload(event) {
+
+    const imageFile = event.target.files[0];
+    console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
+    if (imageFile.name.indexOf('.') > 0) {
+      setExt(imageFile.name.split('.').pop());
+    } 
+
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1000,
+      useWebWorker: true,
+      initialQuality: 0.7
+    }
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`); // smaller than maxSizeMB
+      const reader = new FileReader();
+      reader.onloadend = (finishedEvent) => {
+        const {
+          currentTarget: { result },
+        } = finishedEvent;
+        setAttachment(result);
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.log(error);
+    }
+  
+  }
 
   const onClickTags = () => {
     if (item === "") return;
@@ -180,7 +200,7 @@ const ItemFactory = ({ userObj }) => {
         id="attach-file"
         type="file"
         accept="image/*"
-        onChange={onFileChange}
+        onChange={handleImageUpload}
         style={{ opacity: 0 }}
       />
       {attachment && (

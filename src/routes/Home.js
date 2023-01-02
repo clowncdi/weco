@@ -415,8 +415,8 @@ const Home = ({ userObj }) => {
         </div>
       )}
       <div>
-        <div className="adfit adfit-l2"></div>
-        <div className="adfit adfit-m"></div>
+        <div className="adfit adfit-l2 adfit-mt2"></div>
+        <div className="adfit adfit-m adfit-mt2"></div>
         {/* <div className="googleAd">
           <Adsense
             client="ca-pub-6288876729056336"

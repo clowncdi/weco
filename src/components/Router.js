@@ -8,6 +8,7 @@ import News from "routes/News";
 import Infomation from "routes/Infomation";
 import WeacoDetail from "routes/WeacoDetail";
 import NewsDetail from "routes/NewsDetail";
+import ImageCompressior from "routes/ImageCompressior";
 
 function AppRouter({ isLoggedIn, userObj }) {
   return (
@@ -42,6 +43,10 @@ function AppRouter({ isLoggedIn, userObj }) {
             <Route
               path="/news/write/:id"
               element={<NewsWrite userObj={userObj} />}
+            ></Route>
+            <Route
+              path="/image-comp"
+              element={<ImageCompressior />}
             ></Route>
           </>
         )}

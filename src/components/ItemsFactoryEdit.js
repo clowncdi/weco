@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import imageCompression from 'browser-image-compression';
 
 const ItemFactoryEdit = ({ userObj, itemId }) => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
   const [tags, setTags] = useState([]);
   const [attachment, setAttachment] = useState("");
   const [itemObj, setItemObj] = useState("");
+  const [ext, setExt] = useState("");
 
   useEffect(() => {
     dbService
@@ -66,7 +68,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     if (attachment !== "") {
       const attachmentRef = storageService
         .ref()
-        .child(`${userObj.uid}/${uuidv4()}`);
+        .child(`${userObj.uid}/${uuidv4()}${ext ? '.'+ext : '.jpg'}`);
       const response = await attachmentRef.putString(attachment, "data_url");
       attachmentUrl = await response.ref.getDownloadURL();
     } else {
@@ -90,28 +92,45 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     navigate(`/${itemId}`);
   };
 
-  const onFileChange = (event) => {
-    const {
-      target: { files },
-    } = event;
-    const theFile = files[0];
-    const reader = new FileReader();
-    reader.onloadend = (finishedEvent) => {
-      const {
-        currentTarget: { result },
-      } = finishedEvent;
-      setAttachment(result);
-    };
-    reader.readAsDataURL(theFile);
-  };
+  async function handleImageUpload(event) {
+
+    const imageFile = event.target.files[0];
+    console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
+    if (imageFile.name.indexOf('.') > 0) {
+      setExt(imageFile.name.split('.').pop());
+    } 
+
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1000,
+      useWebWorker: true,
+      initialQuality: 0.7
+    }
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`); // smaller than maxSizeMB
+      const reader = new FileReader();
+      reader.onloadend = (finishedEvent) => {
+        const {
+          currentTarget: { result },
+        } = finishedEvent;
+        setAttachment(result);
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.log(error);
+    }
+  
+  }
+
   const onClearAttachment = () => setAttachment("");
   const onDeleteClick = async () => {
     const ok = window.confirm("삭제하시겠습니까?");
     if (ok) {
-      await storageService.refFromURL(itemObj.attachmentUrl).delete();
-      await dbService.doc(`items/${itemObj.attachmentUrl}`).update({
+      await dbService.doc(`items/${itemId}`).update({
         attachmentUrl: "",
       });
+      await storageService.refFromURL(itemObj.attachmentUrl).delete();
       alert("사진 삭제 완료!");
       navigate(`/write/${itemId}`);
     }
@@ -204,7 +223,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
         id="attach-file"
         type="file"
         accept="image/*"
-        onChange={onFileChange}
+        onChange={handleImageUpload}
         style={{ opacity: 0 }}
       />
       <div className="factoryForm__attachment">

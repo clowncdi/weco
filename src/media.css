@@ -5,6 +5,9 @@
     display: block;
     border-radius: 5px;
   }
+  .adfit-mt2 {
+    margin-top: 2rem;
+  }
   .adfit-m,
   .adfit-m2,
   .adfit-m3 {

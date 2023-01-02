@@ -832,7 +832,7 @@ textarea.newsFactoryInput__title {
 .moreBtnWrap {
   display: flex;
   width: 67%;
-  margin: 0 auto 2rem;
+  margin: 0 auto;
   height: 2rem;
   grid-column: 2;
   grid-row: 4;

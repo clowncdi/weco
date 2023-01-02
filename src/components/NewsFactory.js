@@ -9,7 +9,6 @@ const NewsFactory = ({ userObj }) => {
   const [type, setType] = useState("News");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
-  const [imgUrl, setImgUrl] = useState("");
 
   let today = new Date();
   const offset = today.getTimezoneOffset();
