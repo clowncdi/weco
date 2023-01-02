@@ -16,6 +16,7 @@ const Infomation = () => {
             src={process.env.PUBLIC_URL + "/logo2.png"}
             width="100"
             alt="오늘의 날씨와 경제 로고"
+            loading="lazy"
           />
         </div>
         <p>

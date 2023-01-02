@@ -73,6 +73,7 @@ const Weather = () => {
             <img
               src={`https://openweathermap.org/img/wn/${res.weather[0].icon}.png`}
               alt={res.weather[0].description}
+              loading="lazy"
             />
           </span>
           <span className="weather__temp">{res.main.temp}°C</span>

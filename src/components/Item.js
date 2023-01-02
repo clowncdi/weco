@@ -46,6 +46,7 @@ const Item = ({ itemObj, isOwner }) => {
                 : itemObj.attachmentUrl
             }
             alt={itemObj.title}
+            loading="lazy"
           />
         </div>
       </Link>

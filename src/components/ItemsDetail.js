@@ -161,7 +161,7 @@ const ItemDetail = ({ userObj, itemId }) => {
                 </div>
                 <div className="detail__img">
                   {attachmentUrl && (
-                    <img src={attachmentUrl} alt={title} width={"100%"} />
+                    <img src={attachmentUrl} alt={title} width={"100%"} loading="lazy" />
                   )}
                 </div>
               </div>
@@ -210,6 +210,7 @@ const ItemDetail = ({ userObj, itemId }) => {
                 width={"20px"}
                 style={{ verticalAlign: "middle", marginRight: 10 }}
                 alt={"카카오톡 공유"}
+                loading="lazy"
               />
               카톡 공유
             </button>

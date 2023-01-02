@@ -35,7 +35,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
     <nav className="nav">
       <div className="brand">
         <Link to="/">
-          <img src={process.env.PUBLIC_URL + "/logo2.png"} alt="logo" />
+          <img src={process.env.PUBLIC_URL + "/logo2.png"} alt="logo" loading="lazy" />
           오늘의 날씨와 경제
         </Link>
       </div>
