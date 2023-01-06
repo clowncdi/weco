@@ -99,7 +99,7 @@ const ItemFactory = ({ userObj }) => {
     }
     try {
       const compressedFile = await imageCompression(imageFile, options);
-      console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`); // smaller than maxSizeMB
+      console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`);
       const reader = new FileReader();
       reader.onloadend = (finishedEvent) => {
         const {

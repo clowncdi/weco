@@ -12,20 +12,22 @@ const ImageCompressior = () => {
   const oldDoc = 'Vf46gZOvLVagkCQbvZxSqXyjrDu1';
   const ref = storageService.ref();
 
-  const handleImageDownload = async () => {
-    console.log('이미지 다운로드 시작')
-    let result = await dbService
-        .collection("items")
-        .where("creatorId", "==", process.env.REACT_APP_ADMIN)
-        .where("date", ">=", startDate)
-        .where("date", "<=", endDate)
-        .orderBy("date", "desc");
-    result.onSnapshot((snapshot) => {
-      console.log('이미지 갯수: ', snapshot.docs.length);
-      snapshot.docs.map((doc) => {
-        download(doc.data().attachmentUrl, doc.data().date);
-      });
-    })    
+  // 이미지 다운로드
+  const handleImageDownload = () => {
+    console.log('이미지 다운로드 시작');
+    dbService
+      .collection("items")
+      .where("creatorId", "==", process.env.REACT_APP_ADMIN)
+      .where("date", ">=", startDate)
+      .where("date", "<=", endDate)
+      .orderBy("date", "desc")
+      .get()
+      .then((snapshot) => {
+        console.log('이미지 갯수: ', snapshot.docs.length);
+        snapshot.docs.map((doc) => {
+          download(doc.data().attachmentUrl, doc.data().date);
+        });
+      });    
   }
 
   async function download(url, date) {
@@ -66,6 +68,7 @@ const ImageCompressior = () => {
       });
   }
 
+  // 이미지 압축하기
   const handleImageCompression = async () => {
     console.log('========= 이미지 압축시작');
 
@@ -139,9 +142,21 @@ const ImageCompressior = () => {
     console.log('======== 업데이트 완료. 변경 파일 URL: ', url);
   } 
 
-
+  // 썸네일 이미지 만들기
   const handleImageConverter = () => {
-    console.log('webp 변환은 준비중입니다.')
+    resizeImage()
+  }
+
+  function resizeImage() {
+    const image = new Image();
+    const canvas = document.createElement("canvas");
+    const width = 300;
+    const height = 300;
+
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+    const dataUrl = canvas.toDataURL("image/jpeg");
   }
 
   const changeStartDate = (event) => {
@@ -174,7 +189,7 @@ const ImageCompressior = () => {
             <input type="button" className="factoryInput__arrow" onClick={handleImageDownload} value="Download" />
           </div>
           <div>
-            <h2>이미지 webp로 변환하기</h2>
+            <h2>썸네일 이미지 만들기</h2>
             <input type="button" className="factoryInput__arrow" onClick={handleImageConverter} value="Start" />
           </div>
         </div>
