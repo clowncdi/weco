@@ -9,6 +9,7 @@ const ImageCompressior = () => {
   const [endDate, setEndDate] = useState("");
   
   const doc = 'S9nPnnJhejVZ2HJsVVmYaTxTB732';
+  const oldDoc = 'Vf46gZOvLVagkCQbvZxSqXyjrDu1';
   const ref = storageService.ref();
 
   const handleImageDownload = async () => {
@@ -105,10 +106,15 @@ const ImageCompressior = () => {
       let res = await Promise.all([
         ref.child(`${doc}/${originFileName}`).delete()
         .then(() => {
-          console.log(originFileName + ' 삭제 완료');
+          console.log(originFileName + ' 1차 삭제 완료');
         })
         .catch((error) => {
-          console.log('삭제 실패: ', error);
+          console.log('1차 삭제 실패: ', error);
+          ref.child(`${oldDoc}/${originFileName}`).delete().then(() => {
+            console.log(originFileName + ' 2차 삭제 완료');
+          }).catch((error) => {
+            console.log('2차 삭제 실패: ', error);;
+          });
         }),
 
         ref.child(`${doc}/${uuidv4()}${ext ? '.'+ext : '.jpg'}`).put(compressedFile)
