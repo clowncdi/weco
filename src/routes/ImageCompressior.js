@@ -91,7 +91,11 @@ const ImageCompressior = () => {
 
   async function updateImage(docId, url, thumbnailUrl) {
     let mainRef = await storageService.refFromURL(url);
-    let thumbRef = thumbnailUrl !== "" && await storageService.refFromURL(thumbnailUrl);
+    let thumbRef = "";
+    if (thumbnailUrl !== "" && thumbnailUrl !== undefined) {
+      thumbRef = await storageService.refFromURL(thumbnailUrl);
+    } 
+    
     if (mainRef.name.indexOf('.') > 0) {
       let ext = mainRef.name.split('.');
       setExt(ext[ext.length - 1]);
