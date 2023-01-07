@@ -122,9 +122,11 @@ const ItemDetail = ({ userObj, itemId }) => {
   const onDeleteClick = async () => {
     const ok = window.confirm("삭제하시겠습니까?");
     if (ok) {
-      await dbService.doc(`items/${itemObj.id}`).delete();
+      await dbService.doc(`items/${itemId}`).delete();
       await storageService.refFromURL(itemObj.attachmentUrl).delete();
+      itemObj.thumbnailUrl && await storageService.refFromURL(itemObj.thumbnailUrl).delete();
       alert("삭제 완료!");
+      navigate("/");
     }
   };
 

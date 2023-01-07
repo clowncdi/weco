@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 const Item = ({ itemObj, isOwner }) => {
   const [temp, setTemp] = useState("");
+  const [thumbnail, setThumbnail] = useState(itemObj.thumbnailUrl);
   const mid = Number(itemObj.lowestTemp) + Number(itemObj.highestTemp);
   useEffect(() => {
     if (mid === "") setTemp("temp__none");
@@ -20,6 +21,9 @@ const Item = ({ itemObj, isOwner }) => {
     else if (mid >= 50) setTemp("temp__hot50");
   }, []);
   
+  if (thumbnail === "" || thumbnail === undefined) {
+    setThumbnail(itemObj.attachmentUrl);
+  }
 
   return (
     <section className="itemContainer" tabIndex="0">
@@ -42,8 +46,13 @@ const Item = ({ itemObj, isOwner }) => {
           <img
             src={
               itemObj.attachmentUrl === ""
-                ? process.env.PUBLIC_URL + "/logo512.png"
-                : itemObj.attachmentUrl
+              ? process.env.PUBLIC_URL + "/logo512.png"
+              : thumbnail
+              // thumbnail === "" || thumbnail === undefined ? 
+              // itemObj.attachmentUrl === "" ? 
+              // process.env.PUBLIC_URL + "/logo512.png" 
+              // : itemObj.attachmentUrl 
+              // : thumbnail
             }
             alt={itemObj.title}
             loading="lazy"

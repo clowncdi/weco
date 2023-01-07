@@ -17,6 +17,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
   const [item, setItem] = useState("");
   const [tags, setTags] = useState([]);
   const [attachment, setAttachment] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
   const [itemObj, setItemObj] = useState("");
   const [ext, setExt] = useState("");
 
@@ -65,6 +66,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
 
     event.preventDefault();
     let attachmentUrl = "";
+    let thumbnailUrl = "";
     if (attachment !== "") {
       const attachmentRef = storageService
         .ref()
@@ -73,6 +75,15 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
       attachmentUrl = await response.ref.getDownloadURL();
     } else {
       attachmentUrl = itemObj.attachmentUrl;
+    }
+    if (thumbnail !== "") {
+      const thumbnailRef = storageService
+        .ref()
+        .child(`thumbnails/${uuidv4()}.webp`);
+      const response = await thumbnailRef.putString(thumbnail, "data_url");
+      thumbnailUrl = await response.ref.getDownloadURL();
+    } else {
+      thumbnailUrl = itemObj.thumbnailUrl ? itemObj.thumbnailUrl : attachmentUrl;
     }
 
     const newItemObj = {
@@ -85,6 +96,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
       createdAt: itemObj.createdAt,
       creatorId: itemObj.creatorId,
       attachmentUrl,
+      thumbnailUrl,
     };
 
     await dbService.doc(`items/${itemId}`).update(newItemObj);
@@ -94,10 +106,11 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
 
   async function handleImageUpload(event) {
 
-    const imageFile = event.target.files[0];
+    let imageFile = event.target.files[0];
     console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
     if (imageFile.name.indexOf('.') > 0) {
-      setExt(imageFile.name.split('.').pop());
+      let ext = imageFile.name.split('.');
+      setExt(ext[ext.length - 1]);
     } 
 
     const options = {
@@ -115,6 +128,28 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
           currentTarget: { result },
         } = finishedEvent;
         setAttachment(result);
+
+        console.log('Create Thumbnail');
+        // create thumbnail
+        const width = 300;
+        const height = 300;
+        const image = new Image();
+        image.width = width;
+        image.height = height;
+        image.title = 'thumbnail';
+        image.src = result;
+
+        image.onload = function () {
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+          const dataUri = canvas.toDataURL("image/webp", 0.7);
+          setThumbnail(dataUri);
+          const thumb = new Image();
+          thumb.src=dataUri;
+          document.getElementById('thumbnail').appendChild(thumb);
+        }
       };
       reader.readAsDataURL(compressedFile);
     } catch (error) {
@@ -129,8 +164,10 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     if (ok) {
       await dbService.doc(`items/${itemId}`).update({
         attachmentUrl: "",
+        thumbnailUrl: "",
       });
       await storageService.refFromURL(itemObj.attachmentUrl).delete();
+      await storageService.refFromURL(itemObj.thumbnailUrl).delete();
       alert("사진 삭제 완료!");
       navigate(`/write/${itemId}`);
     }

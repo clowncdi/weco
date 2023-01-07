@@ -7,6 +7,8 @@ const ImageCompressior = () => {
   const [ext, setExt] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [width, setWidth] = useState(300);
+  const [height, setHeight] = useState(300);
   
   const doc = 'S9nPnnJhejVZ2HJsVVmYaTxTB732';
   const oldDoc = 'Vf46gZOvLVagkCQbvZxSqXyjrDu1';
@@ -58,7 +60,13 @@ const ImageCompressior = () => {
         .then((snapshot) => {
           snapshot.docs.forEach((doc) => {
             count++;
-            items.push({num: count, id: doc.id, date: doc.data().date, url: doc.data().attachmentUrl});
+            items.push({
+              num: count, 
+              id: doc.id, 
+              date: doc.data().date, 
+              url: doc.data().attachmentUrl, 
+              thumbnailUrl: doc.data().thumbnailUrl
+            });
           });
           resolve(items);
         })
@@ -77,23 +85,26 @@ const ImageCompressior = () => {
 
     items.forEach(async (item) => {
       console.log('업데이트 호출 시작: ', item);
-      updateImage(item.id, item.url);
+      updateImage(item.id, item.url, item.thumbnailUrl);
     });
   }
 
-  async function updateImage(docId, url) {
-    let httpRef = await storageService.refFromURL(url);
-    if (httpRef.name.indexOf('.') > 0) {
-      setExt(httpRef.name.split('.').pop());
+  async function updateImage(docId, url, thumbnailUrl) {
+    let mainRef = await storageService.refFromURL(url);
+    let thumbRef = thumbnailUrl !== "" && await storageService.refFromURL(thumbnailUrl);
+    if (mainRef.name.indexOf('.') > 0) {
+      let ext = mainRef.name.split('.');
+      setExt(ext[ext.length - 1]);
     }
 
     const init = await fetch(url, {method: "get"});
     const blob = await init.blob();
-    compressedFile(blob, httpRef.name, docId);
+    compressedFile(blob, mainRef.name, thumbRef.name, docId);
   }
 
-  async function compressedFile(blob, originFileName, docId) {
+  async function compressedFile(blob, originFileName, thumbFileName, docId) {
     console.log(`originalFile size ${blob.size / 1024 / 1024} MB`);
+    console.log('원본 파일 이름: ', originFileName);
 
     const options = {
       maxSizeMB: 1,
@@ -104,7 +115,9 @@ const ImageCompressior = () => {
     try {
       const compressedFile = await imageCompression(blob, options);
       console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`);
-      console.log('원본 파일 이름: ', originFileName);
+
+      let thumbnailFile = await getThumbnailFile(compressedFile);
+      console.log('썸네일 파일: ', thumbnailFile);
 
       let res = await Promise.all([
         ref.child(`${doc}/${originFileName}`).delete()
@@ -120,43 +133,100 @@ const ImageCompressior = () => {
           });
         }),
 
+        ref.child(`thumbnails/${thumbFileName}`).delete()
+        .then(() => {
+          console.log(thumbFileName + ' 썸네일 삭제 완료');
+        })
+        .catch((error) => {
+          console.log('썸네일 삭제 실패: ', error);
+        }),
+
         ref.child(`${doc}/${uuidv4()}${ext ? '.'+ext : '.jpg'}`).put(compressedFile)
         .then((snapshot) => {
           return snapshot.ref.getDownloadURL();
         }).catch((error) => {
           console.log('재업로드 실패: ', error);
+        }),
+
+        ref.child(`thumbnails/${uuidv4()}.webp`).put(thumbnailFile)
+        .then((snapshot) => {
+          return snapshot.ref.getDownloadURL();
+        }).catch((error) => {
+          console.log('썸네일 재업로드 실패: ', error);
         })
       ]);
 
-      updateAttachmentUrl(docId, res[1]);
+      console.log(res);
+
+      updateAttachmentUrl(docId, res[2], res[3]);
       
     } catch (error) {
       console.log(error);
     }
   }
 
-  async function updateAttachmentUrl(docId, url) {
+  async function getThumbnailFile(compressedFile) {
+    let thumbnailFile;
+    const reader = new FileReader();
+    return await new Promise((resolve) => {
+      reader.onloadend = (finishedEvent) => {
+        const {
+          currentTarget: { result },
+        } = finishedEvent;
+        const image = new Image();
+        image.src = result;
+        image.onload = function () {
+          const canvas = document.createElement("canvas");
+          canvas.width = 300;
+          canvas.height = 300;
+          canvas.getContext("2d").drawImage(image, 0, 0, 300, 300);
+          canvas.toBlob((blob) => {
+            thumbnailFile = blob;
+            resolve(thumbnailFile);
+          }, 'image/webp', 0.7);
+        }
+      }
+      reader.readAsDataURL(compressedFile);  
+    })
+    
+  }
+
+  async function updateAttachmentUrl(docId, url, thumbnailUrl) {
     dbService.doc(`items/${docId}`).update({
       attachmentUrl: url,
+      thumbnailUrl: thumbnailUrl,
     });
-    console.log('======== 업데이트 완료. 변경 파일 URL: ', url);
+    console.log('======== 업데이트 완료. 변경 파일 URL: ', url, thumbnailUrl);
   } 
 
   // 썸네일 이미지 만들기
   const handleImageConverter = () => {
-    resizeImage()
+    console.log('========= 썸네일 이미지 만들기 시작');
+    const file = document.getElementById("origin-image").files[0];
+    resizeImage(file);
   }
 
-  function resizeImage() {
-    const image = new Image();
-    const canvas = document.createElement("canvas");
-    const width = 300;
-    const height = 300;
+  function resizeImage(file) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function (event) {
+      const image = new Image();
+      image.width = width;
+      image.height = height;
+      image.title = 'thumbnail';
+      image.src = reader.result;
 
-    canvas.width = width;
-    canvas.height = height;
-    canvas.getContext("2d").drawImage(image, 0, 0, width, height);
-    const dataUrl = canvas.toDataURL("image/jpeg");
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+        const dataUri = canvas.toDataURL("image/webp", 0.7);
+        const thumb = new Image();
+        thumb.src=dataUri;
+        document.getElementById('thumbnail').appendChild(thumb);
+      }
+    }
   }
 
   const changeStartDate = (event) => {
@@ -165,6 +235,14 @@ const ImageCompressior = () => {
 
   const changeEndDate = (event) => {
     setEndDate(event.target.value);
+  }
+
+  const changeWidht = (event) => {
+    setWidth(event.target.value);
+  }
+
+  const changeHeight = (event) => {
+    setHeight(event.target.value);
   }
 
   return (
@@ -179,7 +257,7 @@ const ImageCompressior = () => {
             종료일 <input type="date" onChange={changeEndDate} style={{padding:10, margin:10}} />
           </div>
         </div>
-        <div style={{display:"flex", gap:30, justifyContent:'center', alignItems:'center', textAlign:'center'}}>
+        <div style={{display:"flex", gap:30, justifyContent:'center', alignItems:'flex-start', textAlign:'center'}}>
           <div>
             <h2>이미지 압축하기</h2>
             <input type="button" className="factoryInput__arrow" onClick={handleImageCompression} value="Start" />
@@ -188,9 +266,15 @@ const ImageCompressior = () => {
             <h2>이미지 다운로드</h2>
             <input type="button" className="factoryInput__arrow" onClick={handleImageDownload} value="Download" />
           </div>
-          <div>
+          <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:10}}>
             <h2>썸네일 이미지 만들기</h2>
-            <input type="button" className="factoryInput__arrow" onClick={handleImageConverter} value="Start" />
+            <div>
+              width <input type="number" onChange={changeWidht} style={{width:100, padding:10, borderRadius:5, marginRight:10}} />
+              height <input type="number" onChange={changeHeight} style={{width:100, padding:10, borderRadius:5}} />
+            </div>
+            <input type="file" id="origin-image" style={{width:290, color:'#333', backgroundColor:'white', padding:10, borderRadius:5}} />
+            <input type="button" className="factoryInput__arrow" onClick={handleImageConverter} value="Create" />
+            <div id="thumbnail"></div>
           </div>
         </div>
       </div>
