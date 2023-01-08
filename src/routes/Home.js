@@ -226,7 +226,6 @@ const Home = ({ userObj }) => {
   }
 
   useEffect(() => {
-    // adfitLong();
     adfitLong2();
     adfitMobile();
     adfitMobile2();

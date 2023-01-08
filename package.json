@@ -10,7 +10,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
     "@toast-ui/editor-plugin-color-syntax": "^3.1.0",
-    "@toast-ui/react-editor": "^3.2.0",
+    "@toast-ui/react-editor": "^3.2.2",
     "browser-image-compression": "^2.0.0",
     "firebase": "^9.6.1",
     "gh-pages": "^3.2.3",
@@ -47,5 +47,8 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "https://weaco.co.kr"
+  "homepage": "https://weaco.co.kr",
+  "devDependencies": {
+    "cra-bundle-analyzer": "^0.1.1"
+  }
 }
