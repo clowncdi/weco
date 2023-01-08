@@ -95,7 +95,7 @@ const ImageCompressior = () => {
     if (thumbnailUrl !== "" && thumbnailUrl !== undefined) {
       thumbRef = await storageService.refFromURL(thumbnailUrl);
     } 
-    
+
     if (mainRef.name.indexOf('.') > 0) {
       let ext = mainRef.name.split('.');
       setExt(ext[ext.length - 1]);
@@ -169,8 +169,7 @@ const ImageCompressior = () => {
     }
   }
 
-  async function getThumbnailFile(compressedFile) {
-    let thumbnailFile;
+  async function getThumbnailFile(blob) {
     const reader = new FileReader();
     return await new Promise((resolve) => {
       reader.onloadend = (finishedEvent) => {
@@ -185,12 +184,11 @@ const ImageCompressior = () => {
           canvas.height = 300;
           canvas.getContext("2d").drawImage(image, 0, 0, 300, 300);
           canvas.toBlob((blob) => {
-            thumbnailFile = blob;
-            resolve(thumbnailFile);
+            resolve(blob);
           }, 'image/webp', 0.7);
         }
       }
-      reader.readAsDataURL(compressedFile);  
+      reader.readAsDataURL(blob);  
     })
     
   }
@@ -201,6 +199,57 @@ const ImageCompressior = () => {
       thumbnailUrl: thumbnailUrl,
     });
     console.log('======== 업데이트 완료. 변경 파일 URL: ', url, thumbnailUrl);
+  } 
+
+  // 기존 데이터에 썸네일 이미지 없는 경우 썸네일 이미지 만들어 추가하기
+  const handleCreateThumbnail = async () => {
+    console.log('========= 썸네일 이미지 추가하기 시작');
+    let items = await getItems();
+    console.log('전체 아이템: ',items)
+
+    items.forEach(async (item) => {
+      console.log('업데이트 호출 시작: ', item);
+      if (!item.thumbnailUrl) {
+        updateThumbnail(item.id, item.url);
+      }
+    });
+  }
+
+  async function updateThumbnail(docId, url) {
+    let mainRef = await storageService.refFromURL(url);
+    const init = await fetch(url, {method: "get"});
+    const blob = await init.blob();
+    createThumbnail(blob, mainRef.name, docId);
+  }
+
+  async function createThumbnail(blob, originFileName, docId) {
+    console.log('원본 파일 이름: ', originFileName);
+
+    try {
+      let thumbnailFile = await getThumbnailFile(blob);
+      console.log('썸네일 파일: ', thumbnailFile);
+
+      let res = await new Promise((resolve) => {
+        ref.child(`thumbnails/${uuidv4()}.webp`).put(thumbnailFile)
+        .then((snapshot) => {
+          resolve(snapshot.ref.getDownloadURL());
+        }).catch((error) => {
+          console.log('썸네일 재업로드 실패: ', error);
+        })
+      });
+
+      updateThumbnailUrl(docId, res);
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function updateThumbnailUrl(docId, thumbnailUrl) {
+    dbService.doc(`items/${docId}`).update({
+      thumbnailUrl: thumbnailUrl,
+    });
+    console.log('======== 업데이트 완료. 변경 파일 URL: ', thumbnailUrl);
   } 
 
   // 썸네일 이미지 만들기
@@ -262,13 +311,19 @@ const ImageCompressior = () => {
           </div>
         </div>
         <div style={{display:"flex", gap:30, justifyContent:'center', alignItems:'flex-start', textAlign:'center'}}>
-          <div>
-            <h2>이미지 압축하기</h2>
-            <input type="button" className="factoryInput__arrow" onClick={handleImageCompression} value="Start" />
-          </div>
-          <div>
-            <h2>이미지 다운로드</h2>
-            <input type="button" className="factoryInput__arrow" onClick={handleImageDownload} value="Download" />
+          <div style={{display:"flex", flexDirection:"column", gap:50}}>
+            <div>
+              <h2 style={{marginBottom:0}}>기간별 이미지 압축하기</h2>
+              <input type="button" className="factoryInput__arrow" onClick={handleImageCompression} value="Start" />
+            </div>
+            <div>
+              <h2 style={{marginBottom:0}}>기간별 썸네일만 추가하기</h2>
+              <input type="button" className="factoryInput__arrow" onClick={handleCreateThumbnail} value="Start" />
+            </div>
+            <div>
+              <h2 style={{marginBottom:0}}>기간별 이미지 다운로드</h2>
+              <input type="button" className="factoryInput__arrow" onClick={handleImageDownload} value="Download" />
+            </div>
           </div>
           <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:10}}>
             <h2>썸네일 이미지 만들기</h2>
