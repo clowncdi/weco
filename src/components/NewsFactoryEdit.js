@@ -9,7 +9,6 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
   const [type, setType] = useState("");
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
-  const [imgUrl, setImgUrl] = useState("");
 
   useEffect(() => {
     dbService

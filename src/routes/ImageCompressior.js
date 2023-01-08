@@ -26,7 +26,7 @@ const ImageCompressior = () => {
       .get()
       .then((snapshot) => {
         console.log('이미지 갯수: ', snapshot.docs.length);
-        snapshot.docs.map((doc) => {
+        snapshot.docs.forEach((doc) => {
           download(doc.data().attachmentUrl, doc.data().date);
         });
       });    

@@ -19,7 +19,7 @@ const NewsBrief = ({ itemObj, isOwner }) => {
 
   return (
     <>
-      <section className={"newsContainer " + "__" + itemObj.type} tabIndex="0">
+      <section className={"newsContainer __" + itemObj.type} tabIndex="0">
         {isOwner && (
           <div className="item__actions news__actions">
             <span onClick={onDeleteClick}>

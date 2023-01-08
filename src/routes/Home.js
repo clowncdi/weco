@@ -84,8 +84,8 @@ const Home = ({ userObj }) => {
     let result = [];
     let result2 = [];
     let result3 = [];
-    let lastEndYear = new Number(endDate.substring(0,4)) - 1;
-    let lastStartYear = new Number(startDate.substring(0,4)) - 1;
+    let lastEndYear = Number(endDate.substring(0,4)) - 1;
+    let lastStartYear = Number(startDate.substring(0,4)) - 1;
     let lastYearStartDate = lastStartYear + startDate.substring(4);
     let lastYearEndDate = lastEndYear + endDate.substring(4);
     let beforeLastEndYear = lastEndYear - 1;
@@ -352,7 +352,7 @@ const Home = ({ userObj }) => {
       </article>
       {!keyword && (
         <>
-          <h2 className="itemTitle">{new Number(endDate.substring(0,4)) - 1}</h2>
+          <h2 className="itemTitle">{Number(endDate.substring(0,4)) - 1}</h2>
           <article className="itemGridContainer">
             {userObj ? (
               <>
@@ -377,7 +377,7 @@ const Home = ({ userObj }) => {
               </p>
             )}
           </article>
-          <h2 className="itemTitle">{new Number(endDate.substring(0,4)) - 2}</h2>
+          <h2 className="itemTitle">{Number(endDate.substring(0,4)) - 2}</h2>
           <article className="itemGridContainer">
             {userObj ? (
               <>
