@@ -10,7 +10,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import NewsBrief from "components/NewsBrief";
 import { Helmet } from "react-helmet-async";
-// import { Adsense } from "@ctrl/react-adsense";
 import {
   adfitLong,
   adfitLong2,
@@ -205,15 +204,6 @@ const News = ({ userObj }) => {
       <div>
         <div className="adfit adfit-l2"></div>
         <div className="adfit adfit-m"></div>
-        {/* <div className="googleAd">
-          <Adsense
-            client="ca-pub-6288876729056336"
-            slot="4660559185"
-            style={{ display: "block" }}
-            format="auto"
-            responsive="true"
-          />
-        </div> */}
       </div>
     </>
   );

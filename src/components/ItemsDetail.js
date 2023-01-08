@@ -5,10 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import Indicator from "./Indicator";
 import Upbit from "./Upbit";
 import {
-  adfitLong,
   adfitLong2,
   adfitMobile,
-  adfitMobile2,
 } from "components/ad";
 
 const ItemDetail = ({ userObj, itemId }) => {
@@ -133,10 +131,8 @@ const ItemDetail = ({ userObj, itemId }) => {
   let ogurl = "https://weaco.co.kr/" + { itemId };
 
   useEffect(() => {
-    // adfitLong();
     adfitLong2();
     adfitMobile();
-    // adfitMobile2();
   }, []);
 
   return (
@@ -150,8 +146,6 @@ const ItemDetail = ({ userObj, itemId }) => {
           <meta name="og:url" content={ogurl} />
         </Helmet>
         <div className="factoryInput__container">
-          {/* <div className="adfit adfit-l"></div>
-          <div className="adfit adfit-m2"></div> */}
           {itemObj && (
             <>
               <div className="detail__top">

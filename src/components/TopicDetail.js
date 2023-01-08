@@ -4,12 +4,9 @@ import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
-// import Disqus from "disqus-react";
 import {
-  // adfitLong,
   adfitLong2,
   adfitMobile,
-  // adfitMobile3,
 } from "components/ad";
 
 const TopicDetail = ({ userObj, itemId }) => {
@@ -73,20 +70,11 @@ const TopicDetail = ({ userObj, itemId }) => {
     }
   };
 
-  // const disqusShortname = "weco";
-  // const disqusConfig = {
-  //   url: window.location.href,
-  //   identifier: itemId,
-  //   title: title,
-  // };
-
   let ogurl = "https://weaco.co.kr/news/" + { itemId };
 
   useEffect(() => {
-    // adfitLong();
     adfitLong2();
     adfitMobile();
-    // adfitMobile3();
   }, []);
 
   return (
@@ -101,8 +89,6 @@ const TopicDetail = ({ userObj, itemId }) => {
           <meta name="og:url" content={ogurl} />
         </Helmet>
         <div className="factoryInput__container">
-          {/* <div className="adfit adfit-l"></div>
-          <div className="adfit adfit-m3"></div> */}
           {title && (
             <div className="detail__top">
               <p className="detail__news__type">{type}</p>
@@ -187,10 +173,6 @@ const TopicDetail = ({ userObj, itemId }) => {
           </div>
         </div>
       </div>
-      {/* <Disqus.DiscussionEmbed
-        shortname={disqusShortname}
-        config={disqusConfig}
-      /> */}
     </>
   );
 };

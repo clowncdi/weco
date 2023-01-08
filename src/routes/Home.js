@@ -8,9 +8,7 @@ import Indicator from "components/Indicator";
 import Weather from "components/Weather";
 import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
-// import { Adsense } from "@ctrl/react-adsense";
 import {
-  // adfitLong,
   adfitLong2,
   adfitMobile,
   adfitMobile2,
@@ -318,7 +316,6 @@ const Home = ({ userObj }) => {
         <div className="weatherContainer">{text && <Weather />}</div>
       </article>
       <article>
-        {/* <div className="adfit adfit-l" style={{ marginTop: 15 }}></div> */}
         <div
           className="adfit adfit-m2"
           style={{
@@ -417,15 +414,6 @@ const Home = ({ userObj }) => {
       <div>
         <div className="adfit adfit-l2 adfit-mt2"></div>
         <div className="adfit adfit-m adfit-mt2"></div>
-        {/* <div className="googleAd">
-          <Adsense
-            client="ca-pub-6288876729056336"
-            slot="4660559185"
-            style={{ display: "block" }}
-            format="auto"
-            responsive="true"
-          />
-        </div> */}
       </div>
     </div>
   );
