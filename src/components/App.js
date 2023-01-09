@@ -35,7 +35,7 @@ function App() {
         <AppRouter isLoggedIn={Boolean(userObj)} userObj={userObj} />
       ) : (
         <div className="loading">
-          <img src={process.env.PUBLIC_URL + "/toolong.gif"} alt="loading..." />
+          <div className="loader"></div>
         </div>
       )}
       <footer className="appFooter dark">

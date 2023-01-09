@@ -3,12 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faNewspaper,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const Item = ({ itemObj, isOwner }) => {
   const [temp, setTemp] = useState("");
   const [thumbnail, setThumbnail] = useState(itemObj.thumbnailUrl);
   const mid = Number(itemObj.lowestTemp) + Number(itemObj.highestTemp);
+  const imgRef = useRef(null);
   useEffect(() => {
     if (mid === "") setTemp("temp__none");
     else if (mid <= -20) setTemp("temp__cold20");
@@ -19,6 +20,21 @@ const Item = ({ itemObj, isOwner }) => {
     else if (mid >= 30 && mid < 40) setTemp("temp__hot30");
     else if (mid >= 40 && mid < 50) setTemp("temp__hot40");
     else if (mid >= 50) setTemp("temp__hot50");
+
+    const options = {};
+    const callback = (entries, observer) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting) {
+          const target = entry.target;
+          const previousSibling = target.previousSibling;
+          target.src = target.dataset.src;
+          previousSibling.srcset = previousSibling.dataset.srcset;
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+    const observer = new IntersectionObserver(callback, options);
+    observer.observe(imgRef.current);
   }, []);
   
   if (thumbnail === "" || thumbnail === undefined) {
@@ -43,20 +59,19 @@ const Item = ({ itemObj, isOwner }) => {
         }}
       >
         <div className="item__img">
-          <img
-            src={
-              itemObj.attachmentUrl === ""
-              ? process.env.PUBLIC_URL + "/logo512.png"
-              : thumbnail
-              // thumbnail === "" || thumbnail === undefined ? 
-              // itemObj.attachmentUrl === "" ? 
-              // process.env.PUBLIC_URL + "/logo512.png" 
-              // : itemObj.attachmentUrl 
-              // : thumbnail
-            }
-            alt={itemObj.title}
-            loading="lazy"
-          />
+          <picture>
+            <source data-srcset={thumbnail} />
+            <img
+              data-src={
+                itemObj.attachmentUrl === ""
+                ? process.env.PUBLIC_URL + "/logo512.png"
+                : itemObj.attachmentUrl
+              }
+              alt={itemObj.title}
+              loading="lazy"
+              ref={imgRef}
+            />
+          </picture>
         </div>
       </Link>
     </section>
