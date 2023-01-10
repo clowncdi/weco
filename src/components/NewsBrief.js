@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { dbService } from "fbase";
+import LazyLoad from "react-lazyload";
 
 const NewsBrief = ({ itemObj, isOwner }) => {
   const date = itemObj.createdAt.split("T")[0];
@@ -43,17 +44,19 @@ const NewsBrief = ({ itemObj, isOwner }) => {
             state: { uid: itemObj.creatorId },
           }}
         >
-          <div className="newsContainer__link">
-            <h3 className="news__date">
-              {date} <span className="news__creator">@{emailName}</span>
-            </h3>
+          <LazyLoad offset={1000}>
+            <div className="newsContainer__link">
+              <h3 className="news__date">
+                {date} <span className="news__creator">@{emailName}</span>
+              </h3>
 
-            <h3 className="news__title">{itemObj.title}</h3>
-            <div
-              className="news__text"
-              dangerouslySetInnerHTML={{ __html: content }}
-            ></div>
-          </div>
+              <h3 className="news__title">{itemObj.title}</h3>
+              <div
+                className="news__text"
+                dangerouslySetInnerHTML={{ __html: content }}
+              ></div>
+            </div>
+          </LazyLoad>
         </Link>
       </section>
     </>
