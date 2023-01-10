@@ -96,8 +96,16 @@ const News = ({ userObj }) => {
     <>
       <Helmet>
         <title>Weaco 토픽</title>
-        <meta property="og:title" content={"Weaco 토픽"} />
-        <meta name="og:url" content="https://weaco.co.kr/news" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
+        <meta property="og:title" content="Weaco 토픽" />
+        <meta property="og:description" content="흥미로운 토픽 모음" />
+        <meta property="og:url" content="https://weaco.co.kr/news" />
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:site" content="오늘의 날씨와 경제 - Weaco" />
+        <meta property="twitter:title" content="Weaco 토픽" />
+        <meta property="twitter:description" content="흥미로운 토픽 모음" />
+        <meta property="twitter:url" content="https://weaco.co.kr/news" />
       </Helmet>
       <div className="homeContainer dark newsGrid">
         <span className="news__noti">

@@ -82,11 +82,18 @@ const TopicDetail = ({ userObj, itemId }) => {
       <div className="factoryForm">
         <Helmet>
           <title>{title} - Weaco 토픽</title>
-          <meta name="description" content={text} />
-          <meta name="keywords" content={title} />
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
           <meta property="og:title" content={title} />
           <meta property="og:description" content={text} />
-          <meta name="og:url" content={ogurl} />
+          <meta property="og:url" content={ogurl} />
+          <meta property="twitter:card" content="summary" />
+          <meta property="twitter:site" content="오늘의 날씨와 경제 - Weaco" />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content={text} />
+          <meta property="twitter:url" content={ogurl} />
+          <meta name="description" content={text} />
+          <meta name="keywords" content={title} />
         </Helmet>
         <div className="factoryInput__container">
           {title && (
@@ -162,7 +169,7 @@ const TopicDetail = ({ userObj, itemId }) => {
               onClick={shareToKatalk}
             >
               <img
-                src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
+                src={process.env.PUBLIC_URL+"/kakaotalk_sharing_btn_medium.png"}
                 width={"20px"}
                 style={{ verticalAlign: "middle", marginRight: 10 }}
                 alt={"카카오톡 공유"}

@@ -43,58 +43,40 @@
     </script>
     <!-- End Single Page Apps for GitHub Pages -->
 
-    <meta
-      name="description"
-      content="Weaco(위코)는 매일의 날씨와 경제를 모아놓은 서비스입니다. 간단한 날씨 정보와 쏟아지는 경제뉴스 중 중요한 소식을 알려드립니다."
-    />
-    <meta
-      name="og:description"
-      content="Weaco(위코)는 매일의 날씨와 경제를 모아놓은 서비스입니다. 간단한 날씨 정보와 쏟아지는 경제뉴스 중 중요한 소식을 알려드립니다."
-    />
+    <meta name="description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
     <meta
       name="keywords"
       content="날씨,경제,오늘의날씨,오늘의경제,뉴스,오늘날씨,서울날씨,시황,경제뉴스,토픽,이슈,경제소식,경제이슈"
     />
     <meta name="author" content="최대일" />
-    <meta name="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
-    <meta name="og:title" content="오늘의 날씨와 경제 - Weaco" />
-    <meta name="og:url" content="https://weaco.co.kr" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
+    <meta property="og:title" content="오늘의 날씨와 경제 - Weaco" />
+    <meta property="og:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
     <meta property="og:image" content="%PUBLIC_URL%/logo2.png" />
-    <script
+    <meta property="og:url" content="https://weaco.co.kr" />
+
+    <!-- Twitter Cards -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:site" content="오늘의 날씨와 경제 - Weaco" />
+    <meta property="twitter:title" content="오늘의 날씨와 경제 - Weaco" />
+    <meta property="twitter:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
+    <meta property="twitter:image" content="%PUBLIC_URL%/logo2.png" />
+    <meta property="twitter:url" content="https://weaco.co.kr" />
+    <!-- <script
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6288876729056336"
       crossorigin="anonymous"
-    ></script>
-    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+    ></script> -->
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js" defer></script>
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
     <title>오늘의 날씨와 경제 - Weaco</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

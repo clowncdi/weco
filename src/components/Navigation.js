@@ -22,11 +22,11 @@ const Navigation = ({ userObj, isLoggedIn }) => {
     if (prevScrollPos > currentScrollPos || currentScrollPos < 50) {
       setLazyPoint(lazyPoint + (prevScrollPos - currentScrollPos));
       if (lazyPoint > 30) {
-        nav.style.top = "0";     
+        nav.style.transform = "translateY(0)";     
       }
     } else {
       setLazyPoint(0);
-      nav.style.top = "-100px";
+      nav.style.transform = "translateY(-100px)";
     }
     setPrevScrollPos(currentScrollPos);
   };

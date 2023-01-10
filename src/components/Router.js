@@ -47,10 +47,12 @@ function AppRouter({ isLoggedIn, userObj }) {
                 path="/news/write/:id"
                 element={<NewsWrite userObj={userObj} />}
               ></Route>
-              <Route
-                path="/image-comp"
-                element={<ImageCompressior />}
-              ></Route>
+              {userObj.uid === process.env.REACT_APP_ADMIN && (
+                <Route
+                  path="/image-comp"
+                  element={<ImageCompressior />}
+                ></Route>
+              )}
             </>
           )}
         </Routes>

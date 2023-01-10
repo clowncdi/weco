@@ -18,6 +18,7 @@ const ItemDetail = ({ userObj, itemId }) => {
   const [text, setText] = useState("");
   const [tags, setTags] = useState([]);
   const [attachmentUrl, setAttachmentUrl] = useState("");
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [itemObj, setItemObj] = useState("");
   const [temp, setTemp] = useState("");
   const [isOwner, setOwner] = useState(false); 
@@ -59,6 +60,7 @@ const ItemDetail = ({ userObj, itemId }) => {
         setHigh(data.highestTemp);
         setTags(data.tags);
         setAttachmentUrl(data.attachmentUrl);
+        setThumbnailUrl(data.thumbnailUrl);
         setItemObj(data);
         userObj && setOwner(data.creatorId === userObj.uid);
 
@@ -111,7 +113,7 @@ const ItemDetail = ({ userObj, itemId }) => {
         TITLE: `${title}`,
         DATE: `${date}`,
         TAGS: `${editedTags}`,
-        THUMB: `${attachmentUrl}`,
+        THUMB: `${thumbnailUrl}`,
         ID: `${itemId}`,
       },
     });
@@ -122,7 +124,7 @@ const ItemDetail = ({ userObj, itemId }) => {
     if (ok) {
       await dbService.doc(`items/${itemId}`).delete();
       await storageService.refFromURL(itemObj.attachmentUrl).delete();
-      itemObj.thumbnailUrl && await storageService.refFromURL(itemObj.thumbnailUrl).delete();
+      await storageService.refFromURL(itemObj.thumbnailUrl).delete();
       alert("삭제 완료!");
       navigate("/");
     }
@@ -139,11 +141,22 @@ const ItemDetail = ({ userObj, itemId }) => {
     <>
       <div className="factoryForm">
         <Helmet>
-          <title>{date} - 오늘의 날씨와 경제 - Weaco</title>
+          <title>{date} 오늘의 날씨와 경제 - Weaco</title>
           <meta name="keywords" content={tags} />
+
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
           <meta property="og:title" content={title} />
+          <meta property="og:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
           <meta property="og:image" content={attachmentUrl} />
-          <meta name="og:url" content={ogurl} />
+          <meta property="og:url" content={ogurl} />
+
+          <meta property="twitter:card" content="summary" />
+          <meta property="twitter:site" content="오늘의 날씨와 경제 - Weaco" />
+          <meta property="twitter:title" content={title} />
+          <meta property="twitter:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
+          <meta property="twitter:image" content={attachmentUrl} />
+          <meta property="twitter:url" content={ogurl} />
         </Helmet>
         <div className="factoryInput__container">
           {itemObj && (
@@ -182,7 +195,7 @@ const ItemDetail = ({ userObj, itemId }) => {
               (tag) =>
                 !skipedKeyword.includes(tag) && (
                   <Link to={`/`} state={{tagged: tag}}>
-                    <span className="formBtn tagBtn" key={tag}>
+                    <span className="formBtn tagBtn commonBtn" key={tag}>
                       {tag}
                     </span>
                   </Link>
@@ -202,7 +215,7 @@ const ItemDetail = ({ userObj, itemId }) => {
               onClick={shareToKatalk}
             >
               <img
-                src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
+                src={process.env.PUBLIC_URL+"/kakaotalk_sharing_btn_medium.png"}
                 width={"20px"}
                 style={{ verticalAlign: "middle", marginRight: 10 }}
                 alt={"카카오톡 공유"}

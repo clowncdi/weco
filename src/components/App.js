@@ -53,7 +53,7 @@ function App() {
         >
           <span className="kakaochat">
             <img
-              src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png"
+              src={process.env.PUBLIC_URL+"/kakaotalk_sharing_btn_medium.png"}
               width={"20px"}
               style={{ verticalAlign: "middle", marginRight: 10 }}
               alt={"카카오톡 공유"}
