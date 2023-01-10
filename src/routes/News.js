@@ -96,6 +96,9 @@ const News = ({ userObj }) => {
     <>
       <Helmet>
         <title>Weaco 토픽</title>
+        <meta name="description" content="흥미로운 토픽 모음" />
+        <meta name="keywords" content="테크,기술,스타트업,디자인,경제,금융,투자,이슈,토픽" />
+        <meta name="author" content="weaco" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
         <meta property="og:title" content="Weaco 토픽" />

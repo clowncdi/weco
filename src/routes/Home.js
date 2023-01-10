@@ -234,9 +234,25 @@ const Home = ({ userObj }) => {
   return (
     <div className="homeContainer dark homeFlex">
       <Helmet>
-        <title>{defaultEndDate} - 오늘의 날씨와 경제 - Weaco</title>
-        <meta name="description" content={text} />
-        <meta name="keywords" content={newTags} />
+        <title>오늘의 날씨와 경제 - Weaco</title>
+        <meta name="description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
+        <meta
+          name="keywords"
+          content="날씨,경제,오늘의날씨,오늘의경제,뉴스,오늘날씨,서울날씨,시황,경제뉴스,토픽,이슈,경제소식,경제이슈"
+        />
+        <meta name="author" content="weaco" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
+        <meta property="og:title" content="오늘의 날씨와 경제 - Weaco" />
+        <meta property="og:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
+        <meta property="og:image" content={process.env.PUBLIC_URL+"/logo2.png"} />
+        <meta property="og:url" content="https://weaco.co.kr/" />
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:site" content="오늘의 날씨와 경제 - Weaco" />
+        <meta property="twitter:title" content="오늘의 날씨와 경제 - Weaco" />
+        <meta property="twitter:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
+        <meta property="twitter:image" content={process.env.PUBLIC_URL+"/logo2.png"} />
+        <meta property="twitter:url" content="https://weaco.co.kr/" />
       </Helmet>
       <div className="indicator-wrap">
         <div className="indicator-arrow prev">{'<'}</div>

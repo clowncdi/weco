@@ -70,7 +70,7 @@ const TopicDetail = ({ userObj, itemId }) => {
     }
   };
 
-  let ogurl = "https://weaco.co.kr/news/" + { itemId };
+  let ogurl = "https://weaco.co.kr/news/" + itemId;
 
   useEffect(() => {
     adfitLong2();
@@ -82,6 +82,9 @@ const TopicDetail = ({ userObj, itemId }) => {
       <div className="factoryForm">
         <Helmet>
           <title>{title} - Weaco 토픽</title>
+          <meta name="author" content="weaco" />
+          <meta name="description" content={text} />
+          <meta name="keywords" content={title} />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
           <meta property="og:title" content={title} />
@@ -92,8 +95,6 @@ const TopicDetail = ({ userObj, itemId }) => {
           <meta property="twitter:title" content={title} />
           <meta property="twitter:description" content={text} />
           <meta property="twitter:url" content={ogurl} />
-          <meta name="description" content={text} />
-          <meta name="keywords" content={title} />
         </Helmet>
         <div className="factoryInput__container">
           {title && (

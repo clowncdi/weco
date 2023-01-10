@@ -130,7 +130,7 @@ const ItemDetail = ({ userObj, itemId }) => {
     }
   };
 
-  let ogurl = "https://weaco.co.kr/" + { itemId };
+  let ogurl = "https://weaco.co.kr/" + itemId;
 
   useEffect(() => {
     adfitLong2();
@@ -143,14 +143,14 @@ const ItemDetail = ({ userObj, itemId }) => {
         <Helmet>
           <title>{date} 오늘의 날씨와 경제 - Weaco</title>
           <meta name="keywords" content={tags} />
-
+          <meta name="description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
+          <meta name="author" content="weaco" />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
           <meta property="og:title" content={title} />
           <meta property="og:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
           <meta property="og:image" content={attachmentUrl} />
           <meta property="og:url" content={ogurl} />
-
           <meta property="twitter:card" content="summary" />
           <meta property="twitter:site" content="오늘의 날씨와 경제 - Weaco" />
           <meta property="twitter:title" content={title} />
