@@ -1,5 +1,14 @@
-@import url("https://fonts.googleapis.com/css2?&family=Roboto&family=Gowun+Dodum&display=swap");
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.5/dist/web/static/pretendard.css");
+
+@font-face {
+  font-family: 'Gowun Dodum';
+  src: local('Gowun Dodum'), 
+      url('../public/subset-GowunDodum-Regular.woff2') format('woff2'),
+      url('../public/subset-GowunDodum-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
 
 * {
   box-sizing: border-box;
@@ -50,7 +59,7 @@ form {
 
 .brand {
   font-size: 22px;
-  font-family: "Gowun Dodum", "Dongle", "Berkshire Swash", cursive;
+  font-family: "Gowun Dodum", Pretendard, sans-serif;
   color: #fff;
 }
 
