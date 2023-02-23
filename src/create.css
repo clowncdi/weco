@@ -1,0 +1,269 @@
+@font-face {
+  font-family: "S-CoreDream-3Light";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "S-CoreDream-6Bold";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-6Bold.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+.create-image-container .container {
+  position: relative;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 250px 250px;
+  grid-template-rows: 50px 60px 1fr 100px;
+  width: 500px;
+  height: 500px;
+  background: #19202c url("../public/logo512.png") no-repeat center center /
+    cover;
+  border-radius: 5px;
+}
+.create-image-container .input-wrap label {
+  display: none;
+}
+.create-image-container .input-wrap {
+  display: flex;
+  align-items: center;
+}
+.create-image-container .temp-wrap {
+  grid-column: 1/2;
+  grid-row: 1/2;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+.create-image-container .temp-wrap .input-wrap {
+  flex-basis: 100px;
+}
+.create-image-container .url-wrap {
+  grid-column: 2/3;
+  grid-row: 1/2;
+}
+.create-image-container .icon-wrap {
+  grid-column: 1/2;
+  grid-row: 2/3;
+  opacity: 0;
+}
+.create-image-container .file-wrap {
+  grid-column: 1/3;
+  grid-row: 3/4;
+  z-index: 1;
+}
+.create-image-container .file-wrap #imgFileInput {
+  display: none;
+}
+.create-image-container .date-wrap {
+  grid-column: 1/2;
+  grid-row: 4/5;
+  align-self: end;
+  margin-bottom: 5%;
+}
+.create-image-container .city-wrap {
+  grid-column: 2/3;
+  grid-row: 4/5;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  row-gap: 10px;
+  margin-bottom: 5%;
+}
+.create-image-container .input-wrap.file-wrap .btn,
+.btn {
+  display: block;
+  width: 150px;
+  margin: auto;
+  padding: 12px 24px;
+  font-family: "S-CoreDream-3Light", sans-serif;
+  font-size: 16px;
+  text-align: center;
+  color: black;
+  background-color: chartreuse;
+  border: none;
+  border-radius: 50px;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+.create-image-container .btn:hover {
+  background-color: #fff;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.7);
+  transform: translateY(-2px);
+}
+.create-image-container .btn.btn-dark {
+  color: white;
+  background-color: #19202c;
+}
+input[type="date"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: none;
+  position: relative;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+}
+.create-image-container
+  .container
+  div.input-wrap
+  input::-webkit-input-placeholder {
+  font-size: 14px;
+}
+.create-image-container .container div.input-wrap input::-moz-placeholder {
+  font-size: 14px;
+}
+.create-image-container .container div.input-wrap input:-ms-input-placeholder {
+  font-size: 14px;
+}
+.create-image-container .container div.input-wrap input::-ms-input-placeholder {
+  font-size: 14px;
+}
+.create-image-container
+  .container
+  div.input-wrap
+  input:focus::-webkit-input-placeholder {
+  color: transparent;
+}
+.create-image-container
+  .container
+  div.input-wrap
+  input:focus::-moz-placeholder {
+  color: transparent;
+}
+.create-image-container
+  .container
+  div.input-wrap
+  input:focus:-ms-input-placeholder {
+  color: transparent;
+}
+.create-image-container
+  .container
+  div.input-wrap
+  input:focus::-ms-input-placeholder {
+  color: transparent;
+}
+.create-image-container .container div.input-wrap input {
+  display: inline-block;
+  font-family: "S-CoreDream-6Bold", sans-serif;
+  font-size: 20px;
+  color: #fff;
+  text-align: center;
+  margin-left: 10px;
+  padding: 0;
+  width: 80%;
+  height: 30px;
+  border: 1px solid chartreuse;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  outline: none;
+  z-index: 1;
+}
+.create-image-container .container div.input-wrap input#imgUrl,
+.create-image-container .container div.input-wrap input#imgCity,
+.create-image-container .container div.input-wrap input#imgCountry {
+  text-align: right;
+  padding-right: 1rem;
+}
+#imgCountry {
+  font-family: "S-CoreDream-3Light", sans-serif;
+}
+.create-image-container .clearBtn {
+  margin-left: -9px;
+  font-size: 8px;
+  width: 20px;
+  height: 20px;
+  color: black;
+  background: chartreuse;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+}
+.create-image-container .btn-wrap {
+  width: 500px;
+  margin: 20px auto;
+}
+.create-image-container .result-wrap {
+  max-width: 500px;
+  margin: auto;
+  text-align: center;
+}
+#imgContainer canvas {
+  width: 100%;
+}
+.create-image-container .result-wrap #imgDownload a {
+  margin: 10px auto;
+  text-decoration: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #19202c;
+  border-bottom: 1px solid rgba(25, 32, 44, 0.7);
+  border-bottom-right-radius: 23px;
+}
+.create-image-container .result-wrap #imgDownload a p {
+  font-family: "S-CoreDream-6Bold", sans-serif;
+  margin: 0;
+}
+.create-image-container .result-wrap #imgDownload a p span {
+  font-family: "S-CoreDream-3Light", sans-serif;
+  font-size: 12px;
+  color: grey;
+  margin-right: 20px;
+}
+.create-image-container .result-wrap #imgDownload a .btn {
+  margin: 0;
+}
+.create-image-container .weather-icon-wrap {
+  grid-column: 1/3;
+  grid-row: 2/3;
+  z-index: 1;
+  width: 96%;
+  height: 40px;
+  margin: 10px auto;
+  padding: 0 2%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3%;
+}
+.create-image-container .weather-icon-wrap li {
+  list-style: none;
+  width: 7%;
+  cursor: pointer; /* Safari */
+  transition: all 0.5s;
+}
+.create-image-container .weather-icon-wrap li svg {
+  width: 100%;
+  height: 100%;
+  fill: white;
+}
+.create-image-container .weather-icon-wrap li:hover svg {
+  fill: chartreuse;
+  scale: 1.2;
+}
+#imgSelectedImage {
+  grid-row: 1/3;
+  grid-column: 1/5;
+  position: absolute;
+  width: 100%;
+  height: 500px;
+  display: flex;
+  overflow: hidden;
+  background-repeat: no-repeat;
+}

@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import imageCompression from 'browser-image-compression';
+import imageCompression from "browser-image-compression";
+import CreateWeatherImage from "./CreateWeatherImage";
 
 const ItemFactory = ({ userObj }) => {
   let today = new Date();
@@ -63,7 +64,7 @@ const ItemFactory = ({ userObj }) => {
     if (attachment !== "") {
       const attachmentRef = storageService
         .ref()
-        .child(`${userObj.uid}/${uuidv4()}${ext ? '.'+ext : '.jpg'}`);
+        .child(`${userObj.uid}/${uuidv4()}${ext ? "." + ext : ".jpg"}`);
       const response = await attachmentRef.putString(attachment, "data_url");
       attachmentUrl = await response.ref.getDownloadURL();
     }
@@ -90,41 +91,42 @@ const ItemFactory = ({ userObj }) => {
     alert("등록 완료!");
     navigate(`/${docRef.id}`);
   };
-  
+
   const onClearAttachment = () => setAttachment("");
 
   async function handleImageUpload(event) {
-
     let imageFile = event.target.files[0];
     console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
-    if (imageFile.name.indexOf('.') > 0) {
-      let ext = imageFile.name.split('.');
+    if (imageFile.name.indexOf(".") > 0) {
+      let ext = imageFile.name.split(".");
       setExt(ext[ext.length - 1]);
-    } 
+    }
 
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1000,
       useWebWorker: true,
-      initialQuality: 0.7
-    }
+      initialQuality: 0.7,
+    };
     try {
       const compressedFile = await imageCompression(imageFile, options);
-      console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`);
+      console.log(
+        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+      );
       const reader = new FileReader();
       reader.onloadend = (finishedEvent) => {
         const {
           currentTarget: { result },
         } = finishedEvent;
         setAttachment(result);
-        
-        console.log('Create Thumbnail');
+
+        console.log("Create Thumbnail");
         const width = 300;
         const height = 300;
         const image = new Image();
         image.width = width;
         image.height = height;
-        image.title = 'thumbnail';
+        image.title = "thumbnail";
         image.src = result;
 
         image.onload = function () {
@@ -135,15 +137,14 @@ const ItemFactory = ({ userObj }) => {
           const dataUri = canvas.toDataURL("image/webp", 0.7);
           setThumbnail(dataUri);
           const thumb = new Image();
-          thumb.src=dataUri;
-          document.getElementById('thumbnail').appendChild(thumb);
-        }
+          thumb.src = dataUri;
+          document.getElementById("thumbnail").appendChild(thumb);
+        };
       };
       reader.readAsDataURL(compressedFile);
     } catch (error) {
       console.log(error);
     }
-  
   }
 
   const onClickTags = () => {
@@ -224,6 +225,7 @@ const ItemFactory = ({ userObj }) => {
           </label>
         </div>
       </div>
+      <CreateWeatherImage />
       <label htmlFor="attach-file" className="factoryInput__label">
         <span>사진 첨부</span>
         <FontAwesomeIcon icon={faPlus} />
