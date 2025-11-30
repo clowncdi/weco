@@ -40,9 +40,12 @@ const Home = ({ userObj }) => {
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
   const [page, setPage] = useState(0);
-  const [last, setLast] = useState({});
-  const [last2, setLast2] = useState({});
-  const [last3, setLast3] = useState({});
+
+  // Use useRef for pagination cursors to avoid dependency loops
+  const last = useRef(null);
+  const last2 = useRef(null);
+  const last3 = useRef(null);
+
   const [more, setMore] = useState(true);
   const [text, setText] = useState("");
 
@@ -111,41 +114,53 @@ const Home = ({ userObj }) => {
 
     if (keyword) {
       setItems2([]);
-      query1 = dbService
+      let q = dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("tags", "array-contains", keyword)
-        .orderBy("date", "desc")
-        .startAfter(last)
-        .limit(itemCount);
+        .orderBy("date", "desc");
+
+      if (last.current) {
+        q = q.startAfter(last.current);
+      }
+      query1 = q.limit(itemCount);
 
     } else {
-      query1 = dbService
+      let q1 = dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("date", ">=", startDate)
         .where("date", "<=", endDate)
-        .orderBy("date", "desc")
-        .startAfter(last)
-        .limit(itemCount);
+        .orderBy("date", "desc");
 
-      query2 = dbService
+      if (last.current) {
+        q1 = q1.startAfter(last.current);
+      }
+      query1 = q1.limit(itemCount);
+
+      let q2 = dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("date", ">=", lastYearStartDate)
         .where("date", "<=", lastYearEndDate)
-        .orderBy("date", "desc")
-        .startAfter(last2)
-        .limit(itemCount);
+        .orderBy("date", "desc");
 
-      query3 = dbService
+      if (last2.current) {
+        q2 = q2.startAfter(last2.current);
+      }
+      query2 = q2.limit(itemCount);
+
+      let q3 = dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("date", ">=", beforeLastYearStartDate)
         .where("date", "<=", beforeLastYearEndDate)
-        .orderBy("date", "desc")
-        .startAfter(last3)
-        .limit(itemCount);
+        .orderBy("date", "desc");
+
+      if (last3.current) {
+        q3 = q3.startAfter(last3.current);
+      }
+      query3 = q3.limit(itemCount);
     }
 
     if (query1) {
@@ -161,7 +176,7 @@ const Home = ({ userObj }) => {
           ...doc.data(),
         }));
         setItems(itemArray);
-        setLast(snapshot.docs[snapshot.docs.length - 1]);
+        last.current = snapshot.docs[snapshot.docs.length - 1];
         if (snapshot.docs.length < itemCount) setMore(false);
       }, (error) => {
         console.error("Error fetching items (query1):", error);
@@ -180,7 +195,7 @@ const Home = ({ userObj }) => {
           ...doc.data(),
         }));
         setItems2(itemArray);
-        setLast2(snapshot.docs[snapshot.docs.length - 1]);
+        last2.current = snapshot.docs[snapshot.docs.length - 1];
         if (snapshot.docs.length < itemCount) setMore(false);
       }, (error) => {
         console.error("Error fetching items (query2):", error);
@@ -199,14 +214,14 @@ const Home = ({ userObj }) => {
           ...doc.data(),
         }));
         setItems3(itemArray);
-        setLast3(snapshot.docs[snapshot.docs.length - 1]);
+        last3.current = snapshot.docs[snapshot.docs.length - 1];
         if (snapshot.docs.length < itemCount) setMore(false);
       }, (error) => {
         console.error("Error fetching items (query3):", error);
       });
       unsubscribes.current.push(unsub3);
     }
-  }, [keyword, startDate, endDate, last, last2, last3]); // Dependencies for query construction
+  }, [keyword, startDate, endDate]); // Dependencies for query construction
 
   // Debounced fetch
   useEffect(() => {
@@ -224,9 +239,9 @@ const Home = ({ userObj }) => {
 
   function init() {
     setPage(0);
-    setLast({});
-    setLast2({});
-    setLast3({});
+    last.current = null;
+    last2.current = null;
+    last3.current = null;
     setMore(true);
   }
 
