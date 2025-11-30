@@ -3,33 +3,30 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faNewspaper,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
 import LazyLoad from "react-lazyload";
 
 const Item = ({ itemObj, isOwner }) => {
-  const [temp, setTemp] = useState("");
-  const [thumbnail, setThumbnail] = useState(itemObj.thumbnailUrl);
-  const mid = Number(itemObj.lowestTemp) + Number(itemObj.highestTemp);
-  useEffect(() => {
-    if (mid === "") setTemp("temp__none");
-    else if (mid <= -20) setTemp("temp__cold20");
-    else if (mid <= -10 && mid > -20) setTemp("temp__cold10");
-    else if (mid < 8 && mid > -10) setTemp("temp__cold2");
-    else if (mid >= 8 && mid < 15) setTemp("temp__spring");
-    else if (mid >= 15 && mid < 30) setTemp("temp__hot15");
-    else if (mid >= 30 && mid < 40) setTemp("temp__hot30");
-    else if (mid >= 40 && mid < 50) setTemp("temp__hot40");
-    else if (mid >= 50) setTemp("temp__hot50");
-  }, []);
-  
-  if (thumbnail === "" || thumbnail === undefined) {
-    setThumbnail(itemObj.attachmentUrl);
+  const thumbnail = itemObj.thumbnailUrl || itemObj.attachmentUrl;
+
+  // Calculate average temperature
+  const mid = (Number(itemObj.lowestTemp) + Number(itemObj.highestTemp)) / 2;
+
+  let tempClass = "temp__none";
+  if (itemObj.lowestTemp && itemObj.highestTemp) {
+    if (mid <= -20) tempClass = "temp__cold20";
+    else if (mid <= -10) tempClass = "temp__cold10";
+    else if (mid < 8) tempClass = "temp__cold2";
+    else if (mid < 15) tempClass = "temp__spring";
+    else if (mid < 30) tempClass = "temp__hot15";
+    else if (mid < 40) tempClass = "temp__hot30";
+    else if (mid < 50) tempClass = "temp__hot40";
+    else tempClass = "temp__hot50";
   }
 
   return (
     <section className="itemContainer" tabIndex="0">
       <h2 className="item__date">{itemObj.date}</h2>
-      <header className={`item__temperature ${temp}`}>
+      <header className={`item__temperature ${tempClass}`}>
         <span>{itemObj.lowestTemp}°C</span>
         <span>{itemObj.highestTemp}°C</span>
         <span className="item__newson">
@@ -38,24 +35,17 @@ const Item = ({ itemObj, isOwner }) => {
       </header>
 
       <Link
-        to={{
-          pathname: `/${itemObj.id}`,
-          state: { uid: itemObj.creatorId },
-        }}
+        to={`/${itemObj.id}`}
+        state={{ uid: itemObj.creatorId }}
       >
         <LazyLoad offset={1000}>
           <div className="item__img">
-            <picture>
-              <source srcset={thumbnail} />
-              <img
-                src={
-                  itemObj.attachmentUrl === ""
-                  ? process.env.PUBLIC_URL + "/logo512.png"
-                  : itemObj.attachmentUrl
-                }
-                alt={itemObj.title}
-              />
-            </picture>
+            <img
+              src={
+                thumbnail || process.env.PUBLIC_URL + "/logo512.png"
+              }
+              alt={itemObj.title}
+            />
           </div>
         </LazyLoad>
       </Link>

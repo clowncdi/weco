@@ -21,40 +21,45 @@ const ItemDetail = ({ userObj, itemId }) => {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [itemObj, setItemObj] = useState("");
   const [temp, setTemp] = useState("");
-  const [isOwner, setOwner] = useState(false); 
+  const [isOwner, setOwner] = useState(false);
+
+  // Helper function to parse text
+  const parseText = (rawText) => {
+    let count = 0;
+    return rawText.split("</p><p>").map((line) => (
+      <p className="detail__text" key={count++}>
+        {line
+          .replace("<p>", "")
+          .replace("</p>", "")
+          .replace("&amp;", "&")
+          .replace("&nbsp;", "")
+          .split("<br>")
+          .map((line2) => (
+            <span key={count++}>{line2}</span>
+          ))}
+      </p>
+    ));
+  };
 
   useEffect(() => {
-    let count = 0;
-
     dbService
       .doc(`items/${itemId}`)
       .get()
       .then((doc) => {
         const data = doc.data();
-        const text = data.text.split("</p><p>").map((line) => {
-          return (
-            <p className="detail__text" key={count + 1}>
-              {line
-                .replace("<p>", "")
-                .replace("</p>", "")
-                .replace("&amp;", "&")
-                .replace("&nbsp;", "")
-                .split("<br>")
-                .map((line2) => {
-                  count = count + 1;
-                  return <span key={count}>{line2}</span>;
-                })}
-            </p>
-          );
-        });
+        const parsedText = parseText(data.text);
 
-        const firstText = text[0].props.children[0].props.children;
-        firstText.includes("날씨와 경제") && text[0].props.children.shift();
-        text[1] && text[1].props.children.pop();
-        text.pop();
+        // Remove specific text if present (legacy logic preserved)
+        if (parsedText[0] && parsedText[0].props.children[0].props.children.includes("날씨와 경제")) {
+          parsedText[0].props.children.shift();
+        }
+        if (parsedText[1]) {
+          parsedText[1].props.children.pop();
+        }
+        parsedText.pop();
 
         setTitle(data.title);
-        setText(text);
+        setText(parsedText);
         setDate(data.date);
         setLow(data.lowestTemp);
         setHigh(data.highestTemp);
@@ -75,7 +80,7 @@ const ItemDetail = ({ userObj, itemId }) => {
         else if (mid >= 40 && mid < 50) setTemp("temp__hot40");
         else if (mid >= 50) setTemp("temp__hot50");
       });
-  }, []);
+  }, [itemId, userObj]);
 
   const skipedKeyword = [
     "오늘의날씨",
@@ -122,11 +127,16 @@ const ItemDetail = ({ userObj, itemId }) => {
   const onDeleteClick = async () => {
     const ok = window.confirm("삭제하시겠습니까?");
     if (ok) {
-      await dbService.doc(`items/${itemId}`).delete();
-      await storageService.refFromURL(itemObj.attachmentUrl).delete();
-      await storageService.refFromURL(itemObj.thumbnailUrl).delete();
-      alert("삭제 완료!");
-      navigate("/");
+      try {
+        await dbService.doc(`items/${itemId}`).delete();
+        await storageService.refFromURL(itemObj.attachmentUrl).delete();
+        await storageService.refFromURL(itemObj.thumbnailUrl).delete();
+        alert("삭제 완료!");
+        navigate("/");
+      } catch (error) {
+        console.error("Error deleting item:", error);
+        alert("삭제에 실패했습니다: " + error.message);
+      }
     }
   };
 
@@ -176,8 +186,8 @@ const ItemDetail = ({ userObj, itemId }) => {
               </div>
               {itemObj.text.indexOf("<br>S") > 0 && (
                 <div className="indicator-wrap">
-                  <div className="indicator-arrow prev">{'<'}</div>
-                  <div className="indicator-arrow next">{'>'}</div>
+                  <button className="indicator-arrow prev" aria-label="이전">{'<'}</button>
+                  <button className="indicator-arrow next" aria-label="다음">{'>'}</button>
                   <div className="indicatorContainer itemDetail">
                     <Indicator text={itemObj.text} />
                     <Upbit />
@@ -194,8 +204,8 @@ const ItemDetail = ({ userObj, itemId }) => {
             {tags.map(
               (tag) =>
                 !skipedKeyword.includes(tag) && (
-                  <Link to={`/`} state={{tagged: tag}}>
-                    <span className="formBtn tagBtn commonBtn" key={tag}>
+                  <Link key={tag} to={`/`} state={{ tagged: tag }}>
+                    <span className="formBtn tagBtn commonBtn">
                       {tag}
                     </span>
                   </Link>
@@ -203,19 +213,20 @@ const ItemDetail = ({ userObj, itemId }) => {
             )}
           </div>
           <div className="detail__btns">
-            <label
+            <button
+              type="button"
               className="factoryInput__arrow"
               onClick={() => navigate("/")}
             >
               목록
-            </label>
+            </button>
             <button
               id="kakao-link-btn"
               className="detail__btn__kakao"
               onClick={shareToKatalk}
             >
               <img
-                src={process.env.PUBLIC_URL+"/kakaotalk_sharing_btn_medium.png"}
+                src={process.env.PUBLIC_URL + "/kakaotalk_sharing_btn_medium.png"}
                 width={"20px"}
                 style={{ verticalAlign: "middle", marginRight: 10 }}
                 alt={"카카오톡 공유"}
@@ -225,19 +236,22 @@ const ItemDetail = ({ userObj, itemId }) => {
             </button>
             {isOwner && (
               <>
-                <span
+                <button
+                  type="button"
                   onClick={onDeleteClick}
                   className="factoryInput__arrow topicEdit"
                 >
                   삭제
-                </span>
+                </button>
                 <Link
                   to={{
                     pathname: `/write/${itemId}`,
                     state: { uid: itemObj.creatorId },
                   }}
+                  className="factoryInput__arrow topicEdit"
+                  style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}
                 >
-                  <span className="factoryInput__arrow topicEdit">수정</span>
+                  수정
                 </Link>
               </>
             )}

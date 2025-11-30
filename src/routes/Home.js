@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { dbService } from "fbase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -17,13 +17,20 @@ import {
 const Home = ({ userObj }) => {
   const location = useLocation();
   const tagged = location.state?.tagged;
-  let today = new Date();
-  const offset = today.getTimezoneOffset();
-  today = new Date(today.getTime() - offset * 60 * 1000);
-  let defaultEndDate = today.toISOString().split("T")[0];
-  today.setMonth(today.getMonth()-1);
-  let defaultStartDate = today.toISOString().split("T")[0];
-  
+
+  // Date calculation helper
+  const getFormattedDate = (date) => {
+    const offset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - offset).toISOString().split("T")[0];
+  };
+
+  const today = new Date();
+  const defaultEndDate = getFormattedDate(today);
+
+  const oneMonthAgo = new Date(today);
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  const defaultStartDate = getFormattedDate(oneMonthAgo);
+
   const [items, setItems] = useState([]);
   const [items2, setItems2] = useState([]);
   const [items3, setItems3] = useState([]);
@@ -38,6 +45,8 @@ const Home = ({ userObj }) => {
   const [last3, setLast3] = useState({});
   const [more, setMore] = useState(true);
   const [text, setText] = useState("");
+
+  const unsubscribes = useRef([]);
 
   const itemCount = 6;
   const skipedKeyword = [
@@ -56,8 +65,9 @@ const Home = ({ userObj }) => {
     "뉴욕증시",
   ];
 
+  // Fetch initial text (one-time)
   useEffect(() => {
-    dbService
+    const unsubscribe = dbService
       .collection("items")
       .where("creatorId", "==", process.env.REACT_APP_ADMIN)
       .orderBy("date", "desc")
@@ -72,30 +82,36 @@ const Home = ({ userObj }) => {
         }));
         const result = item.shift().text;
         setText(result);
+      }, (error) => {
+        console.error("Error fetching initial text:", error);
       });
+
+    return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const debounce = setTimeout(findAll(), 500);
-    return () => clearTimeout(debounce);
-  }, [keyword, startDate, endDate, page]);
+  const findAll = useCallback(async () => {
+    // Clear previous subscriptions
+    unsubscribes.current.forEach((unsub) => unsub && unsub());
+    unsubscribes.current = [];
 
-  const findAll = async () => {
-    let result = [];
-    let result2 = [];
-    let result3 = [];
-    let lastEndYear = Number(endDate.substring(0,4)) - 1;
-    let lastStartYear = Number(startDate.substring(0,4)) - 1;
-    let lastYearStartDate = lastStartYear + startDate.substring(4);
-    let lastYearEndDate = lastEndYear + endDate.substring(4);
-    let beforeLastEndYear = lastEndYear - 1;
-    let beforeLastStartYear = lastStartYear - 1;
-    let beforeLastYearStartDate = beforeLastStartYear + startDate.substring(4);
-    let beforeLastYearEndDate = beforeLastEndYear + endDate.substring(4);
+    let query1, query2, query3;
+
+    const endYear = Number(endDate.substring(0, 4));
+    const startYear = Number(startDate.substring(0, 4));
+
+    const lastEndYear = endYear - 1;
+    const lastStartYear = startYear - 1;
+    const lastYearStartDate = lastStartYear + startDate.substring(4);
+    const lastYearEndDate = lastEndYear + endDate.substring(4);
+
+    const beforeLastEndYear = lastEndYear - 1;
+    const beforeLastStartYear = lastStartYear - 1;
+    const beforeLastYearStartDate = beforeLastStartYear + startDate.substring(4);
+    const beforeLastYearEndDate = beforeLastEndYear + endDate.substring(4);
 
     if (keyword) {
       setItems2([]);
-      result = await dbService
+      query1 = dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("tags", "array-contains", keyword)
@@ -104,7 +120,7 @@ const Home = ({ userObj }) => {
         .limit(itemCount);
 
     } else {
-      result = await dbService
+      query1 = dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("date", ">=", startDate)
@@ -113,7 +129,7 @@ const Home = ({ userObj }) => {
         .startAfter(last)
         .limit(itemCount);
 
-      result2 = await dbService
+      query2 = dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("date", ">=", lastYearStartDate)
@@ -122,7 +138,7 @@ const Home = ({ userObj }) => {
         .startAfter(last2)
         .limit(itemCount);
 
-      result3 = await dbService
+      query3 = dbService
         .collection("items")
         .where("creatorId", "==", process.env.REACT_APP_ADMIN)
         .where("date", ">=", beforeLastYearStartDate)
@@ -132,54 +148,85 @@ const Home = ({ userObj }) => {
         .limit(itemCount);
     }
 
-    result.onSnapshot((snapshot) => {
-      if (snapshot.docs.length === 0) {
-        setMore(false);
-        return setItems([]);
-      }
-      setNewTags(snapshot.docs[0].data().tags);
-      setNewDate(snapshot.docs[0].data().date);
-      const itemArray = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setItems(itemArray);
-      setLast(snapshot.docs[snapshot.docs.length - 1]);
-      if (snapshot.docs.length < itemCount) setMore(false);
-    });
+    if (query1) {
+      const unsub1 = query1.onSnapshot((snapshot) => {
+        if (snapshot.docs.length === 0) {
+          setMore(false);
+          return setItems([]);
+        }
+        setNewTags(snapshot.docs[0].data().tags);
+        setNewDate(snapshot.docs[0].data().date);
+        const itemArray = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setItems(itemArray);
+        setLast(snapshot.docs[snapshot.docs.length - 1]);
+        if (snapshot.docs.length < itemCount) setMore(false);
+      }, (error) => {
+        console.error("Error fetching items (query1):", error);
+      });
+      unsubscribes.current.push(unsub1);
+    }
 
-    result2.onSnapshot((snapshot) => {
-      if (snapshot.docs.length === 0) {
-        setMore(false);
-        return setItems2([]);
-      }
-      const itemArray = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setItems2(itemArray);
-      setLast2(snapshot.docs[snapshot.docs.length - 1]);
-      if (snapshot.docs.length < itemCount) setMore(false);
-    });
+    if (query2) {
+      const unsub2 = query2.onSnapshot((snapshot) => {
+        if (snapshot.docs.length === 0) {
+          setMore(false);
+          return setItems2([]);
+        }
+        const itemArray = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setItems2(itemArray);
+        setLast2(snapshot.docs[snapshot.docs.length - 1]);
+        if (snapshot.docs.length < itemCount) setMore(false);
+      }, (error) => {
+        console.error("Error fetching items (query2):", error);
+      });
+      unsubscribes.current.push(unsub2);
+    }
 
-    result3.onSnapshot((snapshot) => {
-      if (snapshot.docs.length === 0) {
-        setMore(false);
-        return setItems3([]);
-      }
-      const itemArray = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setItems3(itemArray);
-      setLast3(snapshot.docs[snapshot.docs.length - 1]);
-      if (snapshot.docs.length < itemCount) setMore(false);
-    });
-  };
+    if (query3) {
+      const unsub3 = query3.onSnapshot((snapshot) => {
+        if (snapshot.docs.length === 0) {
+          setMore(false);
+          return setItems3([]);
+        }
+        const itemArray = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setItems3(itemArray);
+        setLast3(snapshot.docs[snapshot.docs.length - 1]);
+        if (snapshot.docs.length < itemCount) setMore(false);
+      }, (error) => {
+        console.error("Error fetching items (query3):", error);
+      });
+      unsubscribes.current.push(unsub3);
+    }
+  }, [keyword, startDate, endDate, last, last2, last3]); // Dependencies for query construction
+
+  // Debounced fetch
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      findAll();
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      // Cleanup subscriptions on unmount or re-run
+      unsubscribes.current.forEach((unsub) => unsub && unsub());
+      unsubscribes.current = [];
+    };
+  }, [keyword, startDate, endDate, page, findAll]); // Only trigger on these changes
 
   function init() {
     setPage(0);
     setLast({});
+    setLast2({});
+    setLast3({});
     setMore(true);
   }
 
@@ -210,7 +257,7 @@ const Home = ({ userObj }) => {
   };
 
   const onClickKeyword = (event) => {
-    setKeyword(event.target.outerText);
+    setKeyword(event.target.innerText); // outerText -> innerText for better cross-browser support
     init();
   };
 
@@ -245,13 +292,13 @@ const Home = ({ userObj }) => {
         <meta property="og:site_name" content="오늘의 날씨와 경제 - Weaco" />
         <meta property="og:title" content="오늘의 날씨와 경제 - Weaco" />
         <meta property="og:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
-        <meta property="og:image" content={process.env.PUBLIC_URL+"/logo2.png"} />
+        <meta property="og:image" content={process.env.PUBLIC_URL + "/logo2.png"} />
         <meta property="og:url" content="https://weaco.co.kr/" />
         <meta property="twitter:card" content="summary" />
         <meta property="twitter:site" content="오늘의 날씨와 경제 - Weaco" />
         <meta property="twitter:title" content="오늘의 날씨와 경제 - Weaco" />
         <meta property="twitter:description" content="간단한 날씨 정보와 경제 소식을 알려드립니다." />
-        <meta property="twitter:image" content={process.env.PUBLIC_URL+"/logo2.png"} />
+        <meta property="twitter:image" content={process.env.PUBLIC_URL + "/logo2.png"} />
         <meta property="twitter:url" content="https://weaco.co.kr/" />
       </Helmet>
       <div className="indicator-wrap">
@@ -265,18 +312,22 @@ const Home = ({ userObj }) => {
       <article className="searchContainer__wrap">
         <div className="searchContainer">
           <div className="searchInput__date">
+            <label htmlFor="startDate" className="sr-only">시작 날짜</label>
             <input
+              id="startDate"
               type="date"
               value={keyword ? "2019-11-18" : startDate}
               onChange={onChangeStartDate}
-              disabled={keyword && true}
+              disabled={!!keyword}
             />
             {keyword ? (
               "~ 현재까지"
             ) : (
               <>
                 -
+                <label htmlFor="endDate" className="sr-only">종료 날짜</label>
                 <input
+                  id="endDate"
                   type="date"
                   value={keyword ? defaultEndDate : endDate}
                   onChange={onChangeEndDate}
@@ -285,10 +336,17 @@ const Home = ({ userObj }) => {
             )}
           </div>
           <div className="searchInput__keyword">
-            <span className="searchCancelBtn" onClick={onClickSearchClear}>
+            <button
+              className="searchCancelBtn"
+              onClick={onClickSearchClear}
+              aria-label="검색어 초기화"
+              type="button"
+            >
               <FontAwesomeIcon icon={faTimes} />
-            </span>
+            </button>
+            <label htmlFor="keywordSearch" className="sr-only">키워드 검색</label>
             <input
+              id="keywordSearch"
               type="text"
               value={keyword}
               onChange={onChangeKeyword}
@@ -315,12 +373,14 @@ const Home = ({ userObj }) => {
                 {newTags.map(
                   (tag) =>
                     !skipedKeyword.includes(tag) && (
-                      <li
-                        key={tag}
-                        className="issueKeyword"
-                        onClick={onClickKeyword}
-                      >
-                        {tag}
+                      <li key={tag}>
+                        <button
+                          className="issueKeyword"
+                          onClick={onClickKeyword}
+                          type="button"
+                        >
+                          {tag}
+                        </button>
                       </li>
                     )
                 )}
@@ -340,7 +400,7 @@ const Home = ({ userObj }) => {
           }}
         ></div>
       </article>
-      <h2 className="itemTitle">{keyword || endDate.substring(0,4)}</h2>
+      <h2 className="itemTitle">{keyword || endDate.substring(0, 4)}</h2>
       <article className="itemGridContainer">
         {userObj ? (
           <>
@@ -367,7 +427,7 @@ const Home = ({ userObj }) => {
       </article>
       {!keyword && (
         <>
-          <h2 className="itemTitle">{Number(endDate.substring(0,4)) - 1}</h2>
+          <h2 className="itemTitle">{Number(endDate.substring(0, 4)) - 1}</h2>
           <article className="itemGridContainer">
             {userObj ? (
               <>
@@ -392,7 +452,7 @@ const Home = ({ userObj }) => {
               </p>
             )}
           </article>
-          <h2 className="itemTitle">{Number(endDate.substring(0,4)) - 2}</h2>
+          <h2 className="itemTitle">{Number(endDate.substring(0, 4)) - 2}</h2>
           <article className="itemGridContainer">
             {userObj ? (
               <>
@@ -421,9 +481,9 @@ const Home = ({ userObj }) => {
       )}
       {more && (
         <div className="moreBtnWrap">
-          <span className="formBtn moreBtn" onClick={onClickMore}>
+          <button className="formBtn moreBtn" onClick={onClickMore} type="button">
             다음
-          </span>
+          </button>
         </div>
       )}
       <div>

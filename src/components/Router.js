@@ -7,10 +7,10 @@ const Write = lazy(() => import("routes/Write"));
 const NewsWrite = lazy(() => import("routes/NewsWrite"));
 const Navigation = lazy(() => import("./Navigation"));
 const News = lazy(() => import("routes/News"));
-const Infomation = lazy(() => import("routes/Infomation"));
+const Information = lazy(() => import("routes/Information"));
 const WeacoDetail = lazy(() => import("routes/WeacoDetail"));
 const NewsDetail = lazy(() => import("routes/NewsDetail"));
-const ImageCompressior = lazy(() => import("routes/ImageCompressior"));
+const ImageCompressor = lazy(() => import("routes/ImageCompressor"));
 
 function AppRouter({ isLoggedIn, userObj }) {
   return (
@@ -30,7 +30,7 @@ function AppRouter({ isLoggedIn, userObj }) {
             element={<NewsDetail userObj={userObj} />}
           ></Route>
           <Route path="/login" element={<Auth isLoggedIn={isLoggedIn} />}></Route>
-          <Route path="/info" element={<Infomation />}></Route>
+          <Route path="/info" element={<Information />}></Route>
           <Route path="*" element={<Navigate replace to={"/"} />}></Route>
           {isLoggedIn && (
             <>
@@ -50,7 +50,7 @@ function AppRouter({ isLoggedIn, userObj }) {
               {userObj.uid === process.env.REACT_APP_ADMIN && (
                 <Route
                   path="/image-comp"
-                  element={<ImageCompressior />}
+                  element={<ImageCompressor />}
                 ></Route>
               )}
             </>

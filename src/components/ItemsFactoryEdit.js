@@ -35,7 +35,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
         setTags(data.tags);
         setItemObj(data);
       });
-  }, []);
+  }, [itemId]);
 
   const onTitleChange = (event) => {
     const {
@@ -70,7 +70,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     if (attachment !== "") {
       const attachmentRef = storageService
         .ref()
-        .child(`${userObj.uid}/${uuidv4()}${ext ? '.'+ext : '.jpg'}`);
+        .child(`${userObj.uid}/${uuidv4()}${ext ? '.' + ext : '.jpg'}`);
       const response = await attachmentRef.putString(attachment, "data_url");
       attachmentUrl = await response.ref.getDownloadURL();
     } else {
@@ -99,9 +99,14 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
       thumbnailUrl,
     };
 
-    await dbService.doc(`items/${itemId}`).update(newItemObj);
-    alert("수정 완료!");
-    navigate(`/${itemId}`);
+    try {
+      await dbService.doc(`items/${itemId}`).update(newItemObj);
+      alert("수정 완료!");
+      navigate(`/${itemId}`);
+    } catch (error) {
+      console.error("Error updating document: ", error);
+      alert("수정에 실패했습니다: " + error.message);
+    }
   };
 
   async function handleImageUpload(event) {
@@ -111,7 +116,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
     if (imageFile.name.indexOf('.') > 0) {
       let ext = imageFile.name.split('.');
       setExt(ext[ext.length - 1]);
-    } 
+    }
 
     const options = {
       maxSizeMB: 1,
@@ -147,29 +152,35 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
           const dataUri = canvas.toDataURL("image/webp", 0.7);
           setThumbnail(dataUri);
           const thumb = new Image();
-          thumb.src=dataUri;
+          thumb.src = dataUri;
           document.getElementById('thumbnail').appendChild(thumb);
         }
       };
       reader.readAsDataURL(compressedFile);
     } catch (error) {
       console.log(error);
+      alert("이미지 압축 중 오류가 발생했습니다: " + error.message);
     }
-  
+
   }
 
   const onClearAttachment = () => setAttachment("");
   const onDeleteClick = async () => {
     const ok = window.confirm("삭제하시겠습니까?");
     if (ok) {
-      await dbService.doc(`items/${itemId}`).update({
-        attachmentUrl: "",
-        thumbnailUrl: "",
-      });
-      await storageService.refFromURL(itemObj.attachmentUrl).delete();
-      await storageService.refFromURL(itemObj.thumbnailUrl).delete();
-      alert("사진 삭제 완료!");
-      navigate(`/write/${itemId}`);
+      try {
+        await dbService.doc(`items/${itemId}`).update({
+          attachmentUrl: "",
+          thumbnailUrl: "",
+        });
+        await storageService.refFromURL(itemObj.attachmentUrl).delete();
+        await storageService.refFromURL(itemObj.thumbnailUrl).delete();
+        alert("사진 삭제 완료!");
+        navigate(`/write/${itemId}`);
+      } catch (error) {
+        console.error("Error deleting image: ", error);
+        alert("사진 삭제에 실패했습니다: " + error.message);
+      }
     }
   };
 
@@ -237,7 +248,7 @@ const ItemFactoryEdit = ({ userObj, itemId }) => {
             type="button"
           />
           {tags.map((tag) => (
-            <span className="formBtn tagBtn">{tag}</span>
+            <span key={tag} className="formBtn tagBtn">{tag}</span>
           ))}
         </div>
         <div className="submitBtns">

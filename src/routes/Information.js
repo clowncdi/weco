@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-const Infomation = () => {
+const Information = () => {
   return (
     <section className="infoWrap dark">
       <Helmet>
@@ -255,4 +255,4 @@ const Infomation = () => {
   );
 };
 
-export default Infomation;
+export default Information;

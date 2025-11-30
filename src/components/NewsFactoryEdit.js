@@ -21,7 +21,7 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
         setText(data.text);
         setUrl(data.url);
       });
-  }, []);
+  }, [itemId]);
 
   const onTitleChange = (event) => {
     const {
@@ -66,9 +66,14 @@ const NewsFactoryEdit = ({ userObj, itemId }) => {
       creatorEmail: userObj.email,
     };
 
-    await dbService.doc(`news/${itemId}`).update(newItemObj);
-    alert("수정 완료!");
-    navigate(`/news/${itemId}`);
+    try {
+      await dbService.doc(`news/${itemId}`).update(newItemObj);
+      alert("수정 완료!");
+      navigate(`/news/${itemId}`);
+    } catch (error) {
+      console.error("Error updating document: ", error);
+      alert("수정에 실패했습니다: " + error.message);
+    }
   };
 
   return (

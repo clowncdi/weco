@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 const Indicator = ({ text }) => {
   const [sp500, setSp500] = useState("");
   const [dow, setDow] = useState("");
-  const [nasdoq, setNasdoq] = useState("");
+  const [nasdaq, setNasdaq] = useState("");
   const [wti, setWti] = useState("");
   const [dxy, setDxy] = useState("");
   const [vix, setVix] = useState("");
@@ -15,12 +15,12 @@ const Indicator = ({ text }) => {
     const line = text.slice(startPoint + 4, endPoint + 1);
     setSp500(sliceLine(line, "S&amp;P500"));
     setDow(sliceLine(line, "다우"));
-    setNasdoq(sliceLine(line, "나스닥"));
+    setNasdaq(sliceLine(line, "나스닥"));
     setWti(sliceLine(line, "WTI"));
     setDxy(sliceLine(line, "달러인덱스"));
     setVix(sliceLine(line, "VIX"));
     setGold(sliceLine(line, "금"));
-  }, []);
+  }, [text]);
 
   const sliceLine = (line, title) => {
     const startPoint = line.indexOf(title);
@@ -29,7 +29,7 @@ const Indicator = ({ text }) => {
   };
   const sp500Array = sp500.split("(");
   const dowArray = dow.split("(");
-  const nasdoqArray = nasdoq.split("(");
+  const nasdaqArray = nasdaq.split("(");
   const wtiArray = wti.split("(");
   const dxyArray = dxy.split("(");
   const vixArray = vix.split("(");
@@ -47,10 +47,10 @@ const Indicator = ({ text }) => {
         <span>{dowArray[0]}</span>
         <span>{dowArray[1]}</span>
       </div>
-      <div className={nasdoq.indexOf("-") > 0 ? "minus" : ""}>
+      <div className={nasdaq.indexOf("-") > 0 ? "minus" : ""}>
         <h3>나스닥</h3>
-        <span>{nasdoqArray[0]}</span>
-        <span>{nasdoqArray[1]}</span>
+        <span>{nasdaqArray[0]}</span>
+        <span>{nasdaqArray[1]}</span>
       </div>
       <div className={wti.indexOf("-") > 0 ? "minus" : ""}>
         <h3>WTI</h3>

@@ -55,9 +55,14 @@ const NewsFactory = ({ userObj }) => {
       creatorId: userObj.uid,
       creatorEmail: userObj.email,
     };
-    const docRef = await dbService.collection("news").add(newsObj);
-    alert("등록 완료!");
-    navigate(`/news/${docRef.id}`);
+    try {
+      const docRef = await dbService.collection("news").add(newsObj);
+      alert("등록 완료!");
+      navigate(`/news/${docRef.id}`);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      alert("등록에 실패했습니다: " + error.message);
+    }
   };
 
   return (

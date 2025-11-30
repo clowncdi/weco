@@ -8,6 +8,7 @@ import {
   adfitLong2,
   adfitMobile,
 } from "components/ad";
+import DOMPurify from "dompurify";
 
 const TopicDetail = ({ userObj, itemId }) => {
   const navigate = useNavigate();
@@ -34,11 +35,18 @@ const TopicDetail = ({ userObj, itemId }) => {
         setType(data.type);
         setText(content);
         setUrl(data.url);
-        setDate(data.createdAt.split("T")[0]);
+
+        const formattedDate = new Intl.DateTimeFormat("ko-KR", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date(data.createdAt));
+        setDate(formattedDate);
+
         setCreator(data.creatorEmail.split("@")[0]);
         setNews(data);
       });
-  }, []);
+  }, [itemId]);
 
   useEffect(() => {
     initKakao();
@@ -46,27 +54,35 @@ const TopicDetail = ({ userObj, itemId }) => {
 
   const initKakao = () => {
     const { Kakao } = window;
-    if (!Kakao.isInitialized()) {
+    if (Kakao && !Kakao.isInitialized()) {
       Kakao.init(process.env.REACT_APP_KAKAO_KEY);
     }
   };
 
   const shareToKatalk = () => {
-    window.Kakao.Share.createCustomButton({
-      container: "#kakao-link-btn",
-      templateId: 81320,
-      templateArgs: {
-        TITLE: `${title}`,
-        ID: `${itemId}`,
-      },
-    });
+    if (window.Kakao) {
+      window.Kakao.Share.createCustomButton({
+        container: "#kakao-link-btn",
+        templateId: 81320,
+        templateArgs: {
+          TITLE: `${title}`,
+          ID: `${itemId}`,
+        },
+      });
+    }
   };
 
   const onDeleteClick = async () => {
     const ok = window.confirm("삭제하시겠습니까?");
     if (ok) {
-      await dbService.doc(`news/${itemId}`).delete();
-      alert("삭제 완료!");
+      try {
+        await dbService.doc(`news/${itemId}`).delete();
+        alert("삭제 완료!");
+        navigate("/news");
+      } catch (error) {
+        console.error("Error deleting document: ", error);
+        alert("삭제에 실패했습니다: " + error.message);
+      }
     }
   };
 
@@ -113,6 +129,7 @@ const TopicDetail = ({ userObj, itemId }) => {
                   target="_blank"
                   href={url}
                   rel="noreferrer"
+                  aria-label="원문 보기"
                 >
                   <FontAwesomeIcon icon={faLink} /> 원문링크
                 </a>
@@ -123,7 +140,12 @@ const TopicDetail = ({ userObj, itemId }) => {
           <div className="detail__content__wrap">
             <div
               className="detail__news"
-              dangerouslySetInnerHTML={{ __html: text }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(text, {
+                  ADD_TAGS: ["iframe"],
+                  ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "src"],
+                }),
+              }}
             ></div>
             <div className="detail__content__more">
               <a
@@ -131,6 +153,7 @@ const TopicDetail = ({ userObj, itemId }) => {
                 target="_blank"
                 href={url}
                 rel="noreferrer"
+                aria-label="자세히 보기"
               >
                 <FontAwesomeIcon icon={faLink} /> 자세히 보기
               </a>
@@ -140,25 +163,28 @@ const TopicDetail = ({ userObj, itemId }) => {
           <div className="adfit adfit-m"></div>
 
           <div className="detail__btns">
-            <label
-              className="factoryInput__arrow"
+            <button
+              className="factoryInput__arrow actionBtn"
               onClick={() => navigate("/news")}
+              aria-label="목록으로 돌아가기"
             >
               목록
-            </label>
+            </button>
             {isOwner && (
               <>
-                <span
+                <button
                   onClick={onDeleteClick}
-                  className="factoryInput__arrow topicEdit"
+                  className="factoryInput__arrow topicEdit actionBtn"
+                  aria-label="삭제"
                 >
                   삭제
-                </span>
+                </button>
                 <Link
                   to={{
                     pathname: `/news/write/${itemId}`,
                     state: { uid: news.creatorId },
                   }}
+                  aria-label="수정"
                 >
                   <span className="factoryInput__arrow topicEdit">수정</span>
                 </Link>
@@ -168,12 +194,13 @@ const TopicDetail = ({ userObj, itemId }) => {
               id="kakao-link-btn"
               className="detail__btn__kakao"
               onClick={shareToKatalk}
+              aria-label="카카오톡 공유"
             >
               <img
-                src={process.env.PUBLIC_URL+"/kakaotalk_sharing_btn_medium.png"}
+                src={process.env.PUBLIC_URL + "/kakaotalk_sharing_btn_medium.png"}
                 width={"20px"}
                 style={{ verticalAlign: "middle", marginRight: 10 }}
-                alt={"카카오톡 공유"}
+                alt=""
                 loading="lazy"
               />
               카톡 공유

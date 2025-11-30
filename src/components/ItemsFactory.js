@@ -17,7 +17,7 @@ const ItemFactory = ({ userObj }) => {
 
   useEffect(() => {
     setDate(defaultToday);
-  }, []);
+  }, [defaultToday]);
 
   const navigate = useNavigate();
   const [title, setTitle] = useState("오늘의 날씨와 경제");
@@ -87,9 +87,14 @@ const ItemFactory = ({ userObj }) => {
       attachmentUrl,
       thumbnailUrl,
     };
-    const docRef = await dbService.collection("items").add(itemObj);
-    alert("등록 완료!");
-    navigate(`/${docRef.id}`);
+    try {
+      const docRef = await dbService.collection("items").add(itemObj);
+      alert("등록 완료!");
+      navigate(`/${docRef.id}`);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      alert("등록에 실패했습니다: " + error.message);
+    }
   };
 
   const onClearAttachment = () => setAttachment("");
@@ -144,6 +149,7 @@ const ItemFactory = ({ userObj }) => {
       reader.readAsDataURL(compressedFile);
     } catch (error) {
       console.log(error);
+      alert("이미지 압축 중 오류가 발생했습니다: " + error.message);
     }
   }
 
@@ -210,7 +216,7 @@ const ItemFactory = ({ userObj }) => {
             type="button"
           />
           {tags.map((tag) => (
-            <span className="formBtn tagBtn">{tag}</span>
+            <span key={tag} className="formBtn tagBtn">{tag}</span>
           ))}
         </div>
         <div className="submitBtns">

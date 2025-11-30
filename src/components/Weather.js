@@ -9,17 +9,6 @@ const Weather = () => {
   const [res, setRes] = useState();
 
   useEffect(() => {
-    selectCity();
-  }, [city]);
-
-  const onChangeCity = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setCity(value);
-  };
-
-  const selectCity = () => {
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}&lang=kr`
     )
@@ -28,6 +17,13 @@ const Weather = () => {
         setRes(data);
         setLoading(false);
       });
+  }, [city, API_KEY]);
+
+  const onChangeCity = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setCity(value);
   };
 
   return (

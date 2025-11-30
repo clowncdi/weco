@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { dbService } from "fbase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -26,11 +26,7 @@ const News = ({ userObj }) => {
 
   const itemCount = 20;
 
-  useEffect(() => {
-    findAll();
-  }, [type, page]);
-
-  function findAll() {
+  const findAll = useCallback(() => {
     let result = [];
     if (type.length > 0) {
       result = dbService
@@ -58,7 +54,11 @@ const News = ({ userObj }) => {
         if (snapshot.docs.length < itemCount) setMore(false);
       });
     }
-  }
+  }, [type, last]);
+
+  useEffect(() => {
+    findAll();
+  }, [type, page, findAll]);
 
   const onClickType = (event) => {
     setMore(true);

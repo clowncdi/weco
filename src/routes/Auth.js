@@ -19,7 +19,12 @@ const Auth = ({ isLoggedIn }) => {
     } else if (name === "facebook") {
       provider = new firebaseInstance.auth.FacebookAuthProvider();
     }
-    await authService.signInWithPopup(provider);
+    try {
+      await authService.signInWithPopup(provider);
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("로그인에 실패했습니다: " + error.message);
+    }
   };
 
   return (

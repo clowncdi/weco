@@ -143,7 +143,6 @@ form {
   font-weight: 700;
   border-radius: 20px;
   background-color: #35405e;
-  cursor: pointer;
 }
 .formBtn:active {
   opacity: 0.8;

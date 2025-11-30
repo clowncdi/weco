@@ -3,7 +3,7 @@ import imageCompression from 'browser-image-compression';
 import { useState } from "react";
 import { uuidv4 } from "@firebase/util";
 
-const ImageCompressior = () => {
+const ImageCompressor = () => {
   const [ext, setExt] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -341,4 +341,4 @@ const ImageCompressior = () => {
   );
 };
 
-export default ImageCompressior;
+export default ImageCompressor;

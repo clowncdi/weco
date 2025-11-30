@@ -9,7 +9,7 @@ import { useEffect } from "react";
 export function EditorBox({ editorRef, onChange, text }) {
   useEffect(() => {
     editorRef.current?.getInstance().setHTML(text);
-  }, []);
+  }, [editorRef, text]);
 
   return (
     <div className="edit_wrap">

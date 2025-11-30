@@ -1,38 +1,54 @@
 import { Link } from "react-router-dom";
 import { authService } from "fbase";
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 const Navigation = ({ userObj, isLoggedIn }) => {
   const onLogOutClick = () => {
     authService.signOut();
   };
 
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [lazyPoint, setLazyPoint] = useState(0);
-  const nav = document.querySelector(".nav");
-  
+  const navRef = useRef(null);
+  const prevScrollPosRef = useRef(0);
+  const lazyPointRef = useRef(0);
+
   useEffect(() => {
-    setPrevScrollPos(window.pageYOffset);
-    setLazyPoint(0);
-  }, []);
-  
-  window.onscroll = function () {
-    let currentScrollPos = window.pageYOffset;
-    if (prevScrollPos > currentScrollPos || currentScrollPos < 50) {
-      setLazyPoint(lazyPoint + (prevScrollPos - currentScrollPos));
-      if (lazyPoint > 30) {
-        nav.style.transform = "translateY(0)";     
+    prevScrollPosRef.current = window.pageYOffset;
+    lazyPointRef.current = 0;
+
+    const handleScroll = () => {
+      const currentScrollPos = window.pageYOffset;
+      const prevScrollPos = prevScrollPosRef.current;
+      const lazyPoint = lazyPointRef.current;
+      const nav = navRef.current;
+
+      if (!nav) return;
+
+      if (prevScrollPos > currentScrollPos || currentScrollPos < 50) {
+        // Scrolling UP or near top
+        const newLazyPoint = lazyPoint + (prevScrollPos - currentScrollPos);
+        lazyPointRef.current = newLazyPoint;
+
+        if (newLazyPoint > 30) {
+          nav.style.transform = "translateY(0)";
+        }
+      } else {
+        // Scrolling DOWN
+        lazyPointRef.current = 0;
+        nav.style.transform = "translateY(-100px)";
       }
-    } else {
-      setLazyPoint(0);
-      nav.style.transform = "translateY(-100px)";
-    }
-    setPrevScrollPos(currentScrollPos);
-  };
+
+      prevScrollPosRef.current = currentScrollPos;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
-    <nav className="nav">
+    <nav className="nav" ref={navRef}>
       <div className="brand">
         <Link to="/">
           <img src={process.env.PUBLIC_URL + "/logo2.png"} alt="logo" loading="lazy" />
@@ -54,7 +70,7 @@ const Navigation = ({ userObj, isLoggedIn }) => {
           <>
             {userObj.uid === process.env.REACT_APP_ADMIN && (
               <li>
-                <Link to="/write">
+                <Link to="/write" aria-label="관리자 글쓰기">
                   <span className="commonBtn formBtn writeBtn"></span>
                 </Link>
               </li>
@@ -65,14 +81,13 @@ const Navigation = ({ userObj, isLoggedIn }) => {
               </Link>
             </li>
             <li>
-              <Link to="/">
-                <span
-                  className="commonBtn formBtn cancelBtn logOut"
-                  onClick={onLogOutClick}
-                >
-                  로그아웃
-                </span>
-              </Link>
+              <button
+                className="commonBtn formBtn cancelBtn logOut"
+                onClick={onLogOutClick}
+                type="button"
+              >
+                로그아웃
+              </button>
             </li>
           </>
         ) : (
