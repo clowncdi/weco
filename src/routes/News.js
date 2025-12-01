@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { dbService } from "fbase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,70 +20,69 @@ import {
 const News = ({ userObj }) => {
   const [items, setItems] = useState([]);
   const [type, setType] = useState("");
-  const [page, setPage] = useState(0);
-  const [last, setLast] = useState({});
+  const [last, setLast] = useState(null);
   const [more, setMore] = useState(true);
 
   const itemCount = 20;
 
-  const findAll = useCallback(() => {
-    let result = [];
-    if (type.length > 0) {
-      result = dbService
+  const getNews = async (currentType, startAfterDoc) => {
+    let query = dbService.collection("news").orderBy("createdAt", "desc");
+
+    if (currentType) {
+      query = dbService
         .collection("news")
-        .where("type", "==", type)
-        .orderBy("createdAt", "desc")
-        .startAfter(last)
-        .limit(itemCount);
-    } else {
-      result = dbService
-        .collection("news")
-        .orderBy("createdAt", "desc")
-        .startAfter(last)
-        .limit(itemCount);
+        .where("type", "==", currentType)
+        .orderBy("createdAt", "desc");
     }
 
-    if (result !== "") {
-      result.get().then((snapshot) => {
-        const itemArray = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setItems(itemArray);
-        setLast(snapshot.docs[snapshot.docs.length - 1]);
-        if (snapshot.docs.length < itemCount) setMore(false);
-      });
+    if (startAfterDoc) {
+      query = query.startAfter(startAfterDoc);
     }
-  }, [type, last]);
+
+    const snapshot = await query.limit(itemCount).get();
+    const itemArray = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return {
+      items: itemArray,
+      lastDoc: snapshot.docs[snapshot.docs.length - 1],
+      hasMore: snapshot.docs.length === itemCount,
+    };
+  };
 
   useEffect(() => {
-    findAll();
-  }, [type, page, findAll]);
+    const loadInitial = async () => {
+      const { items, lastDoc, hasMore } = await getNews(type, null);
+      setItems(items);
+      setLast(lastDoc);
+      setMore(hasMore);
+    };
+    loadInitial();
+  }, [type]);
 
   const onClickType = (event) => {
-    setMore(true);
-    setLast({});
-
     const {
       target: { value },
     } = event;
     setType(value);
-
     window.scrollTo(0, 0);
   };
 
   const onClickAll = () => {
     setType("");
-    setMore(true);
-    setLast({});
-    setPage(0);
     window.scrollTo(0, 0);
   };
 
-  function onClickMore() {
-    setPage(page + 1);
+  const onClickMore = async () => {
+    if (!last) return;
+    const { items: newItems, lastDoc, hasMore } = await getNews(type, last);
+    setItems(newItems);
+    setLast(lastDoc);
+    setMore(hasMore);
     window.scrollTo(0, 0);
-  }
+  };
 
   useEffect(() => {
     adfitLong();
