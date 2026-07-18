@@ -551,6 +551,29 @@ footer {
 }
 
 @media(max-width:680px) {
+  .region-switcher {
+    margin-top:8px;
+    padding:6px 8px 4px;
+    gap:0;
+    border-radius:16px;
+  }
+  .region-switcher h2 {
+    display:none;
+  }
+  .region-chip-scroll {
+    gap:6px;
+    padding:3px 4px 5px;
+    scroll-padding-inline:4px;
+  }
+  .region-chip-scroll button {
+    min-width:52px;
+    min-height:36px;
+    padding:7px 10px;
+    font-size:11px;
+  }
+  .region-switcher + .weather-hero {
+    margin-top:8px;
+  }
   .weather-metric-grid {
     grid-template-columns:repeat(3,minmax(0,1fr));
     gap:8px;
