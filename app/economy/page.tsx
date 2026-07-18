@@ -436,12 +436,15 @@ export default function EconomyPage() {
         <div className="economy-live-overview">
           <section className="economy-market-panel" aria-labelledby="market-heading" aria-busy={marketLoading}>
             <div className="economy-live-heading">
-              <div><small>MARKET NOW · 최근 5일 추이</small><h1 id="market-heading">주요 시장지표</h1></div>
-              {marketError && <button type="button" onClick={() => {
-                setMarketLoading(true);
-                setMarketError("");
-                setMarketRefreshToken((value) => value + 1);
-              }}>다시 불러오기</button>}
+              <div><small>MARKET NOW</small><h1 id="market-heading">주요 시장지표</h1></div>
+              <div className="economy-market-heading-aside">
+                <span className="economy-market-period">최근 5일 추이</span>
+                {marketError && <button type="button" onClick={() => {
+                  setMarketLoading(true);
+                  setMarketError("");
+                  setMarketRefreshToken((value) => value + 1);
+                }}>다시 불러오기</button>}
+              </div>
             </div>
             <div className="economy-market-grid">
               {MARKET_DEFINITIONS.map((definition) => {

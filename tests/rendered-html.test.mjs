@@ -28,6 +28,7 @@ test("exports the economy news page with its primary sections", async () => {
   assert.match(html, /WTI/i);
   assert.match(html, /비트코인/i);
   assert.match(html, /economy-market-sparkline/i);
+  assert.match(html, /economy-market-period/i);
   assert.match(html, /최근 5일 추이/i);
   assert.equal((html.match(/최근 5일 추이/g) ?? []).length, 1);
   assert.match(html, /id="topnews-heading"/i);
