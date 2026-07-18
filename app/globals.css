@@ -550,4 +550,42 @@ footer {
   .weather-now-primary { max-width:520px; }
 }
 
+@media(max-width:680px) {
+  .weather-metric-grid {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+  }
+  .weather-metric-grid article {
+    min-height:102px;
+    padding:12px 8px;
+  }
+  .weather-metric-grid article:nth-child(3) {
+    grid-column:auto;
+  }
+  .weather-metric-grid .weather-air-card {
+    grid-column:1/-1;
+    padding:15px;
+  }
+  .weather-metric-grid>article:not(.weather-air-card)>small {
+    font-size:10px;
+    white-space:nowrap;
+  }
+  .weather-metric-grid>article:not(.weather-air-card)>strong {
+    margin:auto 0;
+    font-size:clamp(17px,5.5vw,22px);
+    white-space:nowrap;
+  }
+  .weather-metric-grid>article:not(.weather-air-card)>strong em {
+    margin-left:2px;
+    font-size:8px;
+  }
+  .weather-metric-grid>article:not(.weather-air-card)>span {
+    display:block;
+    font-size:8px;
+    line-height:1.25;
+    white-space:normal;
+    word-break:keep-all;
+  }
+}
+
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.loader,.weather-hero:after{animation:none!important}}
