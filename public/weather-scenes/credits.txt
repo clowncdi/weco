@@ -1,0 +1,71 @@
+오늘의 날씨 지역 배경 사진 출처
+
+사진은 화면 비율에 맞춰 잘려 보일 수 있으며, 현재 예보 상태를 전달하기 위한 색상·대기 효과가 화면에서 겹쳐 표시됩니다.
+
+서울 — mauveine.kim, CC0
+https://commons.wikimedia.org/wiki/File:Han_River_and_Lotte_World_Tower.jpg
+https://creativecommons.org/publicdomain/zero/1.0/
+
+부산 — Masterhatch, CC BY-SA 4.0
+https://commons.wikimedia.org/wiki/File:Gwangalli_Beach_and_Gwangan_Bridge_Busan.jpg
+https://creativecommons.org/licenses/by-sa/4.0/
+
+대구 — Pfc. Shim, Ji-sung, USAG Daegu Public Affairs, Public Domain
+https://commons.wikimedia.org/wiki/File:Apsan.jpg
+https://creativecommons.org/publicdomain/mark/1.0/
+
+인천 — Christophe95, CC BY-SA 4.0
+https://commons.wikimedia.org/wiki/File:Incheon_International_Airport_Air_Traffic_Control_tower_and_terminal_2.jpg
+https://creativecommons.org/licenses/by-sa/4.0/
+
+광주 — Dohuskor, Public Domain
+https://commons.wikimedia.org/wiki/File:Gwangju_View.JPG
+https://creativecommons.org/publicdomain/mark/1.0/
+
+대전 — Yoo Chung, CC BY-SA 2.5
+https://commons.wikimedia.org/wiki/File:Daejeon_Expo_Bridge_arches.jpg
+https://creativecommons.org/licenses/by-sa/2.5/
+
+울산 — Glabb, Public Domain
+https://commons.wikimedia.org/wiki/File:Ulsan_Bridge_over_the_Taehwa_River.jpg
+https://creativecommons.org/publicdomain/mark/1.0/
+
+세종 — Minseong Kim, CC BY-SA 4.0
+https://commons.wikimedia.org/wiki/File:Government_Complex_Sejong_(N).jpg
+https://creativecommons.org/licenses/by-sa/4.0/
+
+경기 — Bernard Gagnon, CC0
+https://commons.wikimedia.org/wiki/File:Hwaseong_Fortress_01.jpg
+https://creativecommons.org/publicdomain/zero/1.0/
+
+강원 — Christophe95, CC BY-SA 4.0
+https://commons.wikimedia.org/wiki/File:Landscape_in_Seoraksan_National_Park_1.jpg
+https://creativecommons.org/licenses/by-sa/4.0/
+
+충북 — Republic of Korea, CC BY-SA 2.0
+https://commons.wikimedia.org/wiki/File:Danyanggun_Travel_Day2_02_(32359798405).jpg
+https://creativecommons.org/licenses/by-sa/2.0/
+
+충남 — Ashy Minivet, CC0
+https://commons.wikimedia.org/wiki/File:Geumseoru_Gate_Pavilion_of_Gongsanseong_Fortress_(2).jpg
+https://creativecommons.org/publicdomain/zero/1.0/
+
+전북 — Songk1122, CC BY-SA 3.0
+https://commons.wikimedia.org/wiki/File:%EC%A0%84%EC%A3%BC%ED%95%9C%EC%98%A5%EB%A7%88%EC%9D%84_%EC%A0%84%EA%B2%BD.JPG
+https://creativecommons.org/licenses/by-sa/3.0/
+
+전남 — Jakob Reichmann, CC BY-SA 3.0
+https://commons.wikimedia.org/wiki/File:Boseong_Green_Tea_Field.jpg
+https://creativecommons.org/licenses/by-sa/3.0/
+
+경북 — Bernard Gagnon, CC0
+https://commons.wikimedia.org/wiki/File:Donggung_Palace_01.jpg
+https://creativecommons.org/publicdomain/zero/1.0/
+
+경남 — Alexey Komarov, CC BY 3.0
+https://commons.wikimedia.org/wiki/File:Cherry_Blossom_in_Jinhae_-_panoramio.jpg
+https://creativecommons.org/licenses/by/3.0/
+
+제주 — Bernard Gagnon, CC0
+https://commons.wikimedia.org/wiki/File:Seongsan%2C_Jeju_Island.jpg
+https://creativecommons.org/publicdomain/zero/1.0/

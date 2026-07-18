@@ -1,4 +1,0 @@
-# https://www.robotstxt.org/robotstxt.html
-Sitemap: https://weaco.co.kr/sitemap.xml
-User-agent: *
-Allow: /
