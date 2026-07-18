@@ -28,6 +28,15 @@ const CATEGORY_QUERIES: Record<NewsCategory, { domestic: string; global: string 
   global: { domestic: "한국 경제", global: "세계 경제" },
 };
 
+const CATEGORY_KEYWORDS: Record<NewsCategory, string[]> = {
+  all: [],
+  macro: ["기준금리", "금리", "물가", "소비자물가", "생산자물가", "환율", "원화", "달러", "gdp", "성장률", "고용", "실업", "재정", "세금", "국채", "한국은행", "경기침체", "경기회복", "경기둔화", "무역수지", "경상수지"],
+  finance: ["코스피", "코스닥", "증시", "주식", "채권", "은행", "금융", "대출", "펀드", "보험", "가상자산", "비트코인", "상장", "공모주", "금감원", "금융위"],
+  industry: ["반도체", "자동차", "배터리", "조선", "철강", "수출", "공급망", "실적", "매출", "영업이익", "설비투자", "공장", "통상", "관세"],
+  realestate: ["부동산", "주택", "아파트", "전세", "월세", "분양", "청약", "재건축", "재개발", "주담대", "주택담보", "토지", "상가"],
+  global: ["미국", "중국", "유럽", "일본", "연준", "fed", "fomc", "ecb", "관세", "무역", "유가", "달러"],
+};
+
 const RESPONSE_CACHE = new Map<string, { expiresAt: number; payload: string }>();
 
 function cleanText(value: unknown) {
@@ -79,10 +88,26 @@ function uniqueItems(items: NormalizedNewsItem[]) {
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  });
+  }).sort((a, b) => Date.parse(b.publishedAt ?? "") - Date.parse(a.publishedAt ?? ""));
 }
 
-async function fetchNaverNews(query: string, region: NewsRegion, clientId: string, clientSecret: string) {
+function isRecent(item: NormalizedNewsItem) {
+  const publishedAt = Date.parse(item.publishedAt ?? "");
+  if (!Number.isFinite(publishedAt)) return false;
+  const age = Date.now() - publishedAt;
+  return age >= -60 * 60_000 && age <= 72 * 60 * 60_000;
+}
+
+function matchesCategory(item: NormalizedNewsItem, category: NewsCategory) {
+  if (category === "all") return true;
+  const title = item.title.toLowerCase();
+  const description = item.description.toLowerCase();
+  const titleMatches = CATEGORY_KEYWORDS[category].filter((keyword) => title.includes(keyword)).length;
+  const descriptionMatches = CATEGORY_KEYWORDS[category].filter((keyword) => description.includes(keyword)).length;
+  return titleMatches >= 1 || descriptionMatches >= 2;
+}
+
+async function fetchNaverNews(query: string, region: NewsRegion, category: NewsCategory, clientId: string, clientSecret: string) {
   const endpoint = new URL("https://openapi.naver.com/v1/search/news.json");
   endpoint.searchParams.set("query", query);
   endpoint.searchParams.set("display", region === "domestic" ? "50" : "30");
@@ -97,7 +122,7 @@ async function fetchNaverNews(query: string, region: NewsRegion, clientId: strin
   });
   if (!response.ok) throw new Error("Naver news request failed");
   const payload = await response.json() as { items?: NaverNewsItem[] };
-  return uniqueItems((payload.items ?? []).map((item) => normalizeItem(item, region)).filter((item): item is NormalizedNewsItem => Boolean(item)));
+  return uniqueItems((payload.items ?? []).map((item) => normalizeItem(item, region)).filter((item): item is NormalizedNewsItem => Boolean(item))).filter((item) => isRecent(item) && matchesCategory(item, category));
 }
 
 function jsonResponse(payload: unknown, status = 200, cacheControl = "no-store") {
@@ -124,8 +149,8 @@ export async function handleNaverNewsRequest(request: Request, clientId?: string
   try {
     const queries = CATEGORY_QUERIES[category];
     const [domestic, global] = await Promise.all([
-      category === "global" ? Promise.resolve([]) : fetchNaverNews(queries.domestic, "domestic", clientId, clientSecret),
-      fetchNaverNews(queries.global, "global", clientId, clientSecret),
+      category === "global" ? Promise.resolve([]) : fetchNaverNews(queries.domestic, "domestic", category, clientId, clientSecret),
+      fetchNaverNews(queries.global, "global", category, clientId, clientSecret),
     ]);
     const payload = JSON.stringify({ provider: "naver", category, domestic, global, fetchedAt: new Date().toISOString() });
     RESPONSE_CACHE.set(category, { expiresAt: Date.now() + 5 * 60_000, payload });

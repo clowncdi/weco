@@ -23,11 +23,17 @@ test("exports the economy news page with its primary sections", async () => {
   assert.match(html, /주요 시장지표/i);
   assert.match(html, /S&amp;P 500/i);
   assert.match(html, /코스피/i);
+  assert.match(html, /VIX/i);
   assert.match(html, /WTI/i);
   assert.match(html, /비트코인/i);
+  assert.match(html, /economy-market-sparkline/i);
   assert.match(html, /id="topnews-heading"/i);
-  assert.match(html, /경제 뉴스 탑뉴스/i);
+  assert.match(html, /주요 뉴스/i);
+  assert.match(html, /aria-label="주요 뉴스 지역"/i);
+  assert.match(html, /주요 뉴스와 관련 뉴스 선정 기준 보기/i);
   assert.match(html, /카테고리별 경제 뉴스/i);
+  assert.match(html, /최신 뉴스는 기사 발행 시각 내림차순/i);
+  assert.match(html, /같은 출처와 비슷한 주제의 반복 노출/i);
   assert.match(html, /국내경제/i);
   assert.match(html, /증권·금융/i);
   assert.match(html, /산업·기업/i);

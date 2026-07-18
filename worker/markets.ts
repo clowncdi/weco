@@ -1,4 +1,4 @@
-type MarketKey = "sp500" | "nasdaq" | "dow" | "kospi" | "kosdaq" | "usdkrw" | "wti" | "gold" | "silver" | "copper" | "bitcoin";
+type MarketKey = "sp500" | "nasdaq" | "dow" | "vix" | "kospi" | "kosdaq" | "usdkrw" | "wti" | "gold" | "silver" | "copper" | "bitcoin";
 
 type MarketDefinition = {
   key: MarketKey;
@@ -28,6 +28,7 @@ const MARKET_DEFINITIONS: MarketDefinition[] = [
   { key: "sp500", label: "S&P 500", symbol: "^GSPC" },
   { key: "nasdaq", label: "나스닥", symbol: "^IXIC" },
   { key: "dow", label: "다우산업", symbol: "^DJI" },
+  { key: "vix", label: "VIX", symbol: "^VIX" },
   { key: "kospi", label: "코스피", symbol: "^KS11" },
   { key: "kosdaq", label: "코스닥", symbol: "^KQ11" },
   { key: "usdkrw", label: "달러/원", symbol: "KRW=X" },
@@ -60,6 +61,7 @@ function normalizeMarket(definition: MarketDefinition, result?: YahooChartResult
     changePercent: previousClose === 0 ? 0 : change / previousClose * 100,
     currency: typeof meta?.currency === "string" ? meta.currency : undefined,
     marketTime: finiteNumber(meta?.regularMarketTime),
+    sparkline: closes.slice(-20),
   };
 }
 
