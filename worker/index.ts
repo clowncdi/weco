@@ -41,7 +41,7 @@ const worker = {
       }, allowedWidths);
     }
 
-    if (url.pathname === "/api/kma" || url.pathname === "/api/news") {
+    if (url.pathname === "/api/kma" || url.pathname === "/api/news" || url.pathname === "/api/markets") {
       return api.fetch(request, env);
     }
 

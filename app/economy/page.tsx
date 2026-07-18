@@ -26,6 +26,26 @@ type NewsArticle = {
   region: NewsRegion;
 };
 type NewsFeed = { domestic: NewsArticle[]; global: NewsArticle[] };
+type MarketKey = "sp500" | "nasdaq" | "dow" | "kospi" | "kosdaq" | "usdkrw" | "wti" | "gold" | "silver" | "copper" | "bitcoin";
+type MarketDefinition = { key: MarketKey; label: string; decimals: number; prefix?: string; suffix?: string };
+type ApiMarketSnapshot = {
+  key?: unknown;
+  label?: unknown;
+  value?: unknown;
+  change?: unknown;
+  changePercent?: unknown;
+  currency?: unknown;
+  marketTime?: unknown;
+};
+type MarketSnapshot = {
+  key: MarketKey;
+  label: string;
+  value: number;
+  change: number;
+  changePercent: number;
+  currency?: string;
+  marketTime?: number;
+};
 
 const NEWS_CATEGORIES: NewsCategory[] = [
   { key: "all", label: "전체" },
@@ -36,13 +56,21 @@ const NEWS_CATEGORIES: NewsCategory[] = [
   { key: "global", label: "글로벌" },
 ];
 
-const ECONOMY_CHECKPOINTS = [
-  { number: "01", title: "금리·물가", description: "통화정책과 생활물가의 방향" },
-  { number: "02", title: "환율·채권", description: "자금 이동과 원화 가치의 변화" },
-  { number: "03", title: "기업실적·증시", description: "기업의 체력과 투자심리" },
-  { number: "04", title: "산업정책·공급망", description: "반도체·에너지·통상의 변화" },
-  { number: "05", title: "부동산·가계부채", description: "주거시장과 금융 건전성" },
+const MARKET_DEFINITIONS: MarketDefinition[] = [
+  { key: "sp500", label: "S&P 500", decimals: 2 },
+  { key: "nasdaq", label: "나스닥", decimals: 2 },
+  { key: "dow", label: "다우산업", decimals: 2 },
+  { key: "kospi", label: "코스피", decimals: 2 },
+  { key: "kosdaq", label: "코스닥", decimals: 2 },
+  { key: "usdkrw", label: "달러/원", decimals: 2, suffix: "원" },
+  { key: "wti", label: "WTI", decimals: 2, prefix: "$" },
+  { key: "gold", label: "금", decimals: 2, prefix: "$" },
+  { key: "silver", label: "은", decimals: 2, prefix: "$" },
+  { key: "copper", label: "구리", decimals: 4, prefix: "$" },
+  { key: "bitcoin", label: "비트코인", decimals: 0, prefix: "$" },
 ];
+
+const RELATED_STOPWORDS = new Set(["경제", "뉴스", "시장", "한국", "국내", "세계", "글로벌", "올해", "대한", "관련", "최근", "이날", "통해", "위해", "기자", "가운데", "것으로", "있다", "했다"]);
 
 function cleanText(value: unknown) {
   if (typeof value !== "string") return "";
@@ -98,6 +126,83 @@ async function fetchNaverNews(category: CategoryKey, signal: AbortSignal) {
   };
 }
 
+function normalizeMarket(snapshot: ApiMarketSnapshot): MarketSnapshot | null {
+  const definition = MARKET_DEFINITIONS.find((item) => item.key === snapshot.key);
+  if (!definition || typeof snapshot.value !== "number" || !Number.isFinite(snapshot.value) || typeof snapshot.change !== "number" || !Number.isFinite(snapshot.change) || typeof snapshot.changePercent !== "number" || !Number.isFinite(snapshot.changePercent)) return null;
+  return {
+    key: definition.key,
+    label: definition.label,
+    value: snapshot.value,
+    change: snapshot.change,
+    changePercent: snapshot.changePercent,
+    currency: typeof snapshot.currency === "string" ? snapshot.currency : undefined,
+    marketTime: typeof snapshot.marketTime === "number" && Number.isFinite(snapshot.marketTime) ? snapshot.marketTime : undefined,
+  };
+}
+
+async function fetchMarkets(signal: AbortSignal) {
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_WEATHER_API_BASE_URL ?? "").replace(/\/$/, "");
+  if (!apiBaseUrl) throw new Error("market-api-not-configured");
+  const response = await fetch(`${apiBaseUrl}/api/markets`, { signal, cache: "no-store" });
+  if (!response.ok) throw new Error("market-api-unavailable");
+  const body = await response.json() as { provider?: unknown; markets?: ApiMarketSnapshot[] };
+  if (body.provider !== "yahoo-finance") throw new Error("market-api-unavailable");
+  return (body.markets ?? []).map(normalizeMarket).filter((market): market is MarketSnapshot => Boolean(market));
+}
+
+function selectTopNews(feed: NewsFeed) {
+  const ordered = [...feed.domestic.slice(0, 7), ...feed.global.slice(0, 3), ...feed.domestic.slice(7), ...feed.global.slice(3)];
+  const seen = new Set<string>();
+  return ordered.filter((article) => {
+    if (seen.has(article.id)) return false;
+    seen.add(article.id);
+    return true;
+  }).slice(0, 10);
+}
+
+function newsKeywords(text: string) {
+  return new Set((text.toLowerCase().match(/[0-9a-z가-힣]{2,}/g) ?? []).map((word) => word.length > 2 ? word.replace(/(으로|에서|에게|보다|까지|부터|은|는|이|가|을|를|의|에|와|과|로)$/u, "") : word).filter((word) => word.length > 1 && !RELATED_STOPWORDS.has(word)));
+}
+
+function findRelatedNews(article: NewsArticle, candidates: NewsArticle[], excludedIds: Set<string>) {
+  const titleKeywords = newsKeywords(article.title);
+  const articleKeywords = newsKeywords(`${article.title} ${article.description}`);
+  const ranked = candidates
+    .filter((candidate) => candidate.id !== article.id && !excludedIds.has(candidate.id))
+    .map((candidate) => {
+      const candidateTitleKeywords = newsKeywords(candidate.title);
+      const candidateKeywords = newsKeywords(`${candidate.title} ${candidate.description}`);
+      let score = 0;
+      for (const keyword of titleKeywords) if (candidateTitleKeywords.has(keyword)) score += 3;
+      for (const keyword of articleKeywords) if (candidateKeywords.has(keyword)) score += 1;
+      return { article: candidate, score };
+    })
+    .sort((a, b) => b.score - a.score || (b.article.publishedAt ?? 0) - (a.article.publishedAt ?? 0));
+
+  const related = ranked.filter((candidate) => candidate.score > 0).slice(0, 2).map((candidate) => candidate.article);
+  if (related.length === 2) return related;
+  for (const candidate of ranked) {
+    if (candidate.article.region !== article.region || related.some((item) => item.id === candidate.article.id)) continue;
+    related.push(candidate.article);
+    if (related.length === 2) break;
+  }
+  return related;
+}
+
+function formatMarketValue(market: MarketSnapshot, definition: MarketDefinition) {
+  const value = new Intl.NumberFormat("ko-KR", { minimumFractionDigits: definition.decimals, maximumFractionDigits: definition.decimals }).format(market.value);
+  return `${definition.prefix ?? ""}${value}${definition.suffix ?? ""}`;
+}
+
+function formatMarketTime(value?: number) {
+  if (!value) return "최근 기준";
+  return new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(value * 1000);
+}
+
+function formatMarketPercent(value: number) {
+  return new Intl.NumberFormat("ko-KR", { signDisplay: "always", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value) + "%";
+}
+
 function formatPublishedTime(value?: number) {
   if (!value) return "최근 기사";
   const elapsedMinutes = Math.max(0, Math.floor((Date.now() - value) / 60000));
@@ -114,9 +219,15 @@ function ArticleMeta({ article }: { article: NewsArticle }) {
 export default function EconomyPage() {
   const [categoryKey, setCategoryKey] = useState<CategoryKey>("all");
   const [feed, setFeed] = useState<NewsFeed>({ domestic: [], global: [] });
+  const [topNews, setTopNews] = useState<NewsArticle[]>([]);
+  const [topNewsPool, setTopNewsPool] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshToken, setRefreshToken] = useState(0);
+  const [markets, setMarkets] = useState<MarketSnapshot[]>([]);
+  const [marketLoading, setMarketLoading] = useState(true);
+  const [marketError, setMarketError] = useState("");
+  const [marketRefreshToken, setMarketRefreshToken] = useState(0);
   const activeCategory = NEWS_CATEGORIES.find((category) => category.key === categoryKey) ?? NEWS_CATEGORIES[0];
 
   useEffect(() => {
@@ -126,6 +237,11 @@ export default function EconomyPage() {
       const nextFeed = await fetchNaverNews(activeCategory.key, controller.signal);
       if (controller.signal.aborted) return;
       setFeed(nextFeed);
+      setError("");
+      if (activeCategory.key === "all") {
+        setTopNews(selectTopNews(nextFeed));
+        setTopNewsPool([...nextFeed.domestic, ...nextFeed.global]);
+      }
     };
 
     load().catch((reason: unknown) => {
@@ -136,10 +252,29 @@ export default function EconomyPage() {
     return () => controller.abort();
   }, [activeCategory, refreshToken]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchMarkets(controller.signal).then((nextMarkets) => {
+      if (!controller.signal.aborted) setMarkets(nextMarkets);
+    }).catch(() => {
+      if (!controller.signal.aborted) setMarketError("시장지표를 불러오지 못했습니다.");
+    }).finally(() => {
+      if (!controller.signal.aborted) setMarketLoading(false);
+    });
+    return () => controller.abort();
+  }, [marketRefreshToken]);
+
   const articles = useMemo(() => {
-    if (activeCategory.key === "global") return feed.global;
-    return [...feed.domestic, ...feed.global];
-  }, [activeCategory.key, feed]);
+    const categoryArticles = activeCategory.key === "global" ? feed.global : [...feed.domestic, ...feed.global];
+    if (activeCategory.key !== "all" || topNews.length === 0) return categoryArticles;
+    const topNewsIds = new Set(topNews.map((article) => article.id));
+    return categoryArticles.filter((article) => !topNewsIds.has(article.id));
+  }, [activeCategory.key, feed, topNews]);
+  const marketByKey = useMemo(() => new Map(markets.map((market) => [market.key, market])), [markets]);
+  const relatedNewsById = useMemo(() => {
+    const topNewsIds = new Set(topNews.map((article) => article.id));
+    return new Map(topNews.map((article) => [article.id, findRelatedNews(article, topNewsPool, topNewsIds)]));
+  }, [topNews, topNewsPool]);
   const leadArticle = articles[0];
   const headlineRail = articles.slice(1, 5);
   const latestArticles = articles.slice(5, 17);
@@ -161,23 +296,57 @@ export default function EconomyPage() {
       </header>
 
       <div className="economy-shell" id="economy-top">
-        <section className="economy-hero" aria-labelledby="economy-heading">
-          <div className="economy-hero-copy">
-            <p className="economy-kicker">DAILY ECONOMY BRIEF</p>
-            <h1 id="economy-heading">경제의 흐름을<br />한눈에.</h1>
-            <p>한국 경제 뉴스를 먼저 읽고, 금융시장과 산업의 움직임부터 세계 경제의 변화까지 이어서 살펴보세요.</p>
-            <div className="economy-priority-tags" aria-label="뉴스 구성 원칙"><span>한국 뉴스 우선</span><span>최신순 업데이트</span><span>세계 경제 포함</span></div>
-          </div>
-          <aside className="economy-checkpoints" aria-labelledby="checkpoint-heading">
-            <div><small>ESSENTIAL VIEW</small><h2 id="checkpoint-heading">경제 뉴스의 다섯 가지 핵심 축</h2></div>
-            <ol>{ECONOMY_CHECKPOINTS.map((item) => <li key={item.number}><span>{item.number}</span><div><strong>{item.title}</strong><small>{item.description}</small></div></li>)}</ol>
-          </aside>
-        </section>
+        <div className="economy-live-overview">
+          <section className="economy-market-panel" aria-labelledby="market-heading" aria-busy={marketLoading}>
+            <div className="economy-live-heading">
+              <div><small>MARKET NOW</small><h1 id="market-heading">주요 시장지표</h1></div>
+              {marketError && <button type="button" onClick={() => {
+                setMarketLoading(true);
+                setMarketError("");
+                setMarketRefreshToken((value) => value + 1);
+              }}>다시 불러오기</button>}
+            </div>
+            <div className="economy-market-grid">
+              {MARKET_DEFINITIONS.map((definition) => {
+                const market = marketByKey.get(definition.key);
+                const trend = !market || market.change === 0 ? "flat" : market.change > 0 ? "up" : "down";
+                return <article className={`economy-market-card ${trend}`} key={definition.key}>
+                  <span>{definition.label}</span>
+                  <strong>{market ? formatMarketValue(market, definition) : "—"}</strong>
+                  <div><b>{market ? formatMarketPercent(market.changePercent) : marketLoading ? "조회 중" : "정보 없음"}</b><time>{market ? formatMarketTime(market.marketTime) : ""}</time></div>
+                </article>;
+              })}
+            </div>
+          </section>
+
+          <section className="economy-topnews-panel" aria-labelledby="topnews-heading" aria-busy={loading && topNews.length === 0}>
+            <div className="economy-live-heading light">
+              <div><small>ECONOMY TOP 10</small><h2 id="topnews-heading">경제 뉴스 탑뉴스</h2></div>
+              <span>{topNews.length}/10</span>
+            </div>
+            {loading && topNews.length === 0 && <div className="economy-topnews-loading" aria-label="탑뉴스 불러오는 중">{Array.from({ length: 10 }, (_, index) => <div key={index} />)}</div>}
+            {!loading && error && topNews.length === 0 && <div className="economy-panel-state"><strong>탑뉴스를 불러오지 못했습니다.</strong><button type="button" onClick={() => {
+              setLoading(true);
+              setError("");
+              setRefreshToken((value) => value + 1);
+            }}>다시 불러오기</button></div>}
+            {topNews.length > 0 && <div className="economy-topnews-columns">
+              {[topNews.slice(0, 5), topNews.slice(5, 10)].map((column, columnIndex) => column.length > 0 && <ol start={columnIndex * 5 + 1} key={columnIndex}>
+                {column.map((article, index) => {
+                  const relatedNews = relatedNewsById.get(article.id) ?? [];
+                  return <li key={article.id}><article className="economy-topnews-item"><span>{String(columnIndex * 5 + index + 1).padStart(2, "0")}</span><div>
+                    <a className="economy-topnews-main" href={article.url} target="_blank" rel="noopener noreferrer"><ArticleMeta article={article} /><h3>{article.title}</h3><div className="economy-topnews-summary"><span>핵심 요약</span><p>{article.description || "요약 정보가 제공되지 않은 기사입니다."}</p></div></a>
+                    {relatedNews.length > 0 && <div className="economy-related-news"><span>관련 뉴스</span><div>{relatedNews.map((related) => <a href={related.url} target="_blank" rel="noopener noreferrer" key={related.id}>{related.title}</a>)}</div></div>}
+                  </div></article></li>;
+                })}
+              </ol>)}
+            </div>}
+          </section>
+        </div>
 
         <section className="economy-news-section" aria-labelledby="latest-news-heading" aria-busy={loading}>
           <div className="economy-section-head">
-            <div><small>LIVE NEWSROOM</small><h2 id="latest-news-heading">지금 읽어야 할 경제 뉴스</h2></div>
-            <p>한국 기사를 앞에 배치하고 같은 주제의 글로벌 흐름을 함께 제공합니다.</p>
+            <div><small>NEWS BY CATEGORY</small><h2 id="latest-news-heading">카테고리별 경제 뉴스</h2></div>
           </div>
 
           <div className="economy-category-tabs" role="tablist" aria-label="경제 뉴스 카테고리">
@@ -218,13 +387,9 @@ export default function EconomyPage() {
           </div>}
         </section>
 
-        <section className="economy-method" aria-labelledby="economy-method-heading">
-          <span>EDITOR&apos;S NOTE</span>
-          <div><h2 id="economy-method-heading">뉴스의 양보다 흐름을 봅니다.</h2><p>국내 거시경제에서 금융시장, 산업과 기업, 부동산을 거쳐 글로벌 이슈로 이어지는 순서로 구성했습니다. 투자 권유가 아닌 경제 흐름을 읽기 위한 뉴스 큐레이션입니다.</p></div>
-        </section>
       </div>
 
-      <footer className="economy-footer"><div className="brand"><Image className="brand-logo" src="/today-weather-logo.png" width={34} height={34} alt="" /><span>오늘의 날씨</span></div><p>뉴스 데이터: 네이버 검색 뉴스 API<br />기사 제목과 원문 저작권은 각 언론사에 있습니다. 제공 지연이나 분류 오차가 발생할 수 있습니다.</p><div className="footer-links"><a href="https://developers.naver.com/docs/serviceapi/search/news/news.md" target="_blank" rel="noreferrer">데이터 안내</a><a href="#economy-top">맨 위로 ↑</a></div></footer>
+      <footer className="economy-footer"><div className="brand"><Image className="brand-logo" src="/today-weather-logo.png" width={34} height={34} alt="" /><span>오늘의 날씨</span></div><p>시장 데이터: Yahoo Finance · 뉴스 데이터: 네이버 검색 뉴스 API<br />기사 제목과 원문 저작권은 각 언론사에 있습니다. 제공 지연이나 분류 오차가 발생할 수 있습니다.</p><div className="footer-links"><a href="https://developers.naver.com/docs/serviceapi/search/news/news.md" target="_blank" rel="noreferrer">뉴스 데이터 안내</a><a href="#economy-top">맨 위로 ↑</a></div></footer>
     </main>
   );
 }
