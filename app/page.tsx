@@ -782,9 +782,9 @@ export default function Home() {
   return (
     <main>
       <header className="topbar">
-        <Link className="brand" href="/#top" aria-label="오늘의 날씨 홈">
+        <Link className="brand" href="/#top" aria-label="오늘의 날씨와 경제 홈">
           <img className="brand-logo" src="/today-weather-logo.png" alt="" />
-          <span>오늘의 날씨</span>
+          <span>오늘의 날씨와 경제</span>
         </Link>
         <div className="topbar-tools">
           <nav className="primary-nav" aria-label="주요 메뉴">
@@ -1086,7 +1086,7 @@ export default function Home() {
         )}
       </section>
 
-      <footer><div className="brand"><img className="brand-logo" src="/today-weather-logo.png" alt="" /><span>오늘의 날씨</span></div><p>데이터: 기상청 API허브·기후특성 분석 · Open-Meteo Weather & Air Quality API(CAMS)<br />배경 사진: Wikimedia Commons 공개 라이선스 이미지<br />재분석 자료와 예보·보조 대기질은 관측값과 차이가 있을 수 있습니다.</p><div className="footer-links"><a href="/weather-scenes/credits.txt" target="_blank" rel="noreferrer">사진 출처</a><a href="#top">맨 위로 ↑</a></div></footer>
+      <footer><div className="brand"><img className="brand-logo" src="/today-weather-logo.png" alt="" /><span>오늘의 날씨와 경제</span></div><p>데이터: 기상청 API허브·기후특성 분석 · Open-Meteo Weather & Air Quality API(CAMS)<br />배경 사진: Wikimedia Commons 공개 라이선스 이미지<br />재분석 자료와 예보·보조 대기질은 관측값과 차이가 있을 수 있습니다.</p><div className="footer-links"><a href="/weather-scenes/credits.txt" target="_blank" rel="noreferrer">사진 출처</a><a href="#top">맨 위로 ↑</a></div></footer>
     </main>
   );
 }

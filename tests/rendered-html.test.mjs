@@ -8,7 +8,8 @@ test("exports the weather page as static HTML", async () => {
   const html = await readFile(new URL("index.html", outputRoot), "utf8");
 
   assert.match(html, /<html lang="ko">/i);
-  assert.match(html, /<title>오늘의 날씨 — 최근 5개년도 날씨 비교<\/title>/i);
+  assert.match(html, /<title>오늘의 날씨와 경제 — 최근 5개년도 날씨 비교<\/title>/i);
+  assert.match(html, /오늘의 날씨와 경제/i);
   assert.match(html, /id="comparison-dashboard"/i);
   assert.match(html, /\/today-weather-logo\.png/i);
   assert.match(html, /href="\/economy\/"/i);
@@ -18,7 +19,7 @@ test("exports the weather page as static HTML", async () => {
 test("exports the economy news page with its primary sections", async () => {
   const html = await readFile(new URL("economy/index.html", outputRoot), "utf8");
 
-  assert.match(html, /<title>경제 뉴스 — 국내 우선 글로벌 경제 브리핑<\/title>/i);
+  assert.match(html, /<title>경제 뉴스 — 오늘의 날씨와 경제<\/title>/i);
   assert.match(html, /id="market-heading"/i);
   assert.match(html, /주요 시장지표/i);
   assert.match(html, /S&amp;P 500/i);
@@ -27,6 +28,8 @@ test("exports the economy news page with its primary sections", async () => {
   assert.match(html, /WTI/i);
   assert.match(html, /비트코인/i);
   assert.match(html, /economy-market-sparkline/i);
+  assert.match(html, /최근 5일 추이/i);
+  assert.equal((html.match(/최근 5일 추이/g) ?? []).length, 1);
   assert.match(html, /id="topnews-heading"/i);
   assert.match(html, /주요 뉴스/i);
   assert.match(html, /aria-label="주요 뉴스 지역"/i);

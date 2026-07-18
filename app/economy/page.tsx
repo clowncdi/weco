@@ -322,7 +322,7 @@ function MarketSparkline({ label, values, trend }: { label: string; values: numb
     return () => observer.disconnect();
   }, [trend, values]);
 
-  return <div className="economy-market-sparkline" role="img" aria-label={`${label} 최근 5개 기준값 추이`}>
+  return <div className="economy-market-sparkline" role="img" aria-label={`${label} 5일간 변화 그래프`}>
     {values.length > 1 ? <canvas ref={canvasRef} aria-hidden="true" /> : <span aria-hidden="true" />}
   </div>;
 }
@@ -419,9 +419,9 @@ export default function EconomyPage() {
   return (
     <main className="economy-page">
       <header className="topbar">
-        <Link className="brand" href="/#top" aria-label="오늘의 날씨 홈">
+        <Link className="brand" href="/#top" aria-label="오늘의 날씨와 경제 홈">
           <img className="brand-logo" src="/today-weather-logo.png" width="34" height="34" alt="" />
-          <span>오늘의 날씨</span>
+          <span>오늘의 날씨와 경제</span>
         </Link>
         <div className="topbar-tools">
           <nav className="primary-nav" aria-label="주요 메뉴">
@@ -436,7 +436,7 @@ export default function EconomyPage() {
         <div className="economy-live-overview">
           <section className="economy-market-panel" aria-labelledby="market-heading" aria-busy={marketLoading}>
             <div className="economy-live-heading">
-              <div><small>MARKET NOW</small><h1 id="market-heading">주요 시장지표</h1></div>
+              <div><small>MARKET NOW · 최근 5일 추이</small><h1 id="market-heading">주요 시장지표</h1></div>
               {marketError && <button type="button" onClick={() => {
                 setMarketLoading(true);
                 setMarketError("");
@@ -536,7 +536,7 @@ export default function EconomyPage() {
 
       </div>
 
-      <footer className="economy-footer"><div className="brand"><img className="brand-logo" src="/today-weather-logo.png" width="34" height="34" alt="" /><span>오늘의 날씨</span></div><p>시장 데이터: Yahoo Finance · 뉴스 데이터: 네이버 검색 뉴스 API<br />기사 제목과 원문 저작권은 각 언론사에 있습니다. 제공 지연이나 분류 오차가 발생할 수 있습니다.</p><div className="footer-links"><a href="https://developers.naver.com/docs/serviceapi/search/news/news.md" target="_blank" rel="noreferrer">뉴스 데이터 안내</a><a href="#economy-top">맨 위로 ↑</a></div></footer>
+      <footer className="economy-footer"><div className="brand"><img className="brand-logo" src="/today-weather-logo.png" width="34" height="34" alt="" /><span>오늘의 날씨와 경제</span></div><p>시장 데이터: Yahoo Finance · 뉴스 데이터: 네이버 검색 뉴스 API<br />기사 제목과 원문 저작권은 각 언론사에 있습니다. 제공 지연이나 분류 오차가 발생할 수 있습니다.</p><div className="footer-links"><a href="https://developers.naver.com/docs/serviceapi/search/news/news.md" target="_blank" rel="noreferrer">뉴스 데이터 안내</a><a href="#economy-top">맨 위로 ↑</a></div></footer>
     </main>
   );
 }
