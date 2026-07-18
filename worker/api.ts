@@ -1,7 +1,10 @@
 import { handleKmaRequest } from "./kma";
+import { handleNaverNewsRequest } from "./news";
 
 export interface ApiEnv {
   KMA_API_KEY?: string;
+  NAVER_CLIENT_ID?: string;
+  NAVER_CLIENT_SECRET?: string;
   ALLOWED_ORIGINS?: string;
 }
 
@@ -21,7 +24,7 @@ function corsHeaders(request: Request, env: ApiEnv) {
 const api = {
   async fetch(request: Request, env: ApiEnv): Promise<Response> {
     const url = new URL(request.url);
-    if (url.pathname !== "/api/kma") return new Response(null, { status: 404 });
+    if (url.pathname !== "/api/kma" && url.pathname !== "/api/news") return new Response(null, { status: 404 });
 
     const headers = corsHeaders(request, env);
     if (request.method === "OPTIONS") {
@@ -29,7 +32,9 @@ const api = {
     }
     if (request.method !== "GET") return new Response(null, { status: 405 });
 
-    const response = await handleKmaRequest(request, env.KMA_API_KEY);
+    const response = url.pathname === "/api/news"
+      ? await handleNaverNewsRequest(request, env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET)
+      : await handleKmaRequest(request, env.KMA_API_KEY);
     if (!headers) return response;
     const responseHeaders = new Headers(response.headers);
     for (const [name, value] of Object.entries(headers)) responseHeaders.set(name, value);

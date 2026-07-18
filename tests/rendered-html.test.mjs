@@ -11,7 +11,22 @@ test("exports the weather page as static HTML", async () => {
   assert.match(html, /<title>오늘의 날씨 — 최근 5개년도 날씨 비교<\/title>/i);
   assert.match(html, /id="comparison-dashboard"/i);
   assert.match(html, /\/today-weather-logo\.png/i);
+  assert.match(html, /href="\/economy\/"/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
+});
+
+test("exports the economy news page with its primary sections", async () => {
+  const html = await readFile(new URL("economy/index.html", outputRoot), "utf8");
+
+  assert.match(html, /<title>경제 뉴스 — 국내 우선 글로벌 경제 브리핑<\/title>/i);
+  assert.match(html, /id="economy-heading"/i);
+  assert.match(html, /국내경제/i);
+  assert.match(html, /증권·금융/i);
+  assert.match(html, /산업·기업/i);
+  assert.match(html, /부동산/i);
+  assert.match(html, /글로벌/i);
+  assert.match(html, /네이버 검색 뉴스 API/i);
+  assert.match(html, /href="\/"/i);
 });
 
 test("includes the GitHub Pages root files and primary assets", async () => {

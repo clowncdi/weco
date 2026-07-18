@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 
 type MonsoonZone = "central" | "southern" | "jeju";
 type Region = { name: string; short: string; referenceArea: string; lat: number; lon: number; monsoonZone: MonsoonZone };
@@ -781,11 +782,17 @@ export default function Home() {
   return (
     <main>
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="오늘의 날씨 홈">
+        <Link className="brand" href="/#top" aria-label="오늘의 날씨 홈">
           <img className="brand-logo" src="/today-weather-logo.png" alt="" />
           <span>오늘의 날씨</span>
-        </a>
-        <div className="as-of"><span className="live-dot" /> 기준일 {iso(today)} ({KOREAN_WEEKDAYS[today.getUTCDay()]})</div>
+        </Link>
+        <div className="topbar-tools">
+          <nav className="primary-nav" aria-label="주요 메뉴">
+            <Link className="active" href="/" aria-current="page">날씨</Link>
+            <Link href="/economy/">경제뉴스</Link>
+          </nav>
+          <div className="as-of"><span className="live-dot" /> 기준일 {iso(today)} ({KOREAN_WEEKDAYS[today.getUTCDay()]})</div>
+        </div>
       </header>
 
       <section className="region-switcher" id="top" aria-labelledby="region-heading">
