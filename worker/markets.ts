@@ -19,6 +19,11 @@ type YahooChartResult = {
   };
 };
 
+type YahooSparkResult = {
+  symbol?: unknown;
+  response?: YahooChartResult[];
+};
+
 const MARKET_DEFINITIONS: MarketDefinition[] = [
   { key: "sp500", label: "S&P 500", symbol: "^GSPC" },
   { key: "nasdaq", label: "나스닥", symbol: "^IXIC" },
@@ -39,20 +44,12 @@ function finiteNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
-async function fetchMarket(definition: MarketDefinition) {
-  const endpoint = new URL(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(definition.symbol)}`);
-  endpoint.searchParams.set("range", "5d");
-  endpoint.searchParams.set("interval", "1d");
-  const response = await fetch(endpoint, { headers: { Accept: "application/json" } });
-  if (!response.ok) throw new Error("Market data request failed");
-
-  const body = await response.json() as { chart?: { result?: YahooChartResult[] } };
-  const result = body.chart?.result?.[0];
+function normalizeMarket(definition: MarketDefinition, result?: YahooChartResult) {
   const meta = result?.meta;
   const closes = (result?.indicators?.quote?.[0]?.close ?? []).map(finiteNumber).filter((value): value is number => value !== undefined);
   const value = finiteNumber(meta?.regularMarketPrice) ?? closes.at(-1);
   const previousClose = finiteNumber(meta?.chartPreviousClose) ?? finiteNumber(meta?.previousClose) ?? closes.at(-2);
-  if (value === undefined || previousClose === undefined) throw new Error("Market data is incomplete");
+  if (value === undefined || previousClose === undefined) return null;
 
   const change = value - previousClose;
   return {
@@ -64,6 +61,35 @@ async function fetchMarket(definition: MarketDefinition) {
     currency: typeof meta?.currency === "string" ? meta.currency : undefined,
     marketTime: finiteNumber(meta?.regularMarketTime),
   };
+}
+
+async function fetchMarkets() {
+  const origins = ["https://query1.finance.yahoo.com", "https://query2.finance.yahoo.com"];
+  for (const origin of origins) {
+    const endpoint = new URL("/v7/finance/spark", origin);
+    endpoint.searchParams.set("symbols", MARKET_DEFINITIONS.map((definition) => definition.symbol).join(","));
+    endpoint.searchParams.set("range", "5d");
+    endpoint.searchParams.set("interval", "1d");
+    const response = await fetch(endpoint, {
+      cache: "no-store",
+      redirect: "follow",
+      headers: {
+        Accept: "application/json,text/plain,*/*",
+        "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+      },
+    });
+    if (!response.ok) continue;
+
+    const body = await response.json() as { spark?: { result?: YahooSparkResult[] } };
+    const chartBySymbol = new Map((body.spark?.result ?? []).flatMap((item) => typeof item.symbol === "string" ? [[item.symbol, item.response?.[0]] as const] : []));
+    const markets = MARKET_DEFINITIONS.flatMap((definition) => {
+      const market = normalizeMarket(definition, chartBySymbol.get(definition.symbol));
+      return market ? [market] : [];
+    });
+    if (markets.length > 0) return markets;
+  }
+  throw new Error("Market data request failed");
 }
 
 function jsonResponse(payload: unknown, status = 200, cacheControl = "no-store") {
@@ -86,8 +112,7 @@ export async function handleMarketsRequest() {
     });
   }
 
-  const results = await Promise.allSettled(MARKET_DEFINITIONS.map(fetchMarket));
-  const markets = results.flatMap((result) => result.status === "fulfilled" ? [result.value] : []);
+  const markets = await fetchMarkets();
   if (markets.length === 0) return jsonResponse({ error: "market_provider_unavailable" }, 502);
 
   const payload = JSON.stringify({ provider: "yahoo-finance", markets, fetchedAt: new Date().toISOString() });
