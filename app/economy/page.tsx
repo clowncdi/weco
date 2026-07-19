@@ -107,13 +107,33 @@ function normalizeArticle(article: ApiNewsArticle): NewsArticle | null {
   }
 }
 
+function normalizedArticleTitle(title: string) {
+  return title
+    .toLowerCase()
+    .replace(/\[(속보|단독|종합|영상|포토)\]/gu, "")
+    .replace(/^(속보|단독|종합|영상|포토)\s*[:·-]?\s*/u, "")
+    .replace(/[^0-9a-z가-힣]/gu, "");
+}
+
+function articleIdentityKeys(article: NewsArticle) {
+  return [`id:${article.id}`, `url:${article.url}`, `title:${normalizedArticleTitle(article.title)}`];
+}
+
+function articleIdentitySet(items: NewsArticle[]) {
+  return new Set(items.flatMap(articleIdentityKeys));
+}
+
+function hasArticleIdentity(article: NewsArticle, identities: Set<string>) {
+  return articleIdentityKeys(article).some((key) => identities.has(key));
+}
+
 function uniqueLatest(items: NewsArticle[]) {
   const seen = new Set<string>();
   return items
     .filter((item) => {
-      const key = `${item.url}|${item.title}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
+      const keys = articleIdentityKeys(item);
+      if (keys.some((key) => seen.has(key))) return false;
+      keys.forEach((key) => seen.add(key));
       return true;
     })
     .sort((a, b) => (b.publishedAt ?? 0) - (a.publishedAt ?? 0));
@@ -230,6 +250,16 @@ function selectMajorNews(feed: NewsFeed): NewsFeed {
   };
 }
 
+function selectChronologicalDiverseNews(items: NewsArticle[], count: number) {
+  const selected: NewsArticle[] = [];
+  for (const article of uniqueLatest(items)) {
+    if (selected.some((candidate) => isStrongRelation(candidate, article))) continue;
+    selected.push(article);
+    if (selected.length === count) break;
+  }
+  return selected;
+}
+
 function findRelatedNews(article: NewsArticle, candidates: NewsArticle[], excludedIds: Set<string>) {
   return candidates
     .filter((candidate) => candidate.id !== article.id && !excludedIds.has(candidate.id))
@@ -336,12 +366,13 @@ function NewsCriteriaDetails({ type }: { type: "major" | "category" }) {
       {isMajor ? <ul>
         <li>최근 72시간 네이버 뉴스 중 국내와 세계를 각각 10건 선정합니다.</li>
         <li>경제 영향 핵심어, 발행 시각, 동일 이슈 보도량을 점수에 반영합니다.</li>
-        <li>같은 출처와 비슷한 주제의 반복 노출을 우선 제한합니다.</li>
+        <li>동일 URL·같은 제목은 하나로 합치고, 같은 출처와 비슷한 주제의 반복 노출을 우선 제한합니다.</li>
         <li>관련 뉴스는 같은 지역 기사 중 제목·요약 핵심어가 충분히 겹칠 때만 표시합니다.</li>
+        <li>기사 미리보기는 네이버 검색 결과에 제공된 설명문입니다.</li>
       </ul> : <ul>
         <li>카테고리는 기사 제목과 요약의 분야별 핵심어로 분류합니다.</li>
-        <li>상단 기사는 경제 영향도, 최신성, 동일 이슈 보도량을 반영하고 출처·주제 중복을 줄입니다.</li>
-        <li>최신 뉴스는 기사 발행 시각 내림차순으로 표시합니다.</li>
+        <li>주요·관련·카테고리 대표 영역에서 이미 사용한 기사는 다음 영역에서 제외합니다.</li>
+        <li>최신 뉴스는 비슷한 이슈의 반복을 건너뛴 뒤 발행 시각 내림차순으로 표시합니다.</li>
         <li>모든 목록은 최근 72시간 내 기사만 사용합니다.</li>
       </ul>}
     </div>
@@ -397,24 +428,37 @@ export default function EconomyPage() {
     return () => controller.abort();
   }, [marketRefreshToken]);
 
-  const chronologicalArticles = useMemo(() => activeCategory.key === "global" ? feed.global : uniqueLatest([...feed.domestic, ...feed.global]), [activeCategory.key, feed]);
-  const highlightCandidates = useMemo(() => {
-    const selectedMajorNews = [...majorNews.domestic, ...majorNews.global];
-    if (activeCategory.key !== "all" || selectedMajorNews.length === 0) return chronologicalArticles;
-    const majorNewsIds = new Set(selectedMajorNews.map((article) => article.id));
-    return chronologicalArticles.filter((article) => !majorNewsIds.has(article.id));
-  }, [activeCategory.key, chronologicalArticles, majorNews]);
-  const categoryHighlights = useMemo(() => selectDiverseNews(highlightCandidates, chronologicalArticles, 5), [chronologicalArticles, highlightCandidates]);
-  const marketByKey = useMemo(() => new Map(markets.map((market) => [market.key, market])), [markets]);
+  const allMajorNews = useMemo(() => [...majorNews.domestic, ...majorNews.global], [majorNews]);
   const activeMajorNews = majorNews[majorNewsRegion];
   const relatedNewsById = useMemo(() => {
-    const majorNewsIds = new Set([...majorNews.domestic, ...majorNews.global].map((article) => article.id));
-    const regionPool = majorNewsPool.filter((article) => article.region === majorNewsRegion);
-    return new Map(activeMajorNews.map((article) => [article.id, findRelatedNews(article, regionPool, majorNewsIds)]));
-  }, [activeMajorNews, majorNews, majorNewsPool, majorNewsRegion]);
+    const usedIds = new Set(allMajorNews.map((article) => article.id));
+    const relatedById = new Map<string, NewsArticle[]>();
+    for (const article of allMajorNews) {
+      const regionPool = majorNewsPool.filter((candidate) => candidate.region === article.region);
+      const related = findRelatedNews(article, regionPool, usedIds);
+      related.forEach((candidate) => usedIds.add(candidate.id));
+      relatedById.set(article.id, related);
+    }
+    return relatedById;
+  }, [allMajorNews, majorNewsPool]);
+  const reservedNews = useMemo(() => [
+    ...activeMajorNews,
+    ...activeMajorNews.flatMap((article) => relatedNewsById.get(article.id) ?? []),
+  ], [activeMajorNews, relatedNewsById]);
+  const chronologicalArticles = useMemo(() => activeCategory.key === "global" ? feed.global : uniqueLatest([...feed.domestic, ...feed.global]), [activeCategory.key, feed]);
+  const highlightCandidates = useMemo(() => {
+    const reservedIdentities = articleIdentitySet(reservedNews);
+    return chronologicalArticles.filter((article) => !hasArticleIdentity(article, reservedIdentities));
+  }, [chronologicalArticles, reservedNews]);
+  const categoryHighlights = useMemo(() => selectDiverseNews(highlightCandidates, chronologicalArticles, 5), [chronologicalArticles, highlightCandidates]);
+  const marketByKey = useMemo(() => new Map(markets.map((market) => [market.key, market])), [markets]);
   const leadArticle = categoryHighlights[0];
   const headlineRail = categoryHighlights.slice(1, 5);
-  const latestArticles = chronologicalArticles.slice(0, 12);
+  const latestArticles = useMemo(() => {
+    const usedIdentities = articleIdentitySet([...reservedNews, ...categoryHighlights]);
+    const candidates = chronologicalArticles.filter((article) => !hasArticleIdentity(article, usedIdentities));
+    return selectChronologicalDiverseNews(candidates, 12);
+  }, [categoryHighlights, chronologicalArticles, reservedNews]);
 
   return (
     <main className="economy-page">
@@ -438,7 +482,7 @@ export default function EconomyPage() {
             <div className="economy-live-heading">
               <div><small>MARKET NOW</small><h1 id="market-heading">주요 시장지표</h1></div>
               <div className="economy-market-heading-aside">
-                <span className="economy-market-period">최근 5일 추이</span>
+                <span className="economy-market-period">지수 그래프 · 최근 5일 추이</span>
                 {marketError && <button type="button" onClick={() => {
                   setMarketLoading(true);
                   setMarketError("");
@@ -484,7 +528,7 @@ export default function EconomyPage() {
                 {column.map((article, index) => {
                   const relatedNews = relatedNewsById.get(article.id) ?? [];
                   return <li key={article.id}><article className="economy-topnews-item"><span>{String(columnIndex * 5 + index + 1).padStart(2, "0")}</span><div>
-                    <a className="economy-topnews-main" href={article.url} target="_blank" rel="noopener noreferrer"><ArticleMeta article={article} /><h3>{article.title}</h3><div className="economy-topnews-summary"><span>핵심 요약</span><p>{article.description || "요약 정보가 제공되지 않은 기사입니다."}</p></div></a>
+                    <a className="economy-topnews-main" href={article.url} target="_blank" rel="noopener noreferrer"><ArticleMeta article={article} /><h3>{article.title}</h3><div className="economy-topnews-summary"><span>기사 미리보기</span><p>{article.description || "미리보기 정보가 제공되지 않은 기사입니다."}</p></div></a>
                     {relatedNews.length > 0 && <div className="economy-related-news"><span>관련 뉴스</span><div>{relatedNews.map((related) => <a href={related.url} target="_blank" rel="noopener noreferrer" key={related.id}>{related.title}</a>)}</div></div>}
                   </div></article></li>;
                 })}

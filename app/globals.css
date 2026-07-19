@@ -1314,7 +1314,7 @@ footer {
   .economy-live-heading { margin-bottom:20px; padding:0 5px; align-items:center; gap:12px; }
   .economy-market-panel .economy-live-heading { margin-bottom:12px; }
   .economy-market-heading-aside { align-items:flex-end; flex-direction:column; }
-  .economy-market-period { padding:6px 8px; font-size:9px; }
+  .economy-market-period { max-width:96px; padding:6px 8px; font-size:9px; line-height:1.25; text-align:right; white-space:normal; }
   .economy-live-heading h1,
   .economy-live-heading h2 { font-size:35px; }
   .economy-live-heading.light { align-items:flex-start; flex-direction:column; }
