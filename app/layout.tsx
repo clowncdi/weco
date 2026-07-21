@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Sans_KR } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
+import "@fontsource-variable/noto-sans-kr/wght.css";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-const notoSansKr = Noto_Sans_KR({ variable: "--font-noto-sans-kr", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://weaco.co.kr"),
@@ -27,5 +27,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="ko"><body className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable}`}>{children}</body></html>;
+  return <html lang="ko"><body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body></html>;
 }

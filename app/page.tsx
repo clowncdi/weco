@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 type MonsoonZone = "central" | "southern" | "jeju";
 type Region = { name: string; short: string; referenceArea: string; lat: number; lon: number; monsoonZone: MonsoonZone };
+type LocationStatus = "checking" | "granted" | "denied" | "unavailable";
 type MonsoonPeriod = { start: string; end?: string; provisional?: boolean };
 type Daily = {
   time: string[];
@@ -15,6 +16,15 @@ type Daily = {
   wind_speed_10m_max: number[];
   weather_code: number[];
 };
+type OpenMeteoCurrent = {
+  time?: string;
+  temperature_2m?: number;
+  relative_humidity_2m?: number;
+  precipitation?: number;
+  weather_code?: number;
+  wind_speed_10m?: number;
+};
+type WeatherPoint = { lat: number; lon: number };
 type ForecastProvider = "history" | "kma-short" | "kma-mid" | "open-meteo" | "unavailable";
 type WeatherKind = "sunny" | "cloudy" | "fog" | "rain" | "snow" | "showers" | "thunder" | "unavailable";
 type KmaWarning = { title: string; area: string; issuedAt?: string; effectiveAt?: string };
@@ -92,6 +102,25 @@ const REGIONS: Region[] = [
   { name: "제주특별자치도", short: "제주", referenceArea: "제주특별자치도 제주시", lat: 33.4996, lon: 126.5312, monsoonZone: "jeju" },
 ];
 
+function nearestRegionIndex(latitude: number, longitude: number) {
+  return REGIONS.reduce((nearestIndex, candidate, index) => {
+    const nearest = REGIONS[nearestIndex];
+    const latitudeScale = Math.cos((latitude + candidate.lat) / 2 * Math.PI / 180);
+    const nearestLatitudeScale = Math.cos((latitude + nearest.lat) / 2 * Math.PI / 180);
+    const distance = (latitude - candidate.lat) ** 2 + ((longitude - candidate.lon) * latitudeScale) ** 2;
+    const nearestDistance = (latitude - nearest.lat) ** 2 + ((longitude - nearest.lon) * nearestLatitudeScale) ** 2;
+    return distance < nearestDistance ? index : nearestIndex;
+  }, 0);
+}
+
+function approximateWeatherPoint(latitude: number, longitude: number): WeatherPoint {
+  const gridSize = 0.05;
+  return {
+    lat: Number((Math.round(latitude / gridSize) * gridSize).toFixed(2)),
+    lon: Number((Math.round(longitude / gridSize) * gridSize).toFixed(2)),
+  };
+}
+
 const REGION_WEATHER_SCENES: Record<string, string> = {
   서울: "/weather-scenes/seoul.jpg",
   부산: "/weather-scenes/busan.jpg",
@@ -125,7 +154,7 @@ const LINE_CHART_LEFT = 48;
 const LINE_CHART_RIGHT = 20;
 const LINE_CHART_TOP = 18;
 const LINE_CHART_BOTTOM = 42;
-const HOURLY_FORECAST_ITEM_WIDTH = 108;
+const HOURLY_FORECAST_ITEM_WIDTH = 68;
 const HOURLY_FORECAST_CHART_HEIGHT = 76;
 const HOURLY_FORECAST_CHART_TOP = 22;
 const HOURLY_FORECAST_CHART_BOTTOM = 10;
@@ -340,6 +369,23 @@ function condition(code: number): { kind: WeatherKind; label: string } {
   return { kind: "thunder", label: "뇌우" };
 }
 
+function forecastPeriodSummary(hours: HourlyForecast[], date: string, startHour: number, endHour: number, targetHour: number, fallbackCode: number) {
+  const periodHours = hours.filter((hour) => {
+    const value = Number(hour.time.slice(0, 2));
+    return hour.date === date && value >= startHour && value <= endHour;
+  });
+  const representative = periodHours
+    .filter((hour) => Number.isFinite(hour.weatherCode))
+    .sort((a, b) => Math.abs(Number(a.time.slice(0, 2)) - targetHour) - Math.abs(Number(b.time.slice(0, 2)) - targetHour))[0];
+  const probabilities = periodHours
+    .map((hour) => hour.precipitationProbability)
+    .filter((value): value is number => value !== undefined && Number.isFinite(value));
+  return {
+    weather: condition(representative?.weatherCode ?? fallbackCode),
+    probability: probabilities.length ? Math.max(...probabilities) : Number.NaN,
+  };
+}
+
 function WeatherIcon({ kind }: { kind: WeatherKind }) {
   const cloud = <path d="M6.5 17.5h10.7a4 4 0 0 0 .5-8 5.8 5.8 0 0 0-11.1-1.1 4.6 4.6 0 0 0-.1 9.1Z" />;
 
@@ -372,7 +418,7 @@ function weekdayFromIso(value: string) {
 
 function formatIsoMonthDay(value: string) {
   const [, month, day] = value.split("-").map(Number);
-  return `${month}월 ${day}일 (${weekdayFromIso(value)})`;
+  return `${month}.${day} (${weekdayFromIso(value)})`;
 }
 
 function formatChartDate(value: string) {
@@ -481,31 +527,47 @@ async function fetchArchiveYear(region: Region, year: number, month: number): Pr
   return { year, daily: { ...land.daily, precipitation_sum: precipitation }, source: "archive" };
 }
 
-async function fetchCurrentYear(region: Region, regionIndex: number, year: number, month: number): Promise<YearWeather> {
+async function fetchCurrentYear(region: Region, regionIndex: number, year: number, month: number, useCoordinateWeather: boolean): Promise<YearWeather> {
   const now = seoulToday();
   const dates = monthDates(year, month);
   const forecastDays = Math.min(16, dates.length - now.getUTCDate() + 1);
+  const kmaParams = new URLSearchParams({ region: String(regionIndex) });
+  if (useCoordinateWeather) {
+    kmaParams.set("lat", region.lat.toFixed(2));
+    kmaParams.set("lon", region.lon.toFixed(2));
+  }
   const params = new URLSearchParams({
     latitude: String(region.lat),
     longitude: String(region.lon),
     past_days: String(Math.max(0, now.getUTCDate() - 1)),
     forecast_days: String(Math.max(1, forecastDays)),
+    current: "temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m",
     daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration,wind_speed_10m_max",
     hourly: "temperature_2m,weather_code,precipitation_probability,precipitation",
     timezone: "Asia/Seoul",
   });
   const [response, kmaResponse] = await Promise.all([
-    fetchWithRateLimitRetry(`https://api.open-meteo.com/v1/forecast?${params}`),
-    fetch(`${WEATHER_API_BASE_URL}/api/kma?region=${regionIndex}`).catch(() => null),
+    fetchWithRateLimitRetry(`https://api.open-meteo.com/v1/forecast?${params}`).catch(() => null),
+    fetch(`${WEATHER_API_BASE_URL}/api/kma?${kmaParams}`).catch(() => null),
   ]);
-  if (!response.ok) throw new Error("현재 날씨와 예보를 불러오지 못했습니다.");
-  const json = await response.json() as { daily?: Daily; hourly?: OpenMeteoHourly };
-  if (!json.daily) throw new Error("예보 데이터 형식이 올바르지 않습니다.");
   const kma = kmaResponse?.ok ? await kmaResponse.json() as { days?: KmaDay[]; hourly?: HourlyForecast[]; warnings?: KmaWarning[]; warningsConnected?: boolean; currentConditions?: KmaCurrentConditions; airQuality?: KmaAirQuality } : null;
-  const daily = alignDailyToDates(json.daily, dates);
+  const json = response?.ok
+    ? await response.json() as { current?: OpenMeteoCurrent; daily?: Daily; hourly?: OpenMeteoHourly }
+    : {};
+  if (!json.daily && !kma?.days?.length && !kma?.currentConditions) {
+    throw new Error("현재 날씨와 예보를 불러오지 못했습니다.");
+  }
+  const unavailable = dates.map(() => Number.NaN);
+  const daily = json.daily ? alignDailyToDates(json.daily, dates) : {
+    time: dates,
+    temperature_2m_max: [...unavailable],
+    temperature_2m_min: [...unavailable],
+    precipitation_sum: [...unavailable],
+    sunshine_duration: [...unavailable],
+    wind_speed_10m_max: [...unavailable],
+    weather_code: [...unavailable],
+  };
   const today = iso(now);
-  const tomorrow = iso(shiftedDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 1));
-  const currentHour = seoulCurrentHour();
   const fallbackHourly = (json.hourly?.time ?? []).map((value, index) => ({
     date: value.slice(0, 10),
     time: value.slice(11, 16),
@@ -514,9 +576,11 @@ async function fetchCurrentYear(region: Region, regionIndex: number, year: numbe
     precipitation: json.hourly?.precipitation[index],
     weatherCode: json.hourly?.weather_code[index],
     provider: "open-meteo" as const,
-  })).filter((item) => item.date === tomorrow || (item.date === today && Number(item.time.slice(0, 2)) >= currentHour));
-  const kmaHourly = (kma?.hourly ?? []).filter((item) => item.date === tomorrow || (item.date === today && Number(item.time.slice(0, 2)) >= currentHour));
-  const hourlyForecast = kmaHourly.length ? kmaHourly : fallbackHourly;
+  }));
+  const hourlyByTime = new Map<string, HourlyForecast>();
+  for (const hour of fallbackHourly) hourlyByTime.set(`${hour.date}-${hour.time}`, hour);
+  for (const hour of kma?.hourly ?? []) hourlyByTime.set(`${hour.date}-${hour.time}`, hour);
+  const hourlyForecast = [...hourlyByTime.values()].sort((a, b) => `${a.date}-${a.time}`.localeCompare(`${b.date}-${b.time}`));
   const provenance: ForecastProvider[] = daily.time.map((date) => {
     if (date < today) return "history";
     return json.daily?.time.includes(date) ? "open-meteo" : "unavailable";
@@ -531,26 +595,34 @@ async function fetchCurrentYear(region: Region, regionIndex: number, year: numbe
     if (day.wind !== undefined) daily.wind_speed_10m_max[index] = day.wind;
     provenance[index] = day.provider;
   }
+  const coordinateCurrentConditions: KmaCurrentConditions | undefined = json.current ? {
+    temperature: json.current.temperature_2m,
+    humidity: json.current.relative_humidity_2m,
+    precipitation: json.current.precipitation,
+    weatherCode: json.current.weather_code,
+    wind: json.current.wind_speed_10m,
+    observedAt: json.current.time ?? "",
+  } : undefined;
   return {
     year,
     daily,
     source: "current",
     provenance,
-    kmaConnected: Boolean(kma?.days?.length),
+    kmaConnected: Boolean(kma?.days?.length || kma?.hourly?.length || kma?.currentConditions),
     warnings: kma?.warnings ?? [],
     warningsConnected: Boolean(kma?.warningsConnected),
-    currentConditions: kma?.currentConditions,
+    currentConditions: kma?.currentConditions ?? coordinateCurrentConditions,
     airQuality: kma?.airQuality,
     hourlyForecast,
   };
 }
 
-function fetchCurrentWeather(region: Region, regionIndex: number, today: Date) {
-  const key = `${regionIndex}-${iso(today)}`;
+function fetchCurrentWeather(region: Region, regionIndex: number, today: Date, useCoordinateWeather: boolean) {
+  const key = `${useCoordinateWeather ? "location" : "region"}-${regionIndex}-${region.lat.toFixed(2)}-${region.lon.toFixed(2)}-${iso(today)}`;
   const cached = CURRENT_WEATHER_REQUESTS.get(key);
   if (cached) return cached;
 
-  const request = fetchCurrentYear(region, regionIndex, today.getUTCFullYear(), today.getUTCMonth());
+  const request = fetchCurrentYear(region, regionIndex, today.getUTCFullYear(), today.getUTCMonth(), useCoordinateWeather);
   CURRENT_WEATHER_REQUESTS.set(key, request);
   void request.catch(() => {
     if (CURRENT_WEATHER_REQUESTS.get(key) === request) CURRENT_WEATHER_REQUESTS.delete(key);
@@ -599,6 +671,9 @@ function YearDot({ index }: { index: number }) {
 
 export default function Home() {
   const [regionIndex, setRegionIndex] = useState(0);
+  const [locationRegionIndex, setLocationRegionIndex] = useState(0);
+  const [locationStatus, setLocationStatus] = useState<LocationStatus>("checking");
+  const [locationWeatherPoint, setLocationWeatherPoint] = useState<WeatherPoint | null>(null);
   const [weather, setWeather] = useState<YearWeather[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedDayOffset, setSelectedDayOffset] = useState(0);
@@ -608,12 +683,18 @@ export default function Home() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState("");
   const dashboardRef = useRef<HTMLElement>(null);
-  const detailScrollRef = useRef<HTMLDivElement>(null);
-  const referenceRowRef = useRef<HTMLTableRowElement>(null);
+  const initialLocationRequestRef = useRef(false);
 
   const today = useMemo(() => seoulToday(), []);
   const years = useMemo(() => Array.from({ length: 5 }, (_, i) => today.getUTCFullYear() - i), [today]);
-  const region = REGIONS[regionIndex];
+  const baseRegion = REGIONS[regionIndex];
+  const usesCurrentLocation = locationStatus === "granted" && regionIndex === locationRegionIndex && locationWeatherPoint !== null;
+  const region = useMemo(() => usesCurrentLocation && locationWeatherPoint ? {
+    ...baseRegion,
+    referenceArea: `${baseRegion.name} 현재 위치 인근 약 5km 격자`,
+    lat: locationWeatherPoint.lat,
+    lon: locationWeatherPoint.lon,
+  } : baseRegion, [baseRegion, locationWeatherPoint, usesCurrentLocation]);
   const rangeStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1, 12));
   const rangeEnd = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0, 12));
   const monthDayCount = rangeEnd.getUTCDate();
@@ -623,6 +704,43 @@ export default function Home() {
   const comparisonIndex = referenceIndex + selectedDayOffset;
   const comparisonDate = shiftedDate(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), selectedDayOffset);
   const monthLabel = `${today.getUTCMonth() + 1}월`;
+  const selectRegion = useCallback((nextRegionIndex: number, forceReload = false) => {
+    if (nextRegionIndex === regionIndex && !forceReload) return;
+    setHistoryRequested(false);
+    setHistoryLoading(false);
+    setHistoryError("");
+    setLoading(true);
+    setError("");
+    setWeather([]);
+    if (nextRegionIndex !== regionIndex) setRegionIndex(nextRegionIndex);
+  }, [regionIndex]);
+  const requestCurrentLocation = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      selectRegion(0);
+      setLocationRegionIndex(0);
+      setLocationWeatherPoint(null);
+      setLocationStatus("unavailable");
+      return;
+    }
+    setLocationStatus("checking");
+    navigator.geolocation.getCurrentPosition((position) => {
+      const nearestIndex = nearestRegionIndex(position.coords.latitude, position.coords.longitude);
+      const weatherPoint = approximateWeatherPoint(position.coords.latitude, position.coords.longitude);
+      setLocationRegionIndex(nearestIndex);
+      setLocationWeatherPoint(weatherPoint);
+      setLocationStatus("granted");
+      selectRegion(nearestIndex, true);
+    }, (locationError) => {
+      selectRegion(0, true);
+      setLocationRegionIndex(0);
+      setLocationWeatherPoint(null);
+      setLocationStatus(locationError.code === locationError.PERMISSION_DENIED ? "denied" : "unavailable");
+    }, { enableHighAccuracy: false, timeout: 10_000, maximumAge: 30 * 60_000 });
+  }, [selectRegion]);
+  const orderedRegionIndexes = useMemo(() => {
+    const firstIndex = locationStatus === "granted" ? locationRegionIndex : 0;
+    return [firstIndex, ...REGIONS.map((_, index) => index).filter((index) => index !== firstIndex)];
+  }, [locationRegionIndex, locationStatus]);
   const requestHistory = useCallback(() => {
     setHistoryLoading(true);
     setHistoryError("");
@@ -630,8 +748,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (initialLocationRequestRef.current) return;
+    initialLocationRequestRef.current = true;
+    requestCurrentLocation();
+  }, [requestCurrentLocation]);
+
+  useEffect(() => {
     let cancelled = false;
-    fetchCurrentWeather(region, regionIndex, today)
+    fetchCurrentWeather(region, regionIndex, today, usesCurrentLocation)
       .then((data) => {
         if (cancelled) return;
         setWeather((current) => [data, ...current.filter((item) => item.year !== data.year)].sort((a, b) => b.year - a.year));
@@ -640,7 +764,7 @@ export default function Home() {
       .catch((err: Error) => !cancelled && setError(err.message))
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [region, regionIndex, today, years]);
+  }, [region, regionIndex, today, usesCurrentLocation, years]);
 
   useEffect(() => {
     if (historyRequested) return;
@@ -679,7 +803,7 @@ export default function Home() {
   useEffect(() => {
     if (!historyRequested) return;
     let cancelled = false;
-    fetchHistoricalWeather(region, regionIndex, years, today)
+    fetchHistoricalWeather(baseRegion, regionIndex, years, today)
       .then((data) => {
         if (cancelled) return;
         setWeather((current) => [...current.filter((item) => item.year === today.getUTCFullYear()), ...data].sort((a, b) => b.year - a.year));
@@ -687,7 +811,7 @@ export default function Home() {
       .catch((err: Error) => !cancelled && setHistoryError(err.message))
       .finally(() => !cancelled && setHistoryLoading(false));
     return () => { cancelled = true; };
-  }, [historyRequested, region, regionIndex, today, years]);
+  }, [baseRegion, historyRequested, regionIndex, today, years]);
 
   const summaries = weather.map(({ year, daily }) => {
     const highs = daily.temperature_2m_max.filter(Number.isFinite);
@@ -749,15 +873,31 @@ export default function Home() {
   const observationLabel = weatherObservedAt && airQualityObservedAt
     ? weatherObservedAt === airQualityObservedAt ? `관측 ${weatherObservedAt}` : `기상 ${weatherObservedAt} · 대기질 ${airQualityObservedAt}`
     : weatherObservedAt ? `기상 ${weatherObservedAt}` : airQualityObservedAt ? `대기질 ${airQualityObservedAt}` : "관측 시각 대기";
-  const hourlyForecast = rawHourlyForecast.map((hour, index) => index === 0 && hour.date === iso(today) && currentWeather?.currentConditions?.weatherCode !== undefined
+  const todayDate = iso(today);
+  const tomorrowDate = iso(shiftedDate(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 1));
+  const currentHour = seoulCurrentHour();
+  const hourlyForecast = rawHourlyForecast
+    .filter((hour) => hour.date === tomorrowDate || (hour.date === todayDate && Number(hour.time.slice(0, 2)) >= currentHour))
+    .map((hour, index) => index === 0 && hour.date === todayDate && currentWeather?.currentConditions?.weatherCode !== undefined
     ? { ...hour, weatherCode: currentWeather.currentConditions.weatherCode }
     : hour);
   const hourlyProvider = hourlyForecast[0]?.provider;
-  const tomorrowDate = iso(shiftedDate(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 1));
   const hourlyForecastDays = [
-    { date: iso(today), label: "오늘" },
+    { date: todayDate, label: "오늘" },
     { date: tomorrowDate, label: "내일" },
   ];
+  const monthlyDetailDays = (currentWeather?.daily.time ?? []).map((date, index) => {
+    const fallbackCode = currentWeather?.daily.weather_code[index] ?? Number.NaN;
+    return {
+      date,
+      index,
+      weekday: weekdayFromIso(date),
+      morning: forecastPeriodSummary(rawHourlyForecast, date, 0, 11, 9, fallbackCode),
+      afternoon: forecastPeriodSummary(rawHourlyForecast, date, 12, 23, 15, fallbackCode),
+      isToday: date === todayDate,
+      isTomorrow: date === tomorrowDate,
+    };
+  });
   const hourlyTemperatures = hourlyForecast.map((hour) => hour.temperature ?? Number.NaN);
   const finiteHourlyTemperatures = hourlyTemperatures.filter(Number.isFinite);
   const hourlyTemperatureMin = finiteHourlyTemperatures.length ? Math.floor(Math.min(...finiteHourlyTemperatures) - 1) : 0;
@@ -765,19 +905,6 @@ export default function Home() {
   const hourlyForecastChartWidth = Math.max(HOURLY_FORECAST_ITEM_WIDTH, hourlyForecast.length * HOURLY_FORECAST_ITEM_WIDTH);
   const weatherScene = weatherSceneForRegion(region);
   const heroWeatherKind = currentDayCondition?.kind ?? "cloudy";
-
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      const container = detailScrollRef.current;
-      const row = referenceRowRef.current;
-      if (!container || !row) return;
-      const containerRect = container.getBoundingClientRect();
-      const rowRect = row.getBoundingClientRect();
-      const rowTop = container.scrollTop + rowRect.top - containerRect.top;
-      container.scrollTop = Math.max(0, rowTop - (container.clientHeight - rowRect.height) / 2);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [active]);
 
   return (
     <main>
@@ -798,16 +925,15 @@ export default function Home() {
       <section className="region-switcher" id="top" aria-labelledby="region-heading">
         <h2 id="region-heading">지역 선택</h2>
         <div className="region-chip-scroll">
-          {REGIONS.map((item, index) => <button type="button" key={item.name} className={index === regionIndex ? "active" : ""} aria-label={item.name} aria-pressed={index === regionIndex} onClick={() => {
-            if (index === regionIndex) return;
-            setHistoryRequested(false);
-            setHistoryLoading(false);
-            setHistoryError("");
-            setLoading(true);
-            setError("");
-            setWeather([]);
-            setRegionIndex(index);
-          }}>{item.short}</button>)}
+          {orderedRegionIndexes.map((index, orderIndex) => {
+            const item = REGIONS[index];
+            const isCurrentLocation = locationStatus === "granted" && index === locationRegionIndex;
+            return <Fragment key={item.name}>
+              <button type="button" className={`${index === regionIndex ? "active" : ""}${isCurrentLocation ? " current-location-region" : ""}`} aria-label={`${item.name}${isCurrentLocation ? " · 현재 위치" : ""}`} aria-pressed={index === regionIndex} onClick={() => selectRegion(index)}><span>{item.short}</span>{isCurrentLocation && <small>현재</small>}</button>
+              {orderIndex === 0 && locationStatus === "checking" && <span className="location-status-chip" role="status">현재 위치 확인 중</span>}
+              {orderIndex === 0 && (locationStatus === "denied" || locationStatus === "unavailable") && <button type="button" className="location-permission-chip" onClick={requestCurrentLocation} title="브라우저의 위치 권한을 허용한 뒤 다시 눌러 주세요.">현재 위치 사용</button>}
+            </Fragment>;
+          })}
         </div>
       </section>
 
@@ -819,7 +945,7 @@ export default function Home() {
               <h1>{region.name}</h1>
               <p className="weather-location-basis">날씨 기준 · {region.referenceArea}<span>· {observationLabel}</span></p>
             </div>
-            <div className="weather-date-pill"><strong>{formatKoreanDate(today)}</strong><span>{currentWeather?.kmaConnected ? "기상청 관측·예보" : "보조 예보"}</span></div>
+            <div className="weather-date-pill"><strong>{formatKoreanDate(today)}</strong><span>{currentWeather?.kmaConnected ? usesCurrentLocation ? "기상청 현재 위치 예보" : "기상청 관측·예보" : usesCurrentLocation ? "현재 위치 보조 예보" : "보조 예보"}</span></div>
           </div>
 
           {loading && <div className="weather-hero-loading"><span className="loader" /><strong>{region.short}의 현재 날씨를 불러오는 중입니다.</strong></div>}
@@ -831,7 +957,7 @@ export default function Home() {
                   <strong>{num(currentWeather.currentConditions?.temperature ?? Number.NaN)}°</strong>
                   <div className="weather-now-reading-meta">
                     <span>현재 기온</span>
-                    <span className="weather-feels-like" title="기상청 산식으로 현재 관측 기온·습도·풍속을 이용해 계산한 값">체감 <b>{num(currentFeelsLike)}°</b></span>
+                    <span className="weather-feels-like" title="현재 기온·습도·풍속을 기상청 체감온도 산식에 적용한 값">체감 <b>{num(currentFeelsLike)}°</b></span>
                   </div>
                 </div>
                 <div className="weather-now-extremes"><span>최고 <b>{num(currentWeather.daily.temperature_2m_max[currentDayIndex])}°</b></span><span>최저 <b>{num(currentWeather.daily.temperature_2m_min[currentDayIndex])}°</b></span></div>
@@ -852,14 +978,14 @@ export default function Home() {
             </div>
 
             <section className="hero-hourly" aria-labelledby="hourly-forecast-heading">
-              <div className="hero-hourly-head"><div><small>TODAY &amp; TOMORROW</small><h2 id="hourly-forecast-heading">오늘부터 내일까지</h2></div><span>{hourlyProvider ? providerLabel(hourlyProvider) : "예보 준비 중"}</span></div>
+              <div className="hero-hourly-head"><div><small>TODAY &amp; TOMORROW</small><h2 id="hourly-forecast-heading">오늘부터 내일까지</h2></div><span>{hourlyProvider ? `${usesCurrentLocation ? "현재 위치 · " : ""}${providerLabel(hourlyProvider)}` : "예보 준비 중"}</span></div>
               {hourlyForecast.length > 0 ? <div className="hourly-forecast-scroll">
                 <div className="hourly-forecast-track" style={{ width: `${hourlyForecastChartWidth}px` }}>
                   <div className="hourly-day-markers">
                     {hourlyForecast.map((hour, index) => {
                       if (index > 0 && hourlyForecast[index - 1].date === hour.date) return null;
                       const day = hourlyForecastDays.find((item) => item.date === hour.date);
-                      return <span key={hour.date} style={{ left: `${index * HOURLY_FORECAST_ITEM_WIDTH + 12}px` }}><strong>{day?.label ?? "예보"}</strong><small>{formatIsoMonthDay(hour.date)}</small></span>;
+                      return <span key={hour.date} style={{ left: `${index * HOURLY_FORECAST_ITEM_WIDTH + 5}px` }}><strong>{day?.label ?? "예보"}</strong><small>{formatIsoMonthDay(hour.date)}</small></span>;
                     })}
                   </div>
                   <svg className="hourly-temperature-chart" width={hourlyForecastChartWidth} height={HOURLY_FORECAST_CHART_HEIGHT} viewBox={`0 0 ${hourlyForecastChartWidth} ${HOURLY_FORECAST_CHART_HEIGHT}`} role="img" aria-labelledby="hourly-temperature-title hourly-temperature-description">
@@ -888,13 +1014,55 @@ export default function Home() {
         </div>
       </section>
 
+      {!loading && currentWeather && monthlyDetailDays.length > 0 && (
+        <section className="monthly-detail-panel" aria-labelledby="monthly-detail-heading">
+          <div className="monthly-detail-head">
+            <div>
+              <small>MONTHLY VIEW</small>
+              <h2 id="monthly-detail-heading">월간 날씨 예보</h2>
+            </div>
+            <div className="monthly-detail-basis"><strong>{monthLabel} · {monthlyDetailDays.length}일</strong><span>기상청 예보 우선 · 보조 자료 포함</span></div>
+          </div>
+          <div className="monthly-detail-grid">
+            {monthlyDetailDays.map((item) => {
+              const [, month, day] = item.date.split("-").map(Number);
+              const low = currentWeather.daily.temperature_2m_min[item.index];
+              const high = currentWeather.daily.temperature_2m_max[item.index];
+              const dayLabel = item.isToday ? "오늘" : item.isTomorrow ? "내일" : item.weekday;
+              return (
+                <article
+                  key={item.date}
+                  className={`${item.isToday ? "today" : ""} ${item.isTomorrow ? "tomorrow" : ""} ${item.weekday === "일" ? "sunday" : ""} ${item.date < todayDate ? "past" : "forecast"}`}
+                  aria-label={`${dayLabel} ${month}월 ${day}일, 최저 ${num(low)}도, 최고 ${num(high)}도`}
+                >
+                  <div className="monthly-detail-date">
+                    <strong>{dayLabel}</strong>
+                    <time dateTime={item.date}>{month}.{day}.</time>
+                  </div>
+                  <div className="monthly-detail-period">
+                    <span><small>오전</small><b>{Number.isFinite(item.morning.probability) ? `${num(item.morning.probability, 0)}%` : "—"}</b></span>
+                    <WeatherIcon kind={item.morning.weather.kind} />
+                  </div>
+                  <div className="monthly-detail-period">
+                    <span><small>오후</small><b>{Number.isFinite(item.afternoon.probability) ? `${num(item.afternoon.probability, 0)}%` : "—"}</b></span>
+                    <WeatherIcon kind={item.afternoon.weather.kind} />
+                  </div>
+                  <div className="monthly-detail-temperatures"><b>{num(low)}°</b><strong>{num(high)}°</strong></div>
+                </article>
+              );
+            })}
+          </div>
+          <p className="monthly-detail-note">오전·오후 강수확률과 날씨는 시간별 예보를 요약하며, 지난 날짜 또는 시간별 자료가 없는 날은 일별 날씨와 실제 강수 자료를 기준으로 표시합니다.</p>
+        </section>
+      )}
+
       <section className="dashboard" id="comparison-dashboard" ref={dashboardRef} aria-live="polite">
         <div className="dashboard-head">
-          <div><span className="section-num">02</span><p>{region.name} · 최근 5개년도</p></div>
+          <div><span className="section-num">03</span><p>{region.name} · 최근 5개년도</p></div>
           <h2>같은 때, 다른 날씨</h2>
           <div className={`forecast-note ${currentWeather?.kmaConnected ? "connected" : "fallback"}`}>
             <span aria-hidden="true" />
-            <div><strong>{currentWeather?.kmaConnected ? "기상청 예보 연결" : "보조 예보 사용 중"}</strong><small>{currentWeather?.kmaConnected ? "현재 기상청 우선" : "현재 Open-Meteo 보조"} · 과거 기온 ERA5-Land / 강수 ERA5</small></div>
+            <div><strong>{currentWeather?.kmaConnected ? usesCurrentLocation ? "현재 위치 기상청 예보" : "기상청 예보 연결" : "보조 예보 사용 중"}</strong><small>{currentWeather?.kmaConnected ? usesCurrentLocation ? "약 5km 기상청 격자 우선" : "현재 기상청 우선" : "현재 Open-Meteo 보조"} · 과거 기온 ERA5-Land / 강수 ERA5</small></div>
           </div>
         </div>
 
@@ -1058,30 +1226,6 @@ export default function Home() {
               </div>
             </section>
 
-            <div className="detail-panel">
-              <div className="detail-head"><div><span className="section-num">03</span><p>날짜별 상세 {active?.year === today.getUTCFullYear() && <em className="forecast-key">빗금 영역은 예보</em>}</p></div><div className="year-tabs" role="tablist" aria-label="상세 연도 선택">{years.map((year, index) => <button key={year} role="tab" aria-selected={selectedYear === year} onClick={() => setSelectedYear(year)}><YearDot index={index} />{year}{year === today.getUTCFullYear() && <em>기상청 우선</em>}</button>)}</div></div>
-              <div className="table-wrap" ref={detailScrollRef}>
-                <table>
-                  <thead><tr><th>날짜</th><th>날씨</th><th>최고 / 최저</th><th>강수량</th><th>일조</th><th>최대 풍속</th></tr></thead>
-                  <tbody>{active?.daily.time.map((date, index) => {
-                    const state = condition(active.daily.weather_code[index]);
-                    const isCurrentYear = active.year === today.getUTCFullYear();
-                    const isToday = isCurrentYear && date === iso(today);
-                    const isReferenceDay = index === referenceIndex;
-                    const isForecast = isCurrentYear && date >= iso(today);
-                    const provider = active.provenance?.[index];
-                    return <tr ref={isReferenceDay ? referenceRowRef : undefined} key={date} className={`${isReferenceDay ? "center-day" : ""} ${isForecast ? "forecast-row" : ""} ${index === comparisonIndex ? "selected-date-row" : ""}`}>
-                      <td><strong>{formatIsoMonthDay(date)}</strong>{isCurrentYear ? <small className={provider === "open-meteo" ? "forecast-label fallback-label" : provider === "unavailable" ? "forecast-label pending-label" : isForecast ? "forecast-label" : "history-label"}>{providerLabel(provider, isToday)}</small> : isReferenceDay ? <small>기준일</small> : index === comparisonIndex ? <small>비교일</small> : null}</td>
-                      <td><span className="condition-cell"><WeatherIcon kind={state.kind} /><span>{state.label}</span></span></td>
-                      <td><b>{num(active.daily.temperature_2m_max[index])}°</b> <span>/ {num(active.daily.temperature_2m_min[index])}°</span></td>
-                      <td>{num(active.daily.precipitation_sum[index])} mm</td>
-                      <td>{num(active.daily.sunshine_duration[index] / 3600)} h</td>
-                      <td>{num(active.daily.wind_speed_10m_max[index])} km/h</td>
-                    </tr>;
-                  })}</tbody>
-                </table>
-              </div>
-            </div>
           </>
         )}
       </section>

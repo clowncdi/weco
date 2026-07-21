@@ -1,3 +1,5 @@
+import { toKmaGrid } from "./kma-grid.js";
+
 type RegionConfig = {
   nx: number;
   ny: number;
@@ -506,13 +508,38 @@ async function midForecast(region: RegionConfig, apiKey: string): Promise<Foreca
 export async function handleKmaRequest(request: Request, apiKey?: string) {
   if (!apiKey) return Response.json({ error: "기상청 인증키가 설정되지 않았습니다." }, { status: 503 });
 
-  const index = Number(new URL(request.url).searchParams.get("region"));
-  const region = Number.isInteger(index) ? REGIONS[index] : undefined;
+  const requestUrl = new URL(request.url);
+  const index = Number(requestUrl.searchParams.get("region"));
+  const baseRegion = Number.isInteger(index) ? REGIONS[index] : undefined;
   const warningRegionNames = Number.isInteger(index) ? WARNING_REGION_NAMES[index] : undefined;
-  if (!region || !warningRegionNames) return Response.json({ error: "지원하지 않는 지역입니다." }, { status: 400 });
+  if (!baseRegion || !warningRegionNames) return Response.json({ error: "지원하지 않는 지역입니다." }, { status: 400 });
+
+  const latitudeParam = requestUrl.searchParams.get("lat");
+  const longitudeParam = requestUrl.searchParams.get("lon");
+  const hasLocation = latitudeParam !== null || longitudeParam !== null;
+  const latitude = Number(latitudeParam);
+  const longitude = Number(longitudeParam);
+  if (hasLocation && (
+    latitudeParam === null
+    || longitudeParam === null
+    || !Number.isFinite(latitude)
+    || !Number.isFinite(longitude)
+    || latitude < 32
+    || latitude > 39.5
+    || longitude < 124
+    || longitude > 132
+  )) {
+    return Response.json({ error: "지원하지 않는 현재 위치입니다." }, { status: 400 });
+  }
+
+  const locationGrid = hasLocation ? toKmaGrid(latitude, longitude) : undefined;
+  const region = locationGrid ? { ...baseRegion, ...locationGrid, lat: latitude, lon: longitude } : baseRegion;
+  const cacheLocation = locationGrid
+    ? `${locationGrid.nx}:${locationGrid.ny}:${latitude.toFixed(2)}:${longitude.toFixed(2)}`
+    : "representative";
 
   try {
-    const payload = await cachedRequest(`kma-region:${index}`, 5 * 60_000, async () => {
+    const payload = await cachedRequest(`kma-region:${index}:${cacheLocation}`, 5 * 60_000, async () => {
       const [shortResult, midResult, warningResult, currentResult, airQualityResult] = await Promise.allSettled([
         shortForecast(region, apiKey),
         midForecast(region, apiKey),
@@ -523,7 +550,11 @@ export async function handleKmaRequest(request: Request, apiKey?: string) {
       const short = shortResult.status === "fulfilled" ? shortResult.value : { days: [], hourly: [] };
       const mid = midResult.status === "fulfilled" ? midResult.value : [];
       const current = currentResult.status === "fulfilled" ? currentResult.value : undefined;
-      if (!short.days.length && !mid.length) throw new Error("KMA forecast unavailable");
+      const warningsConnected = warningResult.status === "fulfilled";
+      const airQuality = airQualityResult.status === "fulfilled" ? airQualityResult.value : undefined;
+      if (!short.days.length && !short.hourly.length && !mid.length && !current && !airQuality && !warningsConnected) {
+        throw new Error("KMA weather unavailable");
+      }
       const now = kstNow();
       const currentDate = isoDate(now);
       const currentHour = now.getUTCHours();
@@ -544,9 +575,9 @@ export async function handleKmaRequest(request: Request, apiKey?: string) {
         days: [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date)),
         hourly: short.hourly,
         warnings: warningResult.status === "fulfilled" ? warningResult.value : [],
-        warningsConnected: warningResult.status === "fulfilled",
+        warningsConnected,
         currentConditions: current ? { ...current, weatherCode: currentWeatherCode } : undefined,
-        airQuality: airQualityResult.status === "fulfilled" ? airQualityResult.value : undefined,
+        airQuality,
         issuedAt: new Date().toISOString(),
       };
     });

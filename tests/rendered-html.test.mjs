@@ -1,8 +1,15 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import { toKmaGrid } from "../worker/kma-grid.js";
 
 const outputRoot = new URL("../out/", import.meta.url);
+
+test("converts current coordinates to the KMA village forecast grid", () => {
+  assert.deepEqual(toKmaGrid(37.5665, 126.978), { nx: 60, ny: 127 });
+  assert.deepEqual(toKmaGrid(35.1796, 129.0756), { nx: 98, ny: 76 });
+  assert.throws(() => toKmaGrid(Number.NaN, 126.978), /finite numbers/);
+});
 
 test("exports the weather page as static HTML", async () => {
   const html = await readFile(new URL("index.html", outputRoot), "utf8");
@@ -10,6 +17,7 @@ test("exports the weather page as static HTML", async () => {
   assert.match(html, /<html lang="ko">/i);
   assert.match(html, /<title>오늘의 날씨와 경제 — 최근 5개년도 날씨 비교<\/title>/i);
   assert.match(html, /오늘의 날씨와 경제/i);
+  assert.match(html, /현재 위치 확인 중/i);
   assert.match(html, /id="comparison-dashboard"/i);
   assert.match(html, /\/today-weather-logo\.png/i);
   assert.match(html, /href="\/economy\/"/i);
@@ -29,8 +37,8 @@ test("exports the economy news page with its primary sections", async () => {
   assert.match(html, /비트코인/i);
   assert.match(html, /economy-market-sparkline/i);
   assert.match(html, /economy-market-period/i);
-  assert.match(html, /지수 그래프 · 최근 5일 추이/i);
-  assert.equal((html.match(/지수 그래프 · 최근 5일 추이/g) ?? []).length, 1);
+  assert.match(html, /지수 그래프 · 최근 7일 추이/i);
+  assert.equal((html.match(/지수 그래프 · 최근 7일 추이/g) ?? []).length, 1);
   assert.match(html, /id="topnews-heading"/i);
   assert.match(html, /주요 뉴스/i);
   assert.match(html, /aria-label="주요 뉴스 지역"/i);

@@ -49,6 +49,7 @@ type MarketSnapshot = {
   marketTime?: number;
   sparkline: number[];
 };
+const MARKET_SPARKLINE_DAYS = 7;
 
 const NEWS_CATEGORIES: NewsCategory[] = [
   { key: "all", label: "전체" },
@@ -171,7 +172,7 @@ function normalizeMarket(snapshot: ApiMarketSnapshot): MarketSnapshot | null {
     changePercent: snapshot.changePercent,
     currency: typeof snapshot.currency === "string" ? snapshot.currency : undefined,
     marketTime: typeof snapshot.marketTime === "number" && Number.isFinite(snapshot.marketTime) ? snapshot.marketTime : undefined,
-    sparkline: Array.isArray(snapshot.sparkline) ? snapshot.sparkline.filter((value): value is number => typeof value === "number" && Number.isFinite(value)).slice(-20) : [],
+    sparkline: Array.isArray(snapshot.sparkline) ? snapshot.sparkline.filter((value): value is number => typeof value === "number" && Number.isFinite(value)).slice(-MARKET_SPARKLINE_DAYS) : [],
   };
 }
 
@@ -352,7 +353,7 @@ function MarketSparkline({ label, values, trend }: { label: string; values: numb
     return () => observer.disconnect();
   }, [trend, values]);
 
-  return <div className="economy-market-sparkline" role="img" aria-label={`${label} 5일간 변화 그래프`}>
+  return <div className="economy-market-sparkline" role="img" aria-label={`${label} ${MARKET_SPARKLINE_DAYS}일간 변화 그래프`}>
     {values.length > 1 ? <canvas ref={canvasRef} aria-hidden="true" /> : <span aria-hidden="true" />}
   </div>;
 }
@@ -482,7 +483,7 @@ export default function EconomyPage() {
             <div className="economy-live-heading">
               <div><small>MARKET NOW</small><h1 id="market-heading">주요 시장지표</h1></div>
               <div className="economy-market-heading-aside">
-                <span className="economy-market-period">지수 그래프 · 최근 5일 추이</span>
+                <span className="economy-market-period">지수 그래프 · 최근 7일 추이</span>
                 {marketError && <button type="button" onClick={() => {
                   setMarketLoading(true);
                   setMarketError("");

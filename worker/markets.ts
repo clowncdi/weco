@@ -38,6 +38,7 @@ const MARKET_DEFINITIONS: MarketDefinition[] = [
   { key: "copper", label: "구리", symbol: "HG=F" },
   { key: "bitcoin", label: "비트코인", symbol: "BTC-USD" },
 ];
+const MARKET_SPARKLINE_DAYS = 7;
 
 let responseCache: { expiresAt: number; payload: string } | null = null;
 
@@ -61,7 +62,7 @@ function normalizeMarket(definition: MarketDefinition, result?: YahooChartResult
     changePercent: previousClose === 0 ? 0 : change / previousClose * 100,
     currency: typeof meta?.currency === "string" ? meta.currency : undefined,
     marketTime: finiteNumber(meta?.regularMarketTime),
-    sparkline: closes.slice(-20),
+    sparkline: closes.slice(-MARKET_SPARKLINE_DAYS),
   };
 }
 
@@ -70,7 +71,7 @@ async function fetchMarkets() {
   for (const origin of origins) {
     const endpoint = new URL("/v7/finance/spark", origin);
     endpoint.searchParams.set("symbols", MARKET_DEFINITIONS.map((definition) => definition.symbol).join(","));
-    endpoint.searchParams.set("range", "5d");
+    endpoint.searchParams.set("range", "1mo");
     endpoint.searchParams.set("interval", "1d");
     const response = await fetch(endpoint, {
       cache: "no-store",
