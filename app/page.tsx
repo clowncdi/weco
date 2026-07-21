@@ -876,11 +876,32 @@ export default function Home() {
   const todayDate = iso(today);
   const tomorrowDate = iso(shiftedDate(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 1));
   const currentHour = seoulCurrentHour();
-  const hourlyForecast = rawHourlyForecast
-    .filter((hour) => hour.date === tomorrowDate || (hour.date === todayDate && Number(hour.time.slice(0, 2)) >= currentHour))
-    .map((hour, index) => index === 0 && hour.date === todayDate && currentWeather?.currentConditions?.weatherCode !== undefined
-    ? { ...hour, weatherCode: currentWeather.currentConditions.weatherCode }
-    : hour);
+  const hourlyForecast = (() => {
+    const forecast = rawHourlyForecast
+      .filter((hour) => hour.date === tomorrowDate || (hour.date === todayDate && Number(hour.time.slice(0, 2)) >= currentHour));
+    const currentConditions = currentWeather?.currentConditions;
+    if (!currentConditions || !Number.isFinite(currentConditionCode)) return forecast;
+
+    const currentTime = `${pad(currentHour)}:00`;
+    const matchingIndex = forecast.findIndex((hour) => hour.date === todayDate && hour.time === currentTime);
+    const nearestToday = matchingIndex >= 0
+      ? forecast[matchingIndex]
+      : rawHourlyForecast
+        .filter((hour) => hour.date === todayDate)
+        .sort((a, b) => Math.abs(Number(a.time.slice(0, 2)) - currentHour) - Math.abs(Number(b.time.slice(0, 2)) - currentHour))[0];
+    const currentObservation: HourlyForecast = {
+      date: todayDate,
+      time: currentTime,
+      temperature: currentConditions.temperature ?? nearestToday?.temperature,
+      precipitationProbability: nearestToday?.precipitationProbability,
+      precipitation: currentConditions.precipitation ?? nearestToday?.precipitation,
+      weatherCode: currentConditionCode,
+      provider: nearestToday?.provider ?? "kma-short",
+    };
+    if (matchingIndex >= 0) forecast[matchingIndex] = currentObservation;
+    else forecast.unshift(currentObservation);
+    return forecast;
+  })();
   const hourlyProvider = hourlyForecast[0]?.provider;
   const hourlyForecastDays = [
     { date: todayDate, label: "오늘" },
@@ -907,7 +928,7 @@ export default function Home() {
   const heroWeatherKind = currentDayCondition?.kind ?? "cloudy";
 
   return (
-    <main>
+    <main className="weather-page">
       <header className="topbar">
         <Link className="brand" href="/#top" aria-label="오늘의 날씨와 경제 홈">
           <img className="brand-logo" src="/today-weather-logo.png" alt="" />

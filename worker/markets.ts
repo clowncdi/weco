@@ -50,7 +50,9 @@ function normalizeMarket(definition: MarketDefinition, result?: YahooChartResult
   const meta = result?.meta;
   const closes = (result?.indicators?.quote?.[0]?.close ?? []).map(finiteNumber).filter((value): value is number => value !== undefined);
   const value = finiteNumber(meta?.regularMarketPrice) ?? closes.at(-1);
-  const previousClose = finiteNumber(meta?.chartPreviousClose) ?? finiteNumber(meta?.previousClose) ?? closes.at(-2);
+  // chartPreviousClose is the close immediately before the requested chart range,
+  // while previousClose is the prior trading session used for the daily change.
+  const previousClose = finiteNumber(meta?.previousClose) ?? closes.at(-2) ?? finiteNumber(meta?.chartPreviousClose);
   if (value === undefined || previousClose === undefined) return null;
 
   const change = value - previousClose;
