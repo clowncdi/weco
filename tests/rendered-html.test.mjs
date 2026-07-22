@@ -42,7 +42,8 @@ test("exports the economy news page with its primary sections", async () => {
   assert.match(html, /지수 그래프 · 최근 7일 추이/i);
   assert.equal((html.match(/지수 그래프 · 최근 7일 추이/g) ?? []).length, 1);
   assert.match(html, /id="newsletter-heading"/i);
-  assert.match(html, /오늘의 뉴스레터/i);
+  assert.match(html, /추천 뉴스레터/i);
+  assert.match(html, /경제 흐름을 이해하는 데 도움이 되는 뉴스레터의 가장 최근 발행호를 추천합니다/i);
   assert.match(html, /평일 오전 8시 갱신/i);
   assert.match(html, /id="topnews-heading"/i);
   assert.match(html, /주요 뉴스/i);

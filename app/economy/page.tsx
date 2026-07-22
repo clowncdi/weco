@@ -889,7 +889,7 @@ export default function EconomyPage() {
 
           <section className="economy-newsletter-panel" aria-labelledby="newsletter-heading" aria-busy={newsletterLoading}>
             <div className="economy-newsletter-heading">
-              <div><small>DAILY NEWSLETTER</small><h2 id="newsletter-heading">오늘의 뉴스레터</h2><p>구독 중인 경제 뉴스레터의 가장 최근 발행호를 모았습니다.</p></div>
+              <div><small>RECOMMENDED NEWSLETTER</small><h2 id="newsletter-heading">추천 뉴스레터</h2><p>경제 흐름을 이해하는 데 도움이 되는 뉴스레터의 가장 최근 발행호를 추천합니다.</p></div>
               <span>평일 오전 8시 갱신</span>
             </div>
             {newsletterLoading && newsletters.length === 0 && <div className="economy-newsletter-loading" aria-label="뉴스레터 최신호 불러오는 중">{Array.from({ length: 5 }, (_, index) => <div key={index} />)}</div>}
