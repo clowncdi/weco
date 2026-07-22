@@ -1,12 +1,17 @@
 import { handleKmaRequest } from "./kma";
-import { handleMarketsRequest } from "./markets";
+import { handleMarketHistoryRequest, handleMarketsRequest } from "./markets";
 import { handleNaverNewsRequest } from "./news";
+import { handleNewslettersRequest, refreshNewsletterCache } from "./newsletters";
 
 export interface ApiEnv {
   KMA_API_KEY?: string;
   NAVER_CLIENT_ID?: string;
   NAVER_CLIENT_SECRET?: string;
   ALLOWED_ORIGINS?: string;
+}
+
+interface ApiExecutionContext {
+  waitUntil(promise: Promise<unknown>): void;
 }
 
 function corsHeaders(request: Request, env: ApiEnv) {
@@ -25,7 +30,7 @@ function corsHeaders(request: Request, env: ApiEnv) {
 const api = {
   async fetch(request: Request, env: ApiEnv): Promise<Response> {
     const url = new URL(request.url);
-    if (url.pathname !== "/api/kma" && url.pathname !== "/api/news" && url.pathname !== "/api/markets") return new Response(null, { status: 404 });
+    if (url.pathname !== "/api/kma" && url.pathname !== "/api/news" && url.pathname !== "/api/newsletters" && url.pathname !== "/api/markets" && url.pathname !== "/api/market-history") return new Response(null, { status: 404 });
 
     const headers = corsHeaders(request, env);
     if (request.method === "OPTIONS") {
@@ -35,6 +40,10 @@ const api = {
 
     const response = url.pathname === "/api/news"
       ? await handleNaverNewsRequest(request, env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET)
+      : url.pathname === "/api/newsletters"
+        ? await handleNewslettersRequest(env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET)
+      : url.pathname === "/api/market-history"
+        ? await handleMarketHistoryRequest(request)
       : url.pathname === "/api/markets"
         ? await handleMarketsRequest()
         : await handleKmaRequest(request, env.KMA_API_KEY);
@@ -42,6 +51,9 @@ const api = {
     const responseHeaders = new Headers(response.headers);
     for (const [name, value] of Object.entries(headers)) responseHeaders.set(name, value);
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers: responseHeaders });
+  },
+  async scheduled(_controller: unknown, env: ApiEnv, ctx: ApiExecutionContext) {
+    ctx.waitUntil(refreshNewsletterCache(env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET, true));
   },
 };
 

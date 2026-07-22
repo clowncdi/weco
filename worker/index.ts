@@ -41,11 +41,14 @@ const worker = {
       }, allowedWidths);
     }
 
-    if (url.pathname === "/api/kma" || url.pathname === "/api/news" || url.pathname === "/api/markets") {
+    if (url.pathname === "/api/kma" || url.pathname === "/api/news" || url.pathname === "/api/newsletters" || url.pathname === "/api/markets" || url.pathname === "/api/market-history") {
       return api.fetch(request, env);
     }
 
     return handler.fetch(request, env, ctx);
+  },
+  async scheduled(controller: unknown, env: Env, ctx: ExecutionContext) {
+    return api.scheduled(controller, env, ctx);
   },
 };
 

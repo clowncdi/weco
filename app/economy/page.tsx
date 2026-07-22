@@ -27,6 +27,25 @@ type NewsArticle = {
   region: NewsRegion;
 };
 type NewsFeed = { domestic: NewsArticle[]; global: NewsArticle[] };
+type NewsletterKey = "daily-byte" | "moneyletter" | "spendingletter" | "soonsal" | "newneek";
+type ApiNewsletterItem = {
+  key?: unknown;
+  publisher?: unknown;
+  newsletter?: unknown;
+  title?: unknown;
+  summary?: unknown;
+  url?: unknown;
+  publishedAt?: unknown;
+};
+type NewsletterItem = {
+  key: NewsletterKey;
+  publisher: string;
+  newsletter: string;
+  title: string;
+  summary: string;
+  url: string;
+  publishedAt?: number;
+};
 type MarketKey = "sp500" | "nasdaq" | "dow" | "vix" | "kospi" | "kosdaq" | "usdkrw" | "wti" | "gold" | "silver" | "copper" | "bitcoin";
 type MarketDefinition = { key: MarketKey; label: string; decimals: number; prefix?: string; suffix?: string };
 type ApiMarketSnapshot = {
@@ -49,7 +68,30 @@ type MarketSnapshot = {
   marketTime?: number;
   sparkline: number[];
 };
+type ApiMarketCandle = {
+  time?: unknown;
+  open?: unknown;
+  high?: unknown;
+  low?: unknown;
+  close?: unknown;
+};
+type MarketCandle = {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+};
+type MarketHistory = {
+  key: MarketKey;
+  label: string;
+  currency?: string;
+  candles: MarketCandle[];
+  expiresAt: number;
+};
 const MARKET_SPARKLINE_DAYS = 7;
+const MARKET_HISTORY_BROWSER_CACHE_TTL = 10 * 60_000;
+const MARKET_HISTORY_REQUESTS = new Map<MarketKey, { expiresAt: number; request: Promise<MarketHistory> }>();
 
 const NEWS_CATEGORIES: NewsCategory[] = [
   { key: "all", label: "전체" },
@@ -161,6 +203,36 @@ async function fetchNaverNews(category: CategoryKey, signal: AbortSignal) {
   };
 }
 
+function normalizeNewsletter(item: ApiNewsletterItem): NewsletterItem | null {
+  const keys: NewsletterKey[] = ["daily-byte", "moneyletter", "spendingletter", "soonsal", "newneek"];
+  if (!keys.includes(item.key as NewsletterKey) || typeof item.url !== "string") return null;
+  try {
+    const url = new URL(item.url);
+    if (url.protocol !== "https:") return null;
+    const publishedAt = typeof item.publishedAt === "string" ? Date.parse(item.publishedAt) : Number.NaN;
+    return {
+      key: item.key as NewsletterKey,
+      publisher: cleanText(item.publisher),
+      newsletter: cleanText(item.newsletter),
+      title: cleanText(item.title),
+      summary: cleanText(item.summary),
+      url: url.href,
+      publishedAt: Number.isFinite(publishedAt) ? publishedAt : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchNewsletters(signal: AbortSignal) {
+  const endpoint = createApiEndpoint("/api/newsletters", "newsletter-api-not-configured");
+  const response = await fetch(endpoint, { signal });
+  if (!response.ok) throw new Error("newsletter-api-unavailable");
+  const body = await response.json() as { provider?: unknown; items?: ApiNewsletterItem[] };
+  if (body.provider !== "official-newsletter-archives") throw new Error("newsletter-api-unavailable");
+  return (body.items ?? []).map(normalizeNewsletter).filter((item): item is NewsletterItem => Boolean(item));
+}
+
 function normalizeMarket(snapshot: ApiMarketSnapshot): MarketSnapshot | null {
   const definition = MARKET_DEFINITIONS.find((item) => item.key === snapshot.key);
   if (!definition || typeof snapshot.value !== "number" || !Number.isFinite(snapshot.value) || typeof snapshot.change !== "number" || !Number.isFinite(snapshot.change) || typeof snapshot.changePercent !== "number" || !Number.isFinite(snapshot.changePercent)) return null;
@@ -183,6 +255,48 @@ async function fetchMarkets(signal: AbortSignal) {
   const body = await response.json() as { provider?: unknown; markets?: ApiMarketSnapshot[] };
   if (body.provider !== "yahoo-finance") throw new Error("market-api-unavailable");
   return (body.markets ?? []).map(normalizeMarket).filter((market): market is MarketSnapshot => Boolean(market));
+}
+
+function normalizeMarketCandle(candle: ApiMarketCandle): MarketCandle | null {
+  if (typeof candle.time !== "number" || !Number.isFinite(candle.time)
+    || typeof candle.open !== "number" || !Number.isFinite(candle.open)
+    || typeof candle.high !== "number" || !Number.isFinite(candle.high)
+    || typeof candle.low !== "number" || !Number.isFinite(candle.low)
+    || typeof candle.close !== "number" || !Number.isFinite(candle.close)) return null;
+  return { time: candle.time, open: candle.open, high: candle.high, low: candle.low, close: candle.close };
+}
+
+function fetchMarketHistory(key: MarketKey) {
+  const cachedRequest = MARKET_HISTORY_REQUESTS.get(key);
+  if (cachedRequest && cachedRequest.expiresAt > Date.now()) return cachedRequest.request;
+  if (cachedRequest) MARKET_HISTORY_REQUESTS.delete(key);
+
+  const request = (async () => {
+    const endpoint = createApiEndpoint("/api/market-history", "market-api-not-configured");
+    endpoint.searchParams.set("market", key);
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error("market-history-api-unavailable");
+    const body = await response.json() as {
+      provider?: unknown;
+      market?: { key?: unknown; label?: unknown; currency?: unknown };
+      candles?: ApiMarketCandle[];
+    };
+    if (body.provider !== "yahoo-finance" || body.market?.key !== key) throw new Error("market-history-api-unavailable");
+    const candles = (body.candles ?? []).map(normalizeMarketCandle).filter((candle): candle is MarketCandle => Boolean(candle));
+    if (candles.length === 0) throw new Error("market-history-api-unavailable");
+    return {
+      key,
+      label: typeof body.market.label === "string" ? body.market.label : MARKET_DEFINITIONS.find((item) => item.key === key)?.label ?? key,
+      currency: typeof body.market.currency === "string" ? body.market.currency : undefined,
+      candles,
+      expiresAt: Date.now() + MARKET_HISTORY_BROWSER_CACHE_TTL,
+    };
+  })();
+  MARKET_HISTORY_REQUESTS.set(key, { expiresAt: Date.now() + MARKET_HISTORY_BROWSER_CACHE_TTL, request });
+  request.catch(() => {
+    if (MARKET_HISTORY_REQUESTS.get(key)?.request === request) MARKET_HISTORY_REQUESTS.delete(key);
+  });
+  return request;
 }
 
 function newsKeywords(text: string) {
@@ -276,6 +390,11 @@ function formatMarketValue(market: MarketSnapshot, definition: MarketDefinition)
   return `${definition.prefix ?? ""}${value}${definition.suffix ?? ""}`;
 }
 
+function formatCandleValue(value: number, definition: MarketDefinition) {
+  const formatted = new Intl.NumberFormat("ko-KR", { minimumFractionDigits: definition.decimals, maximumFractionDigits: definition.decimals }).format(value);
+  return `${definition.prefix ?? ""}${formatted}${definition.suffix ?? ""}`;
+}
+
 function formatMarketTime(value?: number) {
   if (!value) return "최근 기준";
   return new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(value * 1000);
@@ -292,6 +411,11 @@ function formatPublishedTime(value?: number) {
   if (elapsedMinutes < 60) return `${elapsedMinutes}분 전`;
   if (elapsedMinutes < 1440) return `${Math.floor(elapsedMinutes / 60)}시간 전`;
   return new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric" }).format(value);
+}
+
+function formatNewsletterDate(value?: number) {
+  if (!value) return "최신호 바로가기";
+  return new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(value);
 }
 
 function ArticleMeta({ article }: { article: NewsArticle }) {
@@ -358,6 +482,185 @@ function MarketSparkline({ label, values, trend }: { label: string; values: numb
   </div>;
 }
 
+function MarketCandlestickChart({ label, candles, months, definition }: { label: string; candles: MarketCandle[]; months: number; definition: MarketDefinition }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [activeCandleIndex, setActiveCandleIndex] = useState<number | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ left: 50, arrow: 50 });
+  const visibleCandles = useMemo(() => {
+    const latest = candles.at(-1);
+    if (!latest) return [];
+    const cutoff = new Date(latest.time * 1000);
+    cutoff.setUTCMonth(cutoff.getUTCMonth() - months);
+    return candles.filter((candle) => candle.time >= cutoff.getTime() / 1000);
+  }, [candles, months]);
+  const latestCandle = visibleCandles.at(-1);
+  const resolvedActiveIndex = activeCandleIndex !== null && activeCandleIndex < visibleCandles.length ? activeCandleIndex : null;
+  const activeCandle = resolvedActiveIndex === null ? undefined : visibleCandles[resolvedActiveIndex];
+  const activeCandleChangePercent = activeCandle && activeCandle.open !== 0 ? (activeCandle.close - activeCandle.open) / activeCandle.open * 100 : 0;
+
+  const selectCandle = (index: number, bounds: DOMRect) => {
+    const safeIndex = Math.max(0, Math.min(visibleCandles.length - 1, index));
+    const leftPadding = bounds.width < 520 ? 58 : 76;
+    const rightPadding = 14;
+    const plotWidth = Math.max(1, bounds.width - leftPadding - rightPadding);
+    const candleX = leftPadding + plotWidth / visibleCandles.length * (safeIndex + .5);
+    const tooltipHalfWidth = Math.min(103, bounds.width / 2);
+    const tooltipCenter = Math.max(tooltipHalfWidth, Math.min(bounds.width - tooltipHalfWidth, candleX));
+    const tooltipLeft = bounds.width === 0 ? 50 : tooltipCenter / bounds.width * 100;
+    const arrowLeft = Math.max(8, Math.min(92, (candleX - tooltipCenter + tooltipHalfWidth) / (tooltipHalfWidth * 2) * 100));
+    setActiveCandleIndex(safeIndex);
+    setTooltipPosition({ left: tooltipLeft, arrow: arrowLeft });
+  };
+
+  const selectCandleAtPosition = (clientX: number, bounds: DOMRect) => {
+    if (visibleCandles.length === 0) return;
+    const leftPadding = bounds.width < 520 ? 58 : 76;
+    const rightPadding = 14;
+    const plotWidth = Math.max(1, bounds.width - leftPadding - rightPadding);
+    const relativeX = Math.max(0, Math.min(plotWidth, clientX - bounds.left - leftPadding));
+    selectCandle(Math.min(visibleCandles.length - 1, Math.floor(relativeX / plotWidth * visibleCandles.length)), bounds);
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || visibleCandles.length === 0) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const draw = () => {
+      const bounds = canvas.getBoundingClientRect();
+      const scale = window.devicePixelRatio || 1;
+      const width = Math.max(1, bounds.width);
+      const height = Math.max(1, bounds.height);
+      canvas.width = Math.round(width * scale);
+      canvas.height = Math.round(height * scale);
+      context.setTransform(scale, 0, 0, scale, 0, 0);
+      context.clearRect(0, 0, width, height);
+
+      const padding = { top: 18, right: 14, bottom: 34, left: width < 520 ? 58 : 76 };
+      const plotWidth = Math.max(1, width - padding.left - padding.right);
+      const plotHeight = Math.max(1, height - padding.top - padding.bottom);
+      const lowest = Math.min(...visibleCandles.map((candle) => candle.low));
+      const highest = Math.max(...visibleCandles.map((candle) => candle.high));
+      const pricePadding = (highest - lowest || Math.abs(highest) * .01 || 1) * .05;
+      const minimum = lowest - pricePadding;
+      const maximum = highest + pricePadding;
+      const priceRange = maximum - minimum || 1;
+      const yFor = (value: number) => padding.top + (maximum - value) / priceRange * plotHeight;
+
+      context.font = `${width < 520 ? 11 : 12}px sans-serif`;
+      context.textAlign = "right";
+      context.textBaseline = "middle";
+      for (let index = 0; index <= 4; index += 1) {
+        const ratio = index / 4;
+        const y = padding.top + plotHeight * ratio;
+        const value = maximum - priceRange * ratio;
+        context.beginPath();
+        context.moveTo(padding.left, y);
+        context.lineTo(width - padding.right, y);
+        context.strokeStyle = "rgba(255,255,255,.1)";
+        context.lineWidth = 1;
+        context.stroke();
+        context.fillStyle = "rgba(255,255,255,.56)";
+        context.fillText(new Intl.NumberFormat("ko-KR", { notation: "compact", maximumFractionDigits: 2 }).format(value), padding.left - 6, y);
+      }
+
+      const slotWidth = plotWidth / visibleCandles.length;
+      const bodyWidth = Math.max(1, Math.min(8, slotWidth * .64));
+      visibleCandles.forEach((candle, index) => {
+        const x = padding.left + slotWidth * (index + .5);
+        const openY = yFor(candle.open);
+        const closeY = yFor(candle.close);
+        const rising = candle.close > candle.open;
+        const falling = candle.close < candle.open;
+        const color = rising ? "#ff9d81" : falling ? "#82c9ff" : "#73d5d9";
+        context.beginPath();
+        context.moveTo(x, yFor(candle.high));
+        context.lineTo(x, yFor(candle.low));
+        context.strokeStyle = color;
+        context.lineWidth = Math.max(1, Math.min(1.5, bodyWidth * .35));
+        context.stroke();
+        context.fillStyle = color;
+        context.fillRect(x - bodyWidth / 2, Math.min(openY, closeY), bodyWidth, Math.max(1.25, Math.abs(closeY - openY)));
+      });
+
+      if (resolvedActiveIndex !== null) {
+        const x = padding.left + slotWidth * (resolvedActiveIndex + .5);
+        context.beginPath();
+        context.moveTo(x, padding.top);
+        context.lineTo(x, padding.top + plotHeight);
+        context.strokeStyle = "rgba(255,255,255,.42)";
+        context.lineWidth = 1;
+        context.setLineDash([3, 4]);
+        context.stroke();
+        context.setLineDash([]);
+      }
+
+      const dateFormatter = new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric" });
+      const tickCount = Math.min(5, visibleCandles.length);
+      context.font = `${width < 520 ? 11 : 12}px sans-serif`;
+      context.fillStyle = "rgba(255,255,255,.52)";
+      context.textBaseline = "top";
+      for (let index = 0; index < tickCount; index += 1) {
+        const candleIndex = tickCount === 1 ? 0 : Math.round(index / (tickCount - 1) * (visibleCandles.length - 1));
+        const x = padding.left + slotWidth * (candleIndex + .5);
+        context.textAlign = index === 0 ? "left" : index === tickCount - 1 ? "right" : "center";
+        context.fillText(dateFormatter.format(visibleCandles[candleIndex].time * 1000), x, padding.top + plotHeight + 9);
+      }
+    };
+
+    draw();
+    const observer = new ResizeObserver(draw);
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [resolvedActiveIndex, visibleCandles]);
+
+  return <div className="economy-candlestick-wrap">
+    {latestCandle && <div className="economy-candlestick-summary" aria-label={`${label} 최근 일봉 시가 고가 저가 종가`}>
+      <span>시가 <b>{formatCandleValue(latestCandle.open, definition)}</b></span>
+      <span>고가 <b>{formatCandleValue(latestCandle.high, definition)}</b></span>
+      <span>저가 <b>{formatCandleValue(latestCandle.low, definition)}</b></span>
+      <span>종가 <b>{formatCandleValue(latestCandle.close, definition)}</b></span>
+    </div>}
+    <div className="economy-candlestick-stage">
+      {activeCandle && resolvedActiveIndex !== null && <div className={`economy-candlestick-tooltip ${activeCandle.close > activeCandle.open ? "up" : activeCandle.close < activeCandle.open ? "down" : "flat"}`} id="market-candle-tooltip" role="tooltip" style={{ left: `${tooltipPosition.left}%` }}>
+        <span className="economy-candlestick-tooltip-arrow" aria-hidden="true" style={{ left: `${tooltipPosition.arrow}%` }} />
+        <time>{new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(activeCandle.time * 1000)}</time>
+        <div><strong>{formatCandleValue(activeCandle.close, definition)}</strong><b>{formatMarketPercent(activeCandleChangePercent)}</b></div>
+        <dl><div><dt>시가</dt><dd>{formatCandleValue(activeCandle.open, definition)}</dd></div><div><dt>고가</dt><dd>{formatCandleValue(activeCandle.high, definition)}</dd></div><div><dt>저가</dt><dd>{formatCandleValue(activeCandle.low, definition)}</dd></div><div><dt>종가</dt><dd>{formatCandleValue(activeCandle.close, definition)}</dd></div></dl>
+      </div>}
+      <div className="economy-candlestick-chart" role="group" tabIndex={0} aria-label={`${label} 최근 ${months === 12 ? "1년" : `${months}개월`} 일봉 차트. 마우스나 터치 또는 방향키로 봉의 지수를 확인할 수 있습니다.`} aria-describedby={activeCandle ? "market-candle-tooltip" : undefined}
+        onPointerMove={(event) => selectCandleAtPosition(event.clientX, event.currentTarget.getBoundingClientRect())}
+        onPointerDown={(event) => selectCandleAtPosition(event.clientX, event.currentTarget.getBoundingClientRect())}
+        onPointerLeave={(event) => {
+          if (event.pointerType === "mouse") setActiveCandleIndex(null);
+        }}
+        onFocus={(event) => {
+          if (activeCandleIndex === null) selectCandle(Math.max(0, visibleCandles.length - 1), event.currentTarget.getBoundingClientRect());
+        }}
+        onBlur={() => setActiveCandleIndex(null)}
+        onKeyDown={(event) => {
+          if (visibleCandles.length === 0) return;
+          if (event.key === "Escape") {
+            setActiveCandleIndex(null);
+            return;
+          }
+          if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+          event.preventDefault();
+          const start = activeCandleIndex ?? visibleCandles.length - 1;
+          const nextIndex = event.key === "Home" ? 0
+            : event.key === "End" ? visibleCandles.length - 1
+              : event.key === "ArrowLeft" ? Math.max(0, start - 1)
+                : Math.min(visibleCandles.length - 1, start + 1);
+          selectCandle(nextIndex, event.currentTarget.getBoundingClientRect());
+        }}>
+        <canvas ref={canvasRef} aria-hidden="true" />
+      </div>
+    </div>
+    <div className="economy-candlestick-legend" aria-hidden="true"><span className="up">상승</span><span className="down">하락</span><span>일봉</span></div>
+  </div>;
+}
+
 function NewsCriteriaDetails({ type }: { type: "major" | "category" }) {
   const isMajor = type === "major";
   return <details className="economy-criteria-details">
@@ -393,6 +696,16 @@ export default function EconomyPage() {
   const [marketLoading, setMarketLoading] = useState(true);
   const [marketError, setMarketError] = useState("");
   const [marketRefreshToken, setMarketRefreshToken] = useState(0);
+  const [newsletters, setNewsletters] = useState<NewsletterItem[]>([]);
+  const [newsletterLoading, setNewsletterLoading] = useState(true);
+  const [newsletterError, setNewsletterError] = useState("");
+  const [newsletterRefreshToken, setNewsletterRefreshToken] = useState(0);
+  const [selectedMarketKey, setSelectedMarketKey] = useState<MarketKey | null>(null);
+  const [marketHistoryByKey, setMarketHistoryByKey] = useState<Partial<Record<MarketKey, MarketHistory>>>({});
+  const [marketHistoryLoading, setMarketHistoryLoading] = useState(false);
+  const [marketHistoryError, setMarketHistoryError] = useState("");
+  const [marketHistoryMonths, setMarketHistoryMonths] = useState(3);
+  const [marketHistoryRefreshToken, setMarketHistoryRefreshToken] = useState(0);
   const activeCategory = NEWS_CATEGORIES.find((category) => category.key === categoryKey) ?? NEWS_CATEGORIES[0];
 
   useEffect(() => {
@@ -429,6 +742,38 @@ export default function EconomyPage() {
     return () => controller.abort();
   }, [marketRefreshToken]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchNewsletters(controller.signal).then((nextNewsletters) => {
+      if (controller.signal.aborted) return;
+      setNewsletters(nextNewsletters);
+      setNewsletterError("");
+    }).catch(() => {
+      if (!controller.signal.aborted) setNewsletterError("뉴스레터 최신호를 불러오지 못했습니다.");
+    }).finally(() => {
+      if (!controller.signal.aborted) setNewsletterLoading(false);
+    });
+    return () => controller.abort();
+  }, [newsletterRefreshToken]);
+
+  useEffect(() => {
+    const cachedHistory = selectedMarketKey ? marketHistoryByKey[selectedMarketKey] : undefined;
+    if (!selectedMarketKey || (cachedHistory && cachedHistory.expiresAt > Date.now())) return;
+
+    let active = true;
+    fetchMarketHistory(selectedMarketKey).then((history) => {
+      if (!active) return;
+      setMarketHistoryByKey((previous) => ({ ...previous, [history.key]: history }));
+    }).catch(() => {
+      if (active) setMarketHistoryError("최근 1년 봉차트를 불러오지 못했습니다.");
+    }).finally(() => {
+      if (active) setMarketHistoryLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [marketHistoryByKey, marketHistoryRefreshToken, selectedMarketKey]);
+
   const allMajorNews = useMemo(() => [...majorNews.domestic, ...majorNews.global], [majorNews]);
   const activeMajorNews = majorNews[majorNewsRegion];
   const relatedNewsById = useMemo(() => {
@@ -453,6 +798,8 @@ export default function EconomyPage() {
   }, [chronologicalArticles, reservedNews]);
   const categoryHighlights = useMemo(() => selectDiverseNews(highlightCandidates, chronologicalArticles, 5), [chronologicalArticles, highlightCandidates]);
   const marketByKey = useMemo(() => new Map(markets.map((market) => [market.key, market])), [markets]);
+  const selectedMarketDefinition = MARKET_DEFINITIONS.find((definition) => definition.key === selectedMarketKey);
+  const selectedMarketHistory = selectedMarketKey ? marketHistoryByKey[selectedMarketKey] : undefined;
   const leadArticle = categoryHighlights[0];
   const headlineRail = categoryHighlights.slice(1, 5);
   const latestArticles = useMemo(() => {
@@ -460,6 +807,16 @@ export default function EconomyPage() {
     const candidates = chronologicalArticles.filter((article) => !hasArticleIdentity(article, usedIdentities));
     return selectChronologicalDiverseNews(candidates, 12);
   }, [categoryHighlights, chronologicalArticles, reservedNews]);
+  const handleMarketCardClick = (key: MarketKey) => {
+    if (selectedMarketKey === key) {
+      setSelectedMarketKey(null);
+      return;
+    }
+    const cachedHistory = marketHistoryByKey[key];
+    setSelectedMarketKey(key);
+    setMarketHistoryError("");
+    setMarketHistoryLoading(!cachedHistory);
+  };
 
   return (
     <main className="economy-page">
@@ -495,16 +852,61 @@ export default function EconomyPage() {
               {MARKET_DEFINITIONS.map((definition) => {
                 const market = marketByKey.get(definition.key);
                 const trend = !market || market.change === 0 ? "flat" : market.change > 0 ? "up" : "down";
-                return <article className={`economy-market-card ${trend}`} key={definition.key}>
-                  <span>{definition.label}</span>
-                  <div className="economy-market-value-row">
-                    <strong>{market ? formatMarketValue(market, definition) : "—"}</strong>
-                    <MarketSparkline label={definition.label} values={market?.sparkline ?? []} trend={trend} />
-                  </div>
-                  <div className="economy-market-meta"><b>{market ? formatMarketPercent(market.changePercent) : marketLoading ? "조회 중" : "정보 없음"}</b><time>{market ? formatMarketTime(market.marketTime) : ""}</time></div>
+                const selected = selectedMarketKey === definition.key;
+                return <article className={`economy-market-card ${trend}${selected ? " selected" : ""}`} key={definition.key}>
+                  <button type="button" className="economy-market-card-button" disabled={!market} aria-expanded={selected} aria-controls="market-history-panel" aria-label={`${definition.label} 최근 1년 봉차트 보기`} onClick={() => handleMarketCardClick(definition.key)}>
+                    <span>{definition.label}</span>
+                    <div className="economy-market-value-row">
+                      <strong>{market ? formatMarketValue(market, definition) : "—"}</strong>
+                      <MarketSparkline label={definition.label} values={market?.sparkline ?? []} trend={trend} />
+                    </div>
+                    <div className="economy-market-meta"><b>{market ? formatMarketPercent(market.changePercent) : marketLoading ? "조회 중" : "정보 없음"}</b><time>{market ? formatMarketTime(market.marketTime) : ""}</time></div>
+                  </button>
                 </article>;
               })}
             </div>
+            {selectedMarketKey && selectedMarketDefinition && <section className="economy-market-history-panel" id="market-history-panel" aria-labelledby="market-history-heading" aria-busy={marketHistoryLoading}>
+              <div className="economy-market-history-heading">
+                <div><small>DAILY CANDLE</small><h2 id="market-history-heading">{selectedMarketDefinition.label} 봉차트</h2><p>최근 1년 일봉 데이터에서 조회 기간을 조절할 수 있습니다.</p></div>
+                <button type="button" aria-label="봉차트 닫기" onClick={() => setSelectedMarketKey(null)}>닫기</button>
+              </div>
+              <div className="economy-market-history-controls">
+                <label htmlFor="market-history-range">조회 기간 <output htmlFor="market-history-range">{marketHistoryMonths === 12 ? "1년" : `${marketHistoryMonths}개월`}</output></label>
+                <input id="market-history-range" type="range" min="1" max="12" step="1" value={marketHistoryMonths} onChange={(event) => setMarketHistoryMonths(Number(event.target.value))} />
+                <div aria-hidden="true"><span>1개월</span><span>6개월</span><span>1년</span></div>
+              </div>
+              {marketHistoryLoading && !selectedMarketHistory && <div className="economy-market-history-state" aria-live="polite"><span />최근 1년 일봉을 불러오는 중입니다.</div>}
+              {!marketHistoryLoading && marketHistoryError && <div className="economy-market-history-state error"><p>{marketHistoryError}</p><button type="button" onClick={() => {
+                MARKET_HISTORY_REQUESTS.delete(selectedMarketKey);
+                setMarketHistoryError("");
+                setMarketHistoryLoading(true);
+                setMarketHistoryRefreshToken((value) => value + 1);
+              }}>다시 불러오기</button></div>}
+              {selectedMarketHistory && <MarketCandlestickChart key={`${selectedMarketKey}-${marketHistoryMonths}`} label={selectedMarketDefinition.label} candles={selectedMarketHistory.candles} months={marketHistoryMonths} definition={selectedMarketDefinition} />}
+              <p className="economy-market-history-note">상승은 주황색, 하락은 파란색으로 표시됩니다. 데이터는 지표별로 캐시되어 같은 지표를 다시 열 때 재요청하지 않습니다.</p>
+            </section>}
+          </section>
+
+          <section className="economy-newsletter-panel" aria-labelledby="newsletter-heading" aria-busy={newsletterLoading}>
+            <div className="economy-newsletter-heading">
+              <div><small>DAILY NEWSLETTER</small><h2 id="newsletter-heading">오늘의 뉴스레터</h2><p>구독 중인 경제 뉴스레터의 가장 최근 발행호를 모았습니다.</p></div>
+              <span>평일 오전 8시 갱신</span>
+            </div>
+            {newsletterLoading && newsletters.length === 0 && <div className="economy-newsletter-loading" aria-label="뉴스레터 최신호 불러오는 중">{Array.from({ length: 5 }, (_, index) => <div key={index} />)}</div>}
+            {!newsletterLoading && newsletterError && newsletters.length === 0 && <div className="economy-newsletter-state"><strong>뉴스레터 최신호를 불러오지 못했습니다.</strong><button type="button" onClick={() => {
+              setNewsletterLoading(true);
+              setNewsletterError("");
+              setNewsletterRefreshToken((value) => value + 1);
+            }}>다시 불러오기</button></div>}
+            {newsletters.length > 0 && <div className="economy-newsletter-grid">
+              {newsletters.map((item) => <a className={`economy-newsletter-card ${item.key}`} href={item.url} target="_blank" rel="noopener noreferrer" key={item.key}>
+                <div className="economy-newsletter-meta"><span>{item.publisher}</span>{item.publishedAt && <time dateTime={new Date(item.publishedAt).toISOString()}>{formatNewsletterDate(item.publishedAt)}</time>}</div>
+                <small>{item.newsletter}</small>
+                <h3>{item.title}</h3>
+                <p>{item.summary}</p>
+                <b>최신호 읽기 <span aria-hidden="true">↗</span></b>
+              </a>)}
+            </div>}
           </section>
 
           <section className="economy-topnews-panel" aria-labelledby="topnews-heading" aria-busy={loading && activeMajorNews.length === 0}>

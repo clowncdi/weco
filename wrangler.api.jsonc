@@ -8,5 +8,8 @@
   "keep_vars": true,
   "vars": {
     "ALLOWED_ORIGINS": "https://weaco.co.kr"
+  },
+  "triggers": {
+    "crons": ["0 23 * * SUN-THU"]
   }
 }
