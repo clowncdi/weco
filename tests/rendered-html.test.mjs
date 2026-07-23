@@ -24,6 +24,57 @@ test("exports the weather page as static HTML", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
+test("builds a rolling 30-day weather view with vertical desktop columns and mobile scrolling", async () => {
+  const [weatherSource, styles] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(weatherSource, /Array[.]from[(]\{ length: 30 \}/);
+  assert.match(weatherSource, /rollingComparisonDates[(]today, year[)]/);
+  assert.match(weatherSource, /rolling-30-/);
+  assert.match(weatherSource, /past_days: "14"/);
+  assert.match(weatherSource, /forecast_days: "16"/);
+  assert.match(weatherSource, /comparisonStartOffset = -14/);
+  assert.match(weatherSource, /comparisonEndOffset = 15/);
+  assert.match(weatherSource, /comparisonDayCount = 30/);
+  assert.match(weatherSource, /referenceIndex = 14/);
+  assert.match(weatherSource, /rollingDaily/);
+  assert.match(weatherSource, />30일 날씨</);
+  assert.match(weatherSource, /data-today=/);
+  assert.match(weatherSource, /grid[.]scrollTop = todayRow[.]offsetTop/);
+  assert.match(weatherSource, /aria-label="오늘과 내일 시간별 예보"/);
+  assert.doesNotMatch(weatherSource, /TODAY &amp; TOMORROW|오늘부터 내일까지|hero-hourly-head/);
+  assert.match(styles, /grid-template-rows:repeat[(]10,minmax[(]59px,auto[)][)]/);
+  assert.match(styles, /grid-auto-flow:column/);
+  assert.match(styles, /max-height:560px/);
+  assert.match(styles, /overflow-y:auto/);
+  assert.match(styles, /[.]date-comparison-grid \{ grid-template-columns:minmax[(]0,1fr[)]; \}/);
+  assert.match(styles, /[.]date-comparison-grid>button:last-child \{ border-bottom:0; \}/);
+  assert.match(styles, /[.]monthly-detail-date>small \{ display:none; \}/);
+  assert.match(styles, /[.]monthly-detail-date strong,\s*[.]monthly-detail-date time \{ line-height:1[.]1; \}/);
+  assert.match(styles, /min-height:850px/);
+  assert.match(styles, /min-height:860px/);
+  assert.doesNotMatch(weatherSource, /monthly-detail-focus/);
+  assert.match(weatherSource, /className="weather-location-detail"/);
+  assert.match(weatherSource, /className="weather-observation-label"/);
+  assert.match(weatherSource, /className="monthly-detail-weekday"/);
+  assert.match(weatherSource, /30일 평균 최고기온이 가장 높은 해/);
+  assert.match(weatherSource, /30일 누적 강수량이 가장 많은 해/);
+  assert.match(weatherSource, /completeHistoricalRainSummaries/);
+  assert.match(weatherSource, /item[.]year !== currentYear/);
+  assert.match(weatherSource, /올해 관측 \+ 예보 강수량/);
+  assert.match(weatherSource, /완료된 과거 연도끼리 비교/);
+  assert.match(weatherSource, /과거 14일 기록 \+ 오늘·향후 15일 예보/);
+  assert.match(weatherSource, /관측\+예보 강수/);
+  assert.doesNotMatch(weatherSource, /월 전체 자료|월말 예보/);
+  assert.match(styles, /[.]weather-location-detail,\s*[.]weather-location-separator \{ display:none; \}/);
+  assert.match(styles, /[.]weather-date-pill>span \{ display:none; \}/);
+  assert.match(styles, /flex:0 0 auto/);
+  assert.match(styles, /min-width:max-content/);
+  assert.doesNotMatch(styles, /inset 3px 0 0 var[(]--teal[)]/);
+});
+
 test("exports the economy news page with its primary sections", async () => {
   const html = await readFile(new URL("economy/index.html", outputRoot), "utf8");
 

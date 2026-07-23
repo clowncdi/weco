@@ -56,8 +56,10 @@ type OpenMeteoHourly = {
 type YearWeather = {
   year: number;
   daily: Daily;
+  rollingDaily?: Daily;
   source: "archive" | "current";
   provenance?: ForecastProvider[];
+  rollingProvenance?: ForecastProvider[];
   kmaConnected?: boolean;
   warnings?: KmaWarning[];
   warningsConnected?: boolean;
@@ -289,9 +291,15 @@ function shiftedDate(year: number, month: number, day: number, offset: number) {
   return base;
 }
 
-function monthDates(year: number, month: number) {
-  const days = new Date(Date.UTC(year, month + 1, 0, 12)).getUTCDate();
-  return Array.from({ length: days }, (_, index) => iso(new Date(Date.UTC(year, month, index + 1, 12))));
+function comparisonAnchorDate(today: Date, year: number) {
+  const month = today.getUTCMonth();
+  const lastDay = new Date(Date.UTC(year, month + 1, 0, 12)).getUTCDate();
+  return new Date(Date.UTC(year, month, Math.min(today.getUTCDate(), lastDay), 12));
+}
+
+function rollingComparisonDates(today: Date, year: number) {
+  const anchor = comparisonAnchorDate(today, year);
+  return Array.from({ length: 30 }, (_, index) => iso(shiftedDate(anchor.getUTCFullYear(), anchor.getUTCMonth(), anchor.getUTCDate(), index - 14)));
 }
 
 function alignDailyToDates(daily: Daily, dates: string[]): Daily {
@@ -491,8 +499,8 @@ function dustGrade(value: number | undefined, kind: "pm10" | "pm25") {
   return { label: "매우 나쁨", className: "very-bad" };
 }
 
-async function fetchArchiveYear(region: Region, year: number, month: number): Promise<YearWeather> {
-  const dates = monthDates(year, month);
+async function fetchArchiveYear(region: Region, year: number, today: Date): Promise<YearWeather> {
+  const dates = rollingComparisonDates(today, year);
   const start = dates[0];
   const end = dates[dates.length - 1];
   const shared = {
@@ -527,10 +535,9 @@ async function fetchArchiveYear(region: Region, year: number, month: number): Pr
   return { year, daily: { ...land.daily, precipitation_sum: precipitation }, source: "archive" };
 }
 
-async function fetchCurrentYear(region: Region, regionIndex: number, year: number, month: number, useCoordinateWeather: boolean): Promise<YearWeather> {
+async function fetchCurrentYear(region: Region, regionIndex: number, year: number, useCoordinateWeather: boolean): Promise<YearWeather> {
   const now = seoulToday();
-  const dates = monthDates(year, month);
-  const forecastDays = Math.min(16, dates.length - now.getUTCDate() + 1);
+  const rollingDates = rollingComparisonDates(now, year);
   const kmaParams = new URLSearchParams({ region: String(regionIndex) });
   if (useCoordinateWeather) {
     kmaParams.set("lat", region.lat.toFixed(2));
@@ -539,8 +546,8 @@ async function fetchCurrentYear(region: Region, regionIndex: number, year: numbe
   const params = new URLSearchParams({
     latitude: String(region.lat),
     longitude: String(region.lon),
-    past_days: String(Math.max(0, now.getUTCDate() - 1)),
-    forecast_days: String(Math.max(1, forecastDays)),
+    past_days: "14",
+    forecast_days: "16",
     current: "temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m",
     daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration,wind_speed_10m_max",
     hourly: "temperature_2m,weather_code,precipitation_probability,precipitation",
@@ -557,15 +564,15 @@ async function fetchCurrentYear(region: Region, regionIndex: number, year: numbe
   if (!json.daily && !kma?.days?.length && !kma?.currentConditions) {
     throw new Error("현재 날씨와 예보를 불러오지 못했습니다.");
   }
-  const unavailable = dates.map(() => Number.NaN);
-  const daily = json.daily ? alignDailyToDates(json.daily, dates) : {
-    time: dates,
-    temperature_2m_max: [...unavailable],
-    temperature_2m_min: [...unavailable],
-    precipitation_sum: [...unavailable],
-    sunshine_duration: [...unavailable],
-    wind_speed_10m_max: [...unavailable],
-    weather_code: [...unavailable],
+  const rollingUnavailable = rollingDates.map(() => Number.NaN);
+  const rollingDaily = json.daily ? alignDailyToDates(json.daily, rollingDates) : {
+    time: rollingDates,
+    temperature_2m_max: [...rollingUnavailable],
+    temperature_2m_min: [...rollingUnavailable],
+    precipitation_sum: [...rollingUnavailable],
+    sunshine_duration: [...rollingUnavailable],
+    wind_speed_10m_max: [...rollingUnavailable],
+    weather_code: [...rollingUnavailable],
   };
   const today = iso(now);
   const fallbackHourly = (json.hourly?.time ?? []).map((value, index) => ({
@@ -581,19 +588,20 @@ async function fetchCurrentYear(region: Region, regionIndex: number, year: numbe
   for (const hour of fallbackHourly) hourlyByTime.set(`${hour.date}-${hour.time}`, hour);
   for (const hour of kma?.hourly ?? []) hourlyByTime.set(`${hour.date}-${hour.time}`, hour);
   const hourlyForecast = [...hourlyByTime.values()].sort((a, b) => `${a.date}-${a.time}`.localeCompare(`${b.date}-${b.time}`));
-  const provenance: ForecastProvider[] = daily.time.map((date) => {
+  const rollingProvenance: ForecastProvider[] = rollingDaily.time.map((date) => {
     if (date < today) return "history";
     return json.daily?.time.includes(date) ? "open-meteo" : "unavailable";
   });
   for (const day of kma?.days ?? []) {
-    const index = daily.time.indexOf(day.date);
-    if (index < 0 || day.date < today) continue;
-    if (day.high !== undefined) daily.temperature_2m_max[index] = day.high;
-    if (day.low !== undefined) daily.temperature_2m_min[index] = day.low;
-    if (day.precipitation !== undefined) daily.precipitation_sum[index] = day.precipitation;
-    if (day.weatherCode !== undefined) daily.weather_code[index] = day.weatherCode;
-    if (day.wind !== undefined) daily.wind_speed_10m_max[index] = day.wind;
-    provenance[index] = day.provider;
+    if (day.date < today) continue;
+    const index = rollingDaily.time.indexOf(day.date);
+    if (index < 0) continue;
+    if (day.high !== undefined) rollingDaily.temperature_2m_max[index] = day.high;
+    if (day.low !== undefined) rollingDaily.temperature_2m_min[index] = day.low;
+    if (day.precipitation !== undefined) rollingDaily.precipitation_sum[index] = day.precipitation;
+    if (day.weatherCode !== undefined) rollingDaily.weather_code[index] = day.weatherCode;
+    if (day.wind !== undefined) rollingDaily.wind_speed_10m_max[index] = day.wind;
+    rollingProvenance[index] = day.provider;
   }
   const coordinateCurrentConditions: KmaCurrentConditions | undefined = json.current ? {
     temperature: json.current.temperature_2m,
@@ -605,9 +613,11 @@ async function fetchCurrentYear(region: Region, regionIndex: number, year: numbe
   } : undefined;
   return {
     year,
-    daily,
+    daily: rollingDaily,
+    rollingDaily,
     source: "current",
-    provenance,
+    provenance: rollingProvenance,
+    rollingProvenance,
     kmaConnected: Boolean(kma?.days?.length || kma?.hourly?.length || kma?.currentConditions),
     warnings: kma?.warnings ?? [],
     warningsConnected: Boolean(kma?.warningsConnected),
@@ -622,7 +632,7 @@ function fetchCurrentWeather(region: Region, regionIndex: number, today: Date, u
   const cached = CURRENT_WEATHER_REQUESTS.get(key);
   if (cached) return cached;
 
-  const request = fetchCurrentYear(region, regionIndex, today.getUTCFullYear(), today.getUTCMonth(), useCoordinateWeather);
+  const request = fetchCurrentYear(region, regionIndex, today.getUTCFullYear(), useCoordinateWeather);
   CURRENT_WEATHER_REQUESTS.set(key, request);
   void request.catch(() => {
     if (CURRENT_WEATHER_REQUESTS.get(key) === request) CURRENT_WEATHER_REQUESTS.delete(key);
@@ -631,7 +641,7 @@ function fetchCurrentWeather(region: Region, regionIndex: number, today: Date, u
 }
 
 function fetchHistoricalWeather(region: Region, regionIndex: number, years: number[], today: Date) {
-  const key = `${regionIndex}-${today.getUTCFullYear()}-${today.getUTCMonth()}`;
+  const key = `rolling-30-${regionIndex}-${iso(today)}`;
   const cached = HISTORICAL_WEATHER_REQUESTS.get(key);
   if (cached) return cached;
 
@@ -645,7 +655,7 @@ function fetchHistoricalWeather(region: Region, regionIndex: number, years: numb
   const request = (async () => {
     const data: YearWeather[] = [];
     for (const year of years) {
-      if (year !== today.getUTCFullYear()) data.push(await fetchArchiveYear(region, year, today.getUTCMonth()));
+      if (year !== today.getUTCFullYear()) data.push(await fetchArchiveYear(region, year, today));
     }
     return data;
   })();
@@ -683,6 +693,7 @@ export default function Home() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState("");
   const dashboardRef = useRef<HTMLElement>(null);
+  const monthlyDetailGridRef = useRef<HTMLDivElement>(null);
   const initialLocationRequestRef = useRef(false);
 
   const today = useMemo(() => seoulToday(), []);
@@ -695,15 +706,12 @@ export default function Home() {
     lat: locationWeatherPoint.lat,
     lon: locationWeatherPoint.lon,
   } : baseRegion, [baseRegion, locationWeatherPoint, usesCurrentLocation]);
-  const rangeStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1, 12));
-  const rangeEnd = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0, 12));
-  const monthDayCount = rangeEnd.getUTCDate();
-  const monthStartOffset = 1 - today.getUTCDate();
-  const monthEndOffset = monthDayCount - today.getUTCDate();
-  const referenceIndex = today.getUTCDate() - 1;
+  const comparisonStartOffset = -14;
+  const comparisonEndOffset = 15;
+  const comparisonDayCount = 30;
+  const referenceIndex = 14;
   const comparisonIndex = referenceIndex + selectedDayOffset;
   const comparisonDate = shiftedDate(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), selectedDayOffset);
-  const monthLabel = `${today.getUTCMonth() + 1}월`;
   const selectRegion = useCallback((nextRegionIndex: number, forceReload = false) => {
     if (nextRegionIndex === regionIndex && !forceReload) return;
     setHistoryRequested(false);
@@ -830,17 +838,21 @@ export default function Home() {
     };
   });
 
+  const currentYear = today.getUTCFullYear();
   const completeSummaries = summaries.filter((item) => item.availableDays === item.totalDays);
   const completeTemperatureSummaries = summaries.filter((item) => item.temperatureAvailableDays === item.totalDays);
   const completeRainSummaries = summaries.filter((item) => item.rainAvailableDays === item.totalDays);
   const temperatureRankable = completeTemperatureSummaries.length ? completeTemperatureSummaries : summaries.filter((item) => Number.isFinite(item.high));
-  const rainRankable = completeRainSummaries.length ? completeRainSummaries : summaries.filter((item) => Number.isFinite(item.rain));
+  const completeHistoricalRainSummaries = completeRainSummaries.filter((item) => item.year !== currentYear);
+  const rainRankable = completeHistoricalRainSummaries;
   const warmest = temperatureRankable.length ? temperatureRankable.reduce((a, b) => a.high > b.high ? a : b) : null;
   const wettest = rainRankable.length ? rainRankable.reduce((a, b) => a.rain > b.rain ? a : b) : null;
-  const hasHistoricalRain = summaries.some((item) => item.year !== today.getUTCFullYear() && item.rainAvailableDays > 0);
-  const comparisonRangeLabel = `${formatMonthDay(rangeStart)}–${formatMonthDay(rangeEnd)}`;
+  const currentRainEstimate = summaries.find((item) => item.year === currentYear && Number.isFinite(item.rain));
+  const hasHistoricalRain = completeHistoricalRainSummaries.length > 0;
+  const comparisonDates = rollingComparisonDates(today, currentYear);
+  const comparisonRangeLabel = `${formatMonthDay(new Date(`${comparisonDates[0]}T12:00:00Z`))}–${formatMonthDay(new Date(`${comparisonDates[comparisonDates.length - 1]}T12:00:00Z`))}`;
   const active = weather.find((item) => item.year === selectedYear) ?? weather[0];
-  const lineChartDayCount = Math.max(monthDayCount, ...weather.map((item) => item.daily.time.length));
+  const lineChartDayCount = Math.max(comparisonDayCount, ...weather.map((item) => item.daily.time.length));
   const lineChartValues = weather.flatMap((item) => [...item.daily.temperature_2m_max, ...item.daily.temperature_2m_min]).filter(Number.isFinite);
   const lineChartMin = lineChartValues.length ? Math.floor((Math.min(...lineChartValues) - 2) / 5) * 5 : 0;
   const lineChartMax = lineChartValues.length ? Math.max(lineChartMin + 5, Math.ceil((Math.max(...lineChartValues) + 2) / 5) * 5) : 5;
@@ -848,16 +860,17 @@ export default function Home() {
   const lineChartSeries = weather.map((item, index) => ({ item, index })).sort((a, b) => Number(a.item.year === active?.year) - Number(b.item.year === active?.year));
   const comparisonReady = years.every((year) => weather.some((item) => item.year === year));
   const currentWeather = weather.find((item) => item.year === today.getUTCFullYear());
+  const currentDaily = currentWeather?.rollingDaily ?? currentWeather?.daily;
   const currentWarnings = currentWeather?.warnings ?? [];
-  const currentDayIndex = currentWeather?.daily.time.indexOf(iso(today)) ?? -1;
+  const currentDayIndex = currentDaily?.time.indexOf(iso(today)) ?? -1;
   const rawHourlyForecast = currentWeather?.hourlyForecast ?? [];
   const firstTodayForecast = rawHourlyForecast.find((hour) => hour.date === iso(today));
   const currentConditionCode = currentWeather?.currentConditions?.weatherCode
     ?? firstTodayForecast?.weatherCode
-    ?? (currentWeather && currentDayIndex >= 0 ? currentWeather.daily.weather_code[currentDayIndex] : Number.NaN);
+    ?? (currentDaily && currentDayIndex >= 0 ? currentDaily.weather_code[currentDayIndex] : Number.NaN);
   const currentDayCondition = currentWeather && currentDayIndex >= 0 ? condition(currentConditionCode) : null;
-  const currentTemperatureDifference = currentWeather && currentDayIndex > 0
-    ? currentWeather.daily.temperature_2m_max[currentDayIndex] - currentWeather.daily.temperature_2m_max[currentDayIndex - 1]
+  const currentTemperatureDifference = currentDaily && currentDayIndex > 0
+    ? currentDaily.temperature_2m_max[currentDayIndex] - currentDaily.temperature_2m_max[currentDayIndex - 1]
     : Number.NaN;
   const currentTemperatureTrend = currentTemperatureDifference > 0.4 ? "warmer" : currentTemperatureDifference < -0.4 ? "cooler" : "similar";
   const currentFeelsLike = feelsLikeTemperature(
@@ -902,23 +915,38 @@ export default function Home() {
     else forecast.unshift(currentObservation);
     return forecast;
   })();
-  const hourlyProvider = hourlyForecast[0]?.provider;
   const hourlyForecastDays = [
     { date: todayDate, label: "오늘" },
     { date: tomorrowDate, label: "내일" },
   ];
-  const monthlyDetailDays = (currentWeather?.daily.time ?? []).map((date, index) => {
-    const fallbackCode = currentWeather?.daily.weather_code[index] ?? Number.NaN;
+  const monthlyDaily = currentWeather?.rollingDaily ?? currentWeather?.daily;
+  const monthlyProvenance = currentWeather?.rollingProvenance ?? currentWeather?.provenance ?? [];
+  const monthlyDetailDays = (monthlyDaily?.time ?? []).map((date, index) => {
+    const fallbackCode = monthlyDaily?.weather_code[index] ?? Number.NaN;
     return {
       date,
       index,
       weekday: weekdayFromIso(date),
       morning: forecastPeriodSummary(rawHourlyForecast, date, 0, 11, 9, fallbackCode),
       afternoon: forecastPeriodSummary(rawHourlyForecast, date, 12, 23, 15, fallbackCode),
+      provider: monthlyProvenance[index],
       isToday: date === todayDate,
       isTomorrow: date === tomorrowDate,
     };
   });
+  const monthlyRangeLabel = monthlyDetailDays.length
+    ? `${formatMonthDay(new Date(`${monthlyDetailDays[0].date}T12:00:00Z`))}–${formatMonthDay(new Date(`${monthlyDetailDays[monthlyDetailDays.length - 1].date}T12:00:00Z`))}`
+    : "";
+
+  useEffect(() => {
+    const grid = monthlyDetailGridRef.current;
+    if (!grid || !window.matchMedia("(max-width: 680px)").matches) return;
+    const frame = window.requestAnimationFrame(() => {
+      const todayRow = grid.querySelector<HTMLElement>('[data-today="true"]');
+      if (todayRow) grid.scrollTop = todayRow.offsetTop;
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [currentWeather, todayDate]);
   const hourlyTemperatures = hourlyForecast.map((hour) => hour.temperature ?? Number.NaN);
   const finiteHourlyTemperatures = hourlyTemperatures.filter(Number.isFinite);
   const hourlyTemperatureMin = finiteHourlyTemperatures.length ? Math.floor(Math.min(...finiteHourlyTemperatures) - 1) : 0;
@@ -964,7 +992,7 @@ export default function Home() {
             <div>
               <p className="weather-kicker">CURRENT WEATHER</p>
               <h1>{region.name}</h1>
-              <p className="weather-location-basis">날씨 기준 · {region.referenceArea}<span>· {observationLabel}</span></p>
+              <p className="weather-location-basis"><span className="weather-location-detail">날씨 기준 · {region.referenceArea}</span><span className="weather-location-separator" aria-hidden="true">·</span><span className="weather-observation-label">{observationLabel}</span></p>
             </div>
             <div className="weather-date-pill"><strong>{formatKoreanDate(today)}</strong><span>{currentWeather?.kmaConnected ? usesCurrentLocation ? "기상청 현재 위치 예보" : "기상청 관측·예보" : usesCurrentLocation ? "현재 위치 보조 예보" : "보조 예보"}</span></div>
           </div>
@@ -981,14 +1009,14 @@ export default function Home() {
                     <span className="weather-feels-like" title="현재 기온·습도·풍속을 기상청 체감온도 산식에 적용한 값">체감 <b>{num(currentFeelsLike)}°</b></span>
                   </div>
                 </div>
-                <div className="weather-now-extremes"><span>최고 <b>{num(currentWeather.daily.temperature_2m_max[currentDayIndex])}°</b></span><span>최저 <b>{num(currentWeather.daily.temperature_2m_min[currentDayIndex])}°</b></span></div>
+                <div className="weather-now-extremes"><span>최고 <b>{num(currentDaily?.temperature_2m_max[currentDayIndex] ?? Number.NaN)}°</b></span><span>최저 <b>{num(currentDaily?.temperature_2m_min[currentDayIndex] ?? Number.NaN)}°</b></span></div>
                 {Number.isFinite(currentTemperatureDifference) && <p className={`weather-now-trend ${currentTemperatureTrend}`}>{temperatureDifferenceLabel(currentTemperatureDifference, today)} <small>· 낮 최고 기준</small></p>}
               </div>
 
               <div className="weather-metric-grid">
                 <article><small>현재 습도</small><strong>{num(currentWeather.currentConditions?.humidity ?? Number.NaN, 0)}%</strong><span>공기 중 수분</span></article>
-                <article><small>예상 강수량</small><strong>{num(currentWeather.daily.precipitation_sum[currentDayIndex])}<em>mm</em></strong><span>오늘 누적 예보</span></article>
-                <article><small>최대 풍속</small><strong>{num(currentWeather.daily.wind_speed_10m_max[currentDayIndex])}<em>km/h</em></strong><span>오늘 예상 최대</span></article>
+                <article><small>예상 강수량</small><strong>{num(currentDaily?.precipitation_sum[currentDayIndex] ?? Number.NaN)}<em>mm</em></strong><span>오늘 누적 예보</span></article>
+                <article><small>최대 풍속</small><strong>{num(currentDaily?.wind_speed_10m_max[currentDayIndex] ?? Number.NaN)}<em>km/h</em></strong><span>오늘 예상 최대</span></article>
                 <article className="weather-air-card" aria-label="현재 대기질">
                   <div className="air-quality-pair">
                     <div className="air-quality-item"><small>미세먼지 <em>PM10</em></small><div className="air-quality-reading"><strong className={pm10Grade.className}>{pm10Grade.label}</strong><span>{num(currentWeather.airQuality?.pm10 ?? Number.NaN, 0)} <em>㎍/㎥</em></span></div></div>
@@ -998,8 +1026,7 @@ export default function Home() {
               </div>
             </div>
 
-            <section className="hero-hourly" aria-labelledby="hourly-forecast-heading">
-              <div className="hero-hourly-head"><div><small>TODAY &amp; TOMORROW</small><h2 id="hourly-forecast-heading">오늘부터 내일까지</h2></div><span>{hourlyProvider ? `${usesCurrentLocation ? "현재 위치 · " : ""}${providerLabel(hourlyProvider)}` : "예보 준비 중"}</span></div>
+            <section className="hero-hourly" aria-label="오늘과 내일 시간별 예보">
               {hourlyForecast.length > 0 ? <div className="hourly-forecast-scroll">
                 <div className="hourly-forecast-track" style={{ width: `${hourlyForecastChartWidth}px` }}>
                   <div className="hourly-day-markers">
@@ -1039,26 +1066,29 @@ export default function Home() {
         <section className="monthly-detail-panel" aria-labelledby="monthly-detail-heading">
           <div className="monthly-detail-head">
             <div>
-              <small>MONTHLY VIEW</small>
-              <h2 id="monthly-detail-heading">월간 날씨 예보</h2>
+              <small>30-DAY WEATHER</small>
+              <h2 id="monthly-detail-heading">30일 날씨</h2>
             </div>
-            <div className="monthly-detail-basis"><strong>{monthLabel} · {monthlyDetailDays.length}일</strong><span>기상청 예보 우선 · 보조 자료 포함</span></div>
+            <div className="monthly-detail-basis"><strong>{monthlyRangeLabel} · {monthlyDetailDays.length}일</strong><span>지난 날씨 14일 · 오늘 · 앞으로 15일</span></div>
           </div>
-          <div className="monthly-detail-grid">
+          <div className="monthly-detail-grid" ref={monthlyDetailGridRef} tabIndex={0} aria-label="오늘 기준 30일 날씨 목록">
             {monthlyDetailDays.map((item) => {
               const [, month, day] = item.date.split("-").map(Number);
-              const low = currentWeather.daily.temperature_2m_min[item.index];
-              const high = currentWeather.daily.temperature_2m_max[item.index];
+              const low = monthlyDaily?.temperature_2m_min[item.index] ?? Number.NaN;
+              const high = monthlyDaily?.temperature_2m_max[item.index] ?? Number.NaN;
               const dayLabel = item.isToday ? "오늘" : item.isTomorrow ? "내일" : item.weekday;
+              const isPast = item.date < todayDate;
               return (
                 <article
                   key={item.date}
-                  className={`${item.isToday ? "today" : ""} ${item.isTomorrow ? "tomorrow" : ""} ${item.weekday === "일" ? "sunday" : ""} ${item.date < todayDate ? "past" : "forecast"}`}
+                  data-today={item.isToday || undefined}
+                  className={`${item.isToday ? "today" : ""} ${item.isTomorrow ? "tomorrow" : ""} ${item.weekday === "일" ? "sunday" : ""} ${isPast ? "past" : "forecast"}`}
                   aria-label={`${dayLabel} ${month}월 ${day}일, 최저 ${num(low)}도, 최고 ${num(high)}도`}
                 >
                   <div className="monthly-detail-date">
-                    <strong>{dayLabel}</strong>
+                    <strong>{dayLabel}{(item.isToday || item.isTomorrow) && <em className="monthly-detail-weekday">{item.weekday}</em>}</strong>
                     <time dateTime={item.date}>{month}.{day}.</time>
+                    <small title={providerLabel(item.provider, item.isToday)}>{isPast ? "기록" : "예보"}</small>
                   </div>
                   <div className="monthly-detail-period">
                     <span><small>오전</small><b>{Number.isFinite(item.morning.probability) ? `${num(item.morning.probability, 0)}%` : "—"}</b></span>
@@ -1073,7 +1103,8 @@ export default function Home() {
               );
             })}
           </div>
-          <p className="monthly-detail-note">오전·오후 강수확률과 날씨는 시간별 예보를 요약하며, 지난 날짜 또는 시간별 자료가 없는 날은 일별 날씨와 실제 강수 자료를 기준으로 표시합니다.</p>
+          <span className="monthly-detail-scroll-hint">↕ 목록을 위아래로 밀어 30일 날씨를 확인하세요.</span>
+          <p className="monthly-detail-note">오늘 이후는 기상청 단기·중기 예보를 우선하고 부족한 기간은 보조 예보로 채웁니다. 지난 날짜는 일별 기록을 표시합니다.</p>
         </section>
       )}
 
@@ -1100,9 +1131,9 @@ export default function Home() {
                   <h3 id="date-comparison-heading">{formatKoreanDate(comparisonDate)} 연도별 비교</h3>
                 </div>
                 <div className="date-controls" aria-label="비교 날짜 이동">
-                  <button type="button" onClick={() => setSelectedDayOffset((offset) => Math.max(monthStartOffset, offset - 1))} disabled={selectedDayOffset === monthStartOffset} aria-label="이전 날짜">← 이전</button>
+                  <button type="button" onClick={() => setSelectedDayOffset((offset) => Math.max(comparisonStartOffset, offset - 1))} disabled={selectedDayOffset === comparisonStartOffset} aria-label="이전 날짜">← 이전</button>
                   <button type="button" className={selectedDayOffset === 0 ? "active" : ""} onClick={() => setSelectedDayOffset(0)}>오늘</button>
-                  <button type="button" onClick={() => setSelectedDayOffset((offset) => Math.min(monthEndOffset, offset + 1))} disabled={selectedDayOffset === monthEndOffset} aria-label="다음 날짜">다음 →</button>
+                  <button type="button" onClick={() => setSelectedDayOffset((offset) => Math.min(comparisonEndOffset, offset + 1))} disabled={selectedDayOffset === comparisonEndOffset} aria-label="다음 날짜">다음 →</button>
                 </div>
               </div>
               <div className="date-comparison-grid">
@@ -1137,24 +1168,30 @@ export default function Home() {
 
             <div className={`insight-row ${hasHistoricalRain ? "" : "no-rain"}`}>
               {hasHistoricalRain && warmest && wettest && <><article className="insight-card coral">
-                <small>{monthLabel} 월평균 최고기온이 가장 높은 해</small>
+                <small>30일 평균 최고기온이 가장 높은 해</small>
                 <strong>{num(warmest.high)}<em>°C</em></strong>
-                <span>{warmest.year}년 · 월 전체 자료</span>
+                <span>{warmest.year}년 · 30일 비교 자료</span>
                 <p>{comparisonRangeLabel}의 일 최고기온 평균</p>
               </article>
               <article className="insight-card blue">
-                <small>{monthLabel} 누적 강수량이 가장 많은 해</small>
+                <small>30일 누적 강수량이 가장 많은 해</small>
                 <strong>{num(wettest.rain)}<em>mm</em></strong>
-                <span>{wettest.year}년 · 월 전체 자료</span>
+                <span>{wettest.year}년 · 30일 비교 자료</span>
                 <p>{comparisonRangeLabel}에 내린 강수량의 합</p>
               </article></>}
               <article className="insight-note">
-                <div><small>날짜 기준</small><strong>{comparisonRangeLabel} · 총 {monthDayCount}일</strong></div>
+                {currentRainEstimate && <div className="current-rain-estimate">
+                  <small>올해 관측 + 예보 강수량</small>
+                  <strong>{num(currentRainEstimate.rain)}<em>mm</em></strong>
+                </div>}
+                <div><small>비교 날짜 기준</small><strong>{comparisonRangeLabel} · 총 {comparisonDayCount}일</strong></div>
                 <ul>
-                  <li>평균 최고·최저: {monthLabel} 일별 기온의 평균</li>
-                  {hasHistoricalRain && <li>누적 강수: {monthLabel} ERA5 강수량의 합</li>}
+                  <li>평균 최고·최저: 30일 일별 기온의 평균</li>
+                  {hasHistoricalRain && <li>최고 누적 강수 연도: 완료된 과거 연도끼리 비교</li>}
+                  {hasHistoricalRain && <li>과거 누적 강수: 30일 ERA5 강수량의 합</li>}
+                  {currentRainEstimate && <li>올해: 과거 14일 기록 + 오늘·향후 15일 예보</li>}
                   {hasHistoricalRain && <li>비 온 날: 하루 1 mm 이상인 날 수</li>}
-                  {completeSummaries.length < summaries.length && <li>월말 예보 대기일이 있는 올해는 순위에서 제외</li>}
+                  {completeSummaries.length < summaries.length && <li>예보 대기일이 있는 올해는 순위에서 제외</li>}
                 </ul>
               </article>
             </div>
@@ -1163,9 +1200,9 @@ export default function Home() {
               {summaries.map((item, index) => (
                 <button key={item.year} onClick={() => setSelectedYear(item.year)} className={selectedYear === item.year ? "selected" : ""}>
                   <div className="year-card-top"><span><YearDot index={index} />{item.year}{item.year === today.getUTCFullYear() && <em className="forecast-badge">자료 {item.availableDays}/{item.totalDays}일</em>}</span></div>
-                  <div className="year-card-highlight"><small>{monthLabel} 평균 최고</small><b>{num(item.high)}°C</b></div>
+                  <div className="year-card-highlight"><small>30일 평균 최고</small><b>{num(item.high)}°C</b></div>
                   <div className="temp-range"><i style={{ left: `${Math.max(3, Math.min(75, (item.low + 15) * 2.2))}%`, width: `${Math.max(18, (item.high - item.low) * 2.2)}%`, backgroundColor: YEAR_COLORS[index] }} /></div>
-                  <dl><div><dt>{monthLabel} 평균 최저</dt><dd>{num(item.low)}°</dd></div>{hasHistoricalRain && <div><dt>{monthLabel} 누적 강수</dt><dd>{num(item.rain)} <small>mm</small></dd></div>}{hasHistoricalRain && <div><dt>1 mm 이상 강수일</dt><dd>{Number.isFinite(item.wetDays) ? item.wetDays : "–"} <small>일</small></dd></div>}</dl>
+                  <dl><div><dt>30일 평균 최저</dt><dd>{num(item.low)}°</dd></div>{hasHistoricalRain && <div><dt>{item.year === currentYear ? "관측+예보 강수" : "30일 누적 강수"}</dt><dd>{num(item.rain)} <small>mm</small></dd></div>}{hasHistoricalRain && <div><dt>{item.year === currentYear ? "예상 강수일" : "1 mm 이상 강수일"}</dt><dd>{Number.isFinite(item.wetDays) ? item.wetDays : "–"} <small>일</small></dd></div>}</dl>
                 </button>
               ))}
             </div>
@@ -1197,7 +1234,7 @@ export default function Home() {
             <div className="range-chart">
               <div className="chart-title"><div><small>일별 기온 범위</small><h3>낮 최고와 아침 최저, 그리고 일교차</h3></div><div className="legend"><span><i className="max-dot" />최고</span><span><i className="min-dot" />최저</span><span className="gap-legend">숫자 = 일교차</span></div></div>
               <div className="chart-scroll">
-                <div className="chart-grid" style={{ gridTemplateColumns: `repeat(${active?.daily.time.length ?? monthDayCount}, 1fr)` }}>
+                <div className="chart-grid" style={{ gridTemplateColumns: `repeat(${active?.daily.time.length ?? comparisonDayCount}, 1fr)` }}>
                   {[30, 20, 10, 0].map((tick) => <span key={tick} className="tick" style={{ bottom: `${CHART_AXIS_HEIGHT + ((tick + 10) / 50) * CHART_PLOT_HEIGHT}px` }}>{tick}°</span>)}
                   {active?.daily.time.map((date, index) => {
                     const high = active.daily.temperature_2m_max[index];
